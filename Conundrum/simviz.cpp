@@ -126,7 +126,7 @@ int main() {
 	glfwSetKeyCallback(window, keySelect);
 	glfwSetMouseButtonCallback(window, mouseClick);
 
-	// init click force widget 
+	// // init click force widget 
 	auto ui_force_widget = new UIForceWidget(robot_name, robot, graphics);
 	ui_force_widget->setEnable(false);
 
@@ -217,31 +217,31 @@ int main() {
 		graphics->setCameraPose(camera_name, camera_pos, cam_up_axis, camera_lookat);
 		glfwGetCursorPos(window, &last_cursorx, &last_cursory);
 
-		ui_force_widget->setEnable(fRobotLinkSelect);
-		if (fRobotLinkSelect)
-		{
-			double cursorx, cursory;
-			int wwidth_scr, wheight_scr;
-			int wwidth_pix, wheight_pix;
-			std::string ret_link_name;
-			Eigen::Vector3d ret_pos;
+		// ui_force_widget->setEnable(fRobotLinkSelect);
+		// if (fRobotLinkSelect)
+		// {
+		// 	double cursorx, cursory;
+		// 	int wwidth_scr, wheight_scr;
+		// 	int wwidth_pix, wheight_pix;
+		// 	std::string ret_link_name;
+		// 	Eigen::Vector3d ret_pos;
 
-			// get current cursor position
-			glfwGetCursorPos(window, &cursorx, &cursory);
+		// 	// get current cursor position
+		// 	glfwGetCursorPos(window, &cursorx, &cursory);
 
-			glfwGetWindowSize(window, &wwidth_scr, &wheight_scr);
-			glfwGetFramebufferSize(window, &wwidth_pix, &wheight_pix);
+		// 	glfwGetWindowSize(window, &wwidth_scr, &wheight_scr);
+		// 	glfwGetFramebufferSize(window, &wwidth_pix, &wheight_pix);
 
-			int viewx = floor(cursorx / wwidth_scr * wwidth_pix);
-			int viewy = floor(cursory / wheight_scr * wheight_pix);
+		// 	int viewx = floor(cursorx / wwidth_scr * wwidth_pix);
+		// 	int viewy = floor(cursory / wheight_scr * wheight_pix);
 
-			if (cursorx > 0 && cursory > 0)
-			{
-				ui_force_widget->setInteractionParams(camera_name, viewx, wheight_pix - viewy, wwidth_pix, wheight_pix);
-				//TODO: this behavior might be wrong. this will allow the user to click elsewhere in the screen
-				// then drag the mouse over a link to start applying a force to it.
-			}
-		}
+		// 	if (cursorx > 0 && cursory > 0)
+		// 	{
+		// 		ui_force_widget->setInteractionParams(camera_name, viewx, wheight_pix - viewy, wwidth_pix, wheight_pix);
+		// 		//TODO: this behavior might be wrong. this will allow the user to click elsewhere in the screen
+		// 		// then drag the mouse over a link to start applying a force to it.
+		// 	}
+		// }
 	}
 
 	// stop simulation
@@ -304,9 +304,9 @@ void simulation(Sai2Model::Sai2Model* robot, Simulation::Sai2Simulation* sim, UI
 		// get gravity torques
 		robot->gravityVector(g);
 		
-		// get ui force 
-		ui_force_widget->getUIForce(ui_force);
-		ui_force_widget->getUIJointTorques(ui_force_command_torques);
+		// // get ui force 
+		// ui_force_widget->getUIForce(ui_force);
+		// ui_force_widget->getUIJointTorques(ui_force_command_torques);
 
 		if (fRobotLinkSelect)
 			sim->setJointTorques(robot_name, command_torques + ui_force_command_torques + g);
@@ -418,7 +418,7 @@ void mouseClick(GLFWwindow* window, int button, int action, int mods) {
 			break;
 		// if right click: don't handle. this is for menu selection
 		case GLFW_MOUSE_BUTTON_RIGHT:
-			fRobotLinkSelect = set;
+			// fRobotLinkSelect = set;
 			break;
 		// if middle click: don't handle. doesn't work well on laptops
 		case GLFW_MOUSE_BUTTON_MIDDLE:

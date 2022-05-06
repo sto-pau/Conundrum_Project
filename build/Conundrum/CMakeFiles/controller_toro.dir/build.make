@@ -96,55 +96,55 @@ controller_toro_OBJECTS = \
 # External object files for target controller_toro
 controller_toro_EXTERNAL_OBJECTS =
 
-../bin/toro_example/controller_toro: Conundrum/CMakeFiles/controller_toro.dir/controller.cpp.o
-../bin/toro_example/controller_toro: Conundrum/CMakeFiles/controller_toro.dir/build.make
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/sai2-common/build/libsai2-common.a
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/chai3d/build/libchai3d.a
-../bin/toro_example/controller_toro: /usr/lib/x86_64-linux-gnu/libGL.so
-../bin/toro_example/controller_toro: /usr/lib/x86_64-linux-gnu/libGLU.so
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
-../bin/toro_example/controller_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/sai2-simulation/build/libsai2-simulation.a
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/sai2-model/build/libsai2-model.a
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
-../bin/toro_example/controller_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/sai2-model/rbdl/build/librbdl.so
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/sai2-graphics/build/libsai2-graphics.a
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
-../bin/toro_example/controller_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/chai3d/build/libchai3d.a
-../bin/toro_example/controller_toro: /usr/lib/x86_64-linux-gnu/libGL.so
-../bin/toro_example/controller_toro: /usr/lib/x86_64-linux-gnu/libGLU.so
-../bin/toro_example/controller_toro: /usr/lib/x86_64-linux-gnu/libhiredis.so
-../bin/toro_example/controller_toro: /usr/lib/x86_64-linux-gnu/libglfw.so
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/sai2-primitives/build/libsai2-primitives.a
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/sai2-primitives/../external/ReflexxesTypeII/Linux/x64/release/lib/shared/libReflexxesTypeII.so
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/sai2-common/build/libsai2-common.a
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/chai3d/build/libchai3d.a
-../bin/toro_example/controller_toro: /usr/lib/x86_64-linux-gnu/libGL.so
-../bin/toro_example/controller_toro: /usr/lib/x86_64-linux-gnu/libGLU.so
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
-../bin/toro_example/controller_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/sai2-simulation/build/libsai2-simulation.a
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/sai2-model/build/libsai2-model.a
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
-../bin/toro_example/controller_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/sai2-model/rbdl/build/librbdl.so
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/sai2-graphics/build/libsai2-graphics.a
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
-../bin/toro_example/controller_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/chai3d/build/libchai3d.a
-../bin/toro_example/controller_toro: /usr/lib/x86_64-linux-gnu/libGL.so
-../bin/toro_example/controller_toro: /usr/lib/x86_64-linux-gnu/libGLU.so
-../bin/toro_example/controller_toro: /usr/lib/x86_64-linux-gnu/libhiredis.so
-../bin/toro_example/controller_toro: /usr/lib/x86_64-linux-gnu/libglfw.so
-../bin/toro_example/controller_toro: /home/paulalinux/sai2/core/sai2-primitives/../external/ReflexxesTypeII/Linux/x64/release/lib/shared/libReflexxesTypeII.so
-../bin/toro_example/controller_toro: Conundrum/CMakeFiles/controller_toro.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/paulalinux/sai2/apps/Conundrum_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable ../../bin/toro_example/controller_toro"
+../bin/Conundrum/controller_toro: Conundrum/CMakeFiles/controller_toro.dir/controller.cpp.o
+../bin/Conundrum/controller_toro: Conundrum/CMakeFiles/controller_toro.dir/build.make
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/sai2-common/build/libsai2-common.a
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/chai3d/build/libchai3d.a
+../bin/Conundrum/controller_toro: /usr/lib/x86_64-linux-gnu/libGL.so
+../bin/Conundrum/controller_toro: /usr/lib/x86_64-linux-gnu/libGLU.so
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
+../bin/Conundrum/controller_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/sai2-simulation/build/libsai2-simulation.a
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/sai2-model/build/libsai2-model.a
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
+../bin/Conundrum/controller_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/sai2-model/rbdl/build/librbdl.so
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/sai2-graphics/build/libsai2-graphics.a
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
+../bin/Conundrum/controller_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/chai3d/build/libchai3d.a
+../bin/Conundrum/controller_toro: /usr/lib/x86_64-linux-gnu/libGL.so
+../bin/Conundrum/controller_toro: /usr/lib/x86_64-linux-gnu/libGLU.so
+../bin/Conundrum/controller_toro: /usr/lib/x86_64-linux-gnu/libhiredis.so
+../bin/Conundrum/controller_toro: /usr/lib/x86_64-linux-gnu/libglfw.so
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/sai2-primitives/build/libsai2-primitives.a
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/sai2-primitives/../external/ReflexxesTypeII/Linux/x64/release/lib/shared/libReflexxesTypeII.so
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/sai2-common/build/libsai2-common.a
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/chai3d/build/libchai3d.a
+../bin/Conundrum/controller_toro: /usr/lib/x86_64-linux-gnu/libGL.so
+../bin/Conundrum/controller_toro: /usr/lib/x86_64-linux-gnu/libGLU.so
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
+../bin/Conundrum/controller_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/sai2-simulation/build/libsai2-simulation.a
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/sai2-model/build/libsai2-model.a
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
+../bin/Conundrum/controller_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/sai2-model/rbdl/build/librbdl.so
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/sai2-graphics/build/libsai2-graphics.a
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
+../bin/Conundrum/controller_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/chai3d/build/libchai3d.a
+../bin/Conundrum/controller_toro: /usr/lib/x86_64-linux-gnu/libGL.so
+../bin/Conundrum/controller_toro: /usr/lib/x86_64-linux-gnu/libGLU.so
+../bin/Conundrum/controller_toro: /usr/lib/x86_64-linux-gnu/libhiredis.so
+../bin/Conundrum/controller_toro: /usr/lib/x86_64-linux-gnu/libglfw.so
+../bin/Conundrum/controller_toro: /home/paulalinux/sai2/core/sai2-primitives/../external/ReflexxesTypeII/Linux/x64/release/lib/shared/libReflexxesTypeII.so
+../bin/Conundrum/controller_toro: Conundrum/CMakeFiles/controller_toro.dir/link.txt
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/paulalinux/sai2/apps/Conundrum_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable ../../bin/Conundrum/controller_toro"
 	cd /home/paulalinux/sai2/apps/Conundrum_Project/build/Conundrum && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/controller_toro.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
-Conundrum/CMakeFiles/controller_toro.dir/build: ../bin/toro_example/controller_toro
+Conundrum/CMakeFiles/controller_toro.dir/build: ../bin/Conundrum/controller_toro
 
 .PHONY : Conundrum/CMakeFiles/controller_toro.dir/build
 

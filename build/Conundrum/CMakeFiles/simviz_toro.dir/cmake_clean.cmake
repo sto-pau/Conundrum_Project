@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "../../bin/toro_example/simviz_toro"
-  "../../bin/toro_example/simviz_toro.pdb"
+  "../../bin/Conundrum/simviz_toro"
+  "../../bin/Conundrum/simviz_toro.pdb"
   "CMakeFiles/simviz_toro.dir/simviz.cpp.o"
 )
 

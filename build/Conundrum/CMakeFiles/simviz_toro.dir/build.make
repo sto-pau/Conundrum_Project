@@ -96,55 +96,55 @@ simviz_toro_OBJECTS = \
 # External object files for target simviz_toro
 simviz_toro_EXTERNAL_OBJECTS =
 
-../bin/toro_example/simviz_toro: Conundrum/CMakeFiles/simviz_toro.dir/simviz.cpp.o
-../bin/toro_example/simviz_toro: Conundrum/CMakeFiles/simviz_toro.dir/build.make
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/sai2-common/build/libsai2-common.a
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/chai3d/build/libchai3d.a
-../bin/toro_example/simviz_toro: /usr/lib/x86_64-linux-gnu/libGL.so
-../bin/toro_example/simviz_toro: /usr/lib/x86_64-linux-gnu/libGLU.so
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
-../bin/toro_example/simviz_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/sai2-simulation/build/libsai2-simulation.a
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/sai2-model/build/libsai2-model.a
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
-../bin/toro_example/simviz_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/sai2-model/rbdl/build/librbdl.so
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/sai2-graphics/build/libsai2-graphics.a
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
-../bin/toro_example/simviz_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/chai3d/build/libchai3d.a
-../bin/toro_example/simviz_toro: /usr/lib/x86_64-linux-gnu/libGL.so
-../bin/toro_example/simviz_toro: /usr/lib/x86_64-linux-gnu/libGLU.so
-../bin/toro_example/simviz_toro: /usr/lib/x86_64-linux-gnu/libhiredis.so
-../bin/toro_example/simviz_toro: /usr/lib/x86_64-linux-gnu/libglfw.so
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/sai2-primitives/build/libsai2-primitives.a
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/sai2-primitives/../external/ReflexxesTypeII/Linux/x64/release/lib/shared/libReflexxesTypeII.so
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/sai2-common/build/libsai2-common.a
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/chai3d/build/libchai3d.a
-../bin/toro_example/simviz_toro: /usr/lib/x86_64-linux-gnu/libGL.so
-../bin/toro_example/simviz_toro: /usr/lib/x86_64-linux-gnu/libGLU.so
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
-../bin/toro_example/simviz_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/sai2-simulation/build/libsai2-simulation.a
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/sai2-model/build/libsai2-model.a
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
-../bin/toro_example/simviz_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/sai2-model/rbdl/build/librbdl.so
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/sai2-graphics/build/libsai2-graphics.a
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
-../bin/toro_example/simviz_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/chai3d/build/libchai3d.a
-../bin/toro_example/simviz_toro: /usr/lib/x86_64-linux-gnu/libGL.so
-../bin/toro_example/simviz_toro: /usr/lib/x86_64-linux-gnu/libGLU.so
-../bin/toro_example/simviz_toro: /usr/lib/x86_64-linux-gnu/libhiredis.so
-../bin/toro_example/simviz_toro: /usr/lib/x86_64-linux-gnu/libglfw.so
-../bin/toro_example/simviz_toro: /home/paulalinux/sai2/core/sai2-primitives/../external/ReflexxesTypeII/Linux/x64/release/lib/shared/libReflexxesTypeII.so
-../bin/toro_example/simviz_toro: Conundrum/CMakeFiles/simviz_toro.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/paulalinux/sai2/apps/Conundrum_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable ../../bin/toro_example/simviz_toro"
+../bin/Conundrum/simviz_toro: Conundrum/CMakeFiles/simviz_toro.dir/simviz.cpp.o
+../bin/Conundrum/simviz_toro: Conundrum/CMakeFiles/simviz_toro.dir/build.make
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/sai2-common/build/libsai2-common.a
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/chai3d/build/libchai3d.a
+../bin/Conundrum/simviz_toro: /usr/lib/x86_64-linux-gnu/libGL.so
+../bin/Conundrum/simviz_toro: /usr/lib/x86_64-linux-gnu/libGLU.so
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
+../bin/Conundrum/simviz_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/sai2-simulation/build/libsai2-simulation.a
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/sai2-model/build/libsai2-model.a
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
+../bin/Conundrum/simviz_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/sai2-model/rbdl/build/librbdl.so
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/sai2-graphics/build/libsai2-graphics.a
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
+../bin/Conundrum/simviz_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/chai3d/build/libchai3d.a
+../bin/Conundrum/simviz_toro: /usr/lib/x86_64-linux-gnu/libGL.so
+../bin/Conundrum/simviz_toro: /usr/lib/x86_64-linux-gnu/libGLU.so
+../bin/Conundrum/simviz_toro: /usr/lib/x86_64-linux-gnu/libhiredis.so
+../bin/Conundrum/simviz_toro: /usr/lib/x86_64-linux-gnu/libglfw.so
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/sai2-primitives/build/libsai2-primitives.a
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/sai2-primitives/../external/ReflexxesTypeII/Linux/x64/release/lib/shared/libReflexxesTypeII.so
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/sai2-common/build/libsai2-common.a
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/chai3d/build/libchai3d.a
+../bin/Conundrum/simviz_toro: /usr/lib/x86_64-linux-gnu/libGL.so
+../bin/Conundrum/simviz_toro: /usr/lib/x86_64-linux-gnu/libGLU.so
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
+../bin/Conundrum/simviz_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/sai2-simulation/build/libsai2-simulation.a
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/sai2-model/build/libsai2-model.a
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
+../bin/Conundrum/simviz_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/sai2-model/rbdl/build/librbdl.so
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/sai2-graphics/build/libsai2-graphics.a
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/sai2-urdfreader/build/libsai2-urdf.a
+../bin/Conundrum/simviz_toro: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/chai3d/build/libchai3d.a
+../bin/Conundrum/simviz_toro: /usr/lib/x86_64-linux-gnu/libGL.so
+../bin/Conundrum/simviz_toro: /usr/lib/x86_64-linux-gnu/libGLU.so
+../bin/Conundrum/simviz_toro: /usr/lib/x86_64-linux-gnu/libhiredis.so
+../bin/Conundrum/simviz_toro: /usr/lib/x86_64-linux-gnu/libglfw.so
+../bin/Conundrum/simviz_toro: /home/paulalinux/sai2/core/sai2-primitives/../external/ReflexxesTypeII/Linux/x64/release/lib/shared/libReflexxesTypeII.so
+../bin/Conundrum/simviz_toro: Conundrum/CMakeFiles/simviz_toro.dir/link.txt
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/paulalinux/sai2/apps/Conundrum_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable ../../bin/Conundrum/simviz_toro"
 	cd /home/paulalinux/sai2/apps/Conundrum_Project/build/Conundrum && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/simviz_toro.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
-Conundrum/CMakeFiles/simviz_toro.dir/build: ../bin/toro_example/simviz_toro
+Conundrum/CMakeFiles/simviz_toro.dir/build: ../bin/Conundrum/simviz_toro
 
 .PHONY : Conundrum/CMakeFiles/simviz_toro.dir/build
 

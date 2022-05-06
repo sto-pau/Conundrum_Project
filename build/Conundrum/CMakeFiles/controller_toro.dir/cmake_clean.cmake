@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "../../bin/toro_example/controller_toro"
-  "../../bin/toro_example/controller_toro.pdb"
+  "../../bin/Conundrum/controller_toro"
+  "../../bin/Conundrum/controller_toro.pdb"
   "CMakeFiles/controller_toro.dir/controller.cpp.o"
 )
 
