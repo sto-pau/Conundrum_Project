@@ -119,7 +119,7 @@
         <child link="hip_base"/>
         <origin xyz="0.000000 0.000000 0.00000" rpy="0.000000 0.000000 0.000000" />
         <axis xyz="0 1 0"/>
-        <calibration falling="10.0" />
+        <calibration falling="0.0" />
         <limit lower="50.00" upper="5.00" effort="4000" velocity="1000" />
     </joint>
 
