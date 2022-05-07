@@ -95,7 +95,7 @@
         <child link="floating_virtual3"/>
         <origin xyz="0.000000 0.000000 0.00000" rpy="0.000000 0.000000 0.000000" />
         <axis xyz="0 0 1"/>
-        <calibration rising="-2.0" />
+        <calibration rising="-2.4" />
         <limit lower="5.00" upper="5.00" effort="4000" velocity="1000" />
     </joint>
     <joint name="floating_base_r1" type="revolute">
@@ -179,7 +179,7 @@
         <parent link="RL_KOSY_L1"/>
         <child link="RL_KOSY_L23"/> 
         <limit lower="-2.0071" upper="1.5708" effort="100" velocity="2.7402" />
-        <calibration falling="-35.0" />
+        <calibration falling="-90.0" />
         <axis xyz="0 1 0"/>    
     </joint>
 
@@ -224,7 +224,7 @@
         <parent link="RL_KOSY_L4"/>
     <child link="RL_KOSY_L56"/> 
         <limit lower="-1.8326" upper="1.8326" effort="165" velocity="3.0718" />
-        <calibration falling="45.0" />
+        <calibration falling="90.0" />
          <axis xyz="0 1 0"/>
     </joint>
 
@@ -359,7 +359,7 @@
         <parent link="LL_KOSY_L1"/>
         <child link="LL_KOSY_L23"/> 
         <limit lower="-2.0071" upper="1.5708" effort="100" velocity="2.7402" />
-        <calibration falling="-35.0" />
+        <calibration falling="-90.0" />
         <axis xyz="0 1 0"/>
     </joint>
 
@@ -409,7 +409,7 @@
         <parent link="LL_KOSY_L4"/>
         <child link="LL_KOSY_L56"/> 
         <limit lower="-1.8326" upper="1.8326" effort="165" velocity="3.0718" />
-        <calibration falling="45.0" />
+        <calibration falling="90.0" />
         <axis xyz="0 1 0"/>
     </joint>
 
