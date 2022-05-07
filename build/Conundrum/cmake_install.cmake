@@ -1,4 +1,4 @@
-# Install script for directory: /home/paulalinux/sai2/apps/Conundrum_Project/Conundrum
+# Install script for directory: /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/Conundrum
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -35,10 +35,5 @@ endif()
 # Is this installation the result of a crosscompile?
 if(NOT DEFINED CMAKE_CROSSCOMPILING)
   set(CMAKE_CROSSCOMPILING "FALSE")
-endif()
-
-# Set default install directory permissions.
-if(NOT DEFINED CMAKE_OBJDUMP)
-  set(CMAKE_OBJDUMP "/usr/bin/objdump")
 endif()
 
