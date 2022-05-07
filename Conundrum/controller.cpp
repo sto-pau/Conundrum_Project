@@ -101,7 +101,7 @@ int main() {
 
 	// pose task for right hand 
 	control_link = "ra_end_effector";
-	control_point = Vector3d(0, 0, 0.1);
+	control_point = Vector3d(0, 0, 0);
 	auto posori_task_right_hand = new Sai2Primitives::PosOriTask(robot, control_link, control_point);
 
 	posori_task_right_hand->_use_interpolation_flag = true;
@@ -116,14 +116,14 @@ int main() {
 	// set two goal positions/orientations 
 	robot->positionInWorld(x_pos, control_link, control_point);
 	robot->rotationInWorld(x_ori, control_link);
-	posori_task_right_hand->_desired_position = x_pos + Vector3d(0.1, 0, 0.25);//Vector3d(0.5, -0.2, 0.8);
-	posori_task_right_hand->_desired_orientation = AngleAxisd(M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori; //AngleAxisd(-3*M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori; 
+	posori_task_right_hand->_desired_position = x_pos + Vector3d(0.1, -0.05, 0.3);//Vector3d(0.5, -0.2, 0.8);
+	posori_task_right_hand->_desired_orientation = AngleAxisd(-M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori; //AngleAxisd(-3*M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori; 
 	// posori_task_right_hand->_desired_orientation = AngleAxisd(M_PI/2, Vector3d::UnitX()).toRotationMatrix() * \
 	// 											AngleAxisd(-M_PI/2, Vector3d::UnitY()).toRotationMatrix() * x_ori; 
 
 	// pose task for left hand
 	control_link = "la_end_effector";
-	control_point = Vector3d(0, -0.1, 0);
+	control_point = Vector3d(0, 0, 0);
 	auto posori_task_left_hand = new Sai2Primitives::PosOriTask(robot, control_link, control_point);
 	posori_task_left_hand->setDynamicDecouplingFull();
 
@@ -139,8 +139,8 @@ int main() {
 	// set two goal positions/orientations 
 	robot->positionInWorld(x_pos, control_link, control_point);
 	robot->rotationInWorld(x_ori, control_link);
-	posori_task_left_hand->_desired_position = x_pos + Vector3d(0.1, 0, 0.05);//Vector3d(0.5, -0.2, 0.8);
-	posori_task_left_hand->_desired_orientation = AngleAxisd(M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori; //AngleAxisd(-3*M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori;
+	posori_task_left_hand->_desired_position = x_pos + Vector3d(0.1, 0.05, 0.3);//Vector3d(0.5, -0.2, 0.8); //first one is towards toro, second is to the side, third is up
+	posori_task_left_hand->_desired_orientation = AngleAxisd(-M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori; //AngleAxisd(-3*M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori;
 	// posori_task_right_hand->_desired_orientation = AngleAxisd(M_PI/2, Vector3d::UnitX()).toRotationMatrix() * \
 	// 											AngleAxisd(-M_PI/2, Vector3d::UnitY()).toRotationMatrix() * x_ori; 
 
