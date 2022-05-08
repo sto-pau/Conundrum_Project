@@ -44,17 +44,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-<<<<<<< HEAD
-CMAKE_SOURCE_DIR = /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project
-
-# The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build
-=======
 CMAKE_SOURCE_DIR = /home/abhi/sai2/Conundrum_Project
 
 # The top-level build directory on which CMake was run.
 CMAKE_BINARY_DIR = /home/abhi/sai2/Conundrum_Project/build
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 
 #=============================================================================
 # Directory level rules for the build root directory
@@ -101,24 +94,14 @@ Conundrum/clean: Conundrum/CMakeFiles/controller_toro.dir/clean
 Conundrum/CMakeFiles/simviz_toro.dir/all:
 	$(MAKE) -f Conundrum/CMakeFiles/simviz_toro.dir/build.make Conundrum/CMakeFiles/simviz_toro.dir/depend
 	$(MAKE) -f Conundrum/CMakeFiles/simviz_toro.dir/build.make Conundrum/CMakeFiles/simviz_toro.dir/build
-<<<<<<< HEAD
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build/CMakeFiles --progress-num=3,4 "Built target simviz_toro"
-=======
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/abhi/sai2/Conundrum_Project/build/CMakeFiles --progress-num=3,4 "Built target simviz_toro"
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 .PHONY : Conundrum/CMakeFiles/simviz_toro.dir/all
 
 # Build rule for subdir invocation for target.
 Conundrum/CMakeFiles/simviz_toro.dir/rule: cmake_check_build_system
-<<<<<<< HEAD
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build/CMakeFiles 2
-	$(MAKE) -f CMakeFiles/Makefile2 Conundrum/CMakeFiles/simviz_toro.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build/CMakeFiles 0
-=======
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/abhi/sai2/Conundrum_Project/build/CMakeFiles 2
 	$(MAKE) -f CMakeFiles/Makefile2 Conundrum/CMakeFiles/simviz_toro.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/abhi/sai2/Conundrum_Project/build/CMakeFiles 0
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 .PHONY : Conundrum/CMakeFiles/simviz_toro.dir/rule
 
 # Convenience name for target.
@@ -138,24 +121,14 @@ Conundrum/CMakeFiles/simviz_toro.dir/clean:
 Conundrum/CMakeFiles/controller_toro.dir/all:
 	$(MAKE) -f Conundrum/CMakeFiles/controller_toro.dir/build.make Conundrum/CMakeFiles/controller_toro.dir/depend
 	$(MAKE) -f Conundrum/CMakeFiles/controller_toro.dir/build.make Conundrum/CMakeFiles/controller_toro.dir/build
-<<<<<<< HEAD
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build/CMakeFiles --progress-num=1,2 "Built target controller_toro"
-=======
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/abhi/sai2/Conundrum_Project/build/CMakeFiles --progress-num=1,2 "Built target controller_toro"
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 .PHONY : Conundrum/CMakeFiles/controller_toro.dir/all
 
 # Build rule for subdir invocation for target.
 Conundrum/CMakeFiles/controller_toro.dir/rule: cmake_check_build_system
-<<<<<<< HEAD
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build/CMakeFiles 2
-	$(MAKE) -f CMakeFiles/Makefile2 Conundrum/CMakeFiles/controller_toro.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build/CMakeFiles 0
-=======
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/abhi/sai2/Conundrum_Project/build/CMakeFiles 2
 	$(MAKE) -f CMakeFiles/Makefile2 Conundrum/CMakeFiles/controller_toro.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/abhi/sai2/Conundrum_Project/build/CMakeFiles 0
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 .PHONY : Conundrum/CMakeFiles/controller_toro.dir/rule
 
 # Convenience name for target.

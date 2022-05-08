@@ -699,7 +699,7 @@
            <visual>
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>
-                <box size="0.1 0.1 0.01"/>
+                <mesh filename="../../../model/toro/meshes/obj/drumstick.obj"/>
             </geometry>
             <material name="material_ee">
                 <color rgba="0.0 0.6 0.8 1.0" />
@@ -897,7 +897,7 @@
            <visual>
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>
-                <box size="0.1 0.1 0.01"/>
+                <mesh filename="../../../model/toro/meshes/obj/drumstick.obj"/>
             </geometry>
             <material name="material_ee">
                 <color rgba="0.0 0.8 0.0 1.0" />

@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-# Install script for directory: /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/Conundrum
-=======
 # Install script for directory: /home/abhi/sai2/Conundrum_Project/Conundrum
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
