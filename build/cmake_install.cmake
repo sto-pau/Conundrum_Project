@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-# Install script for directory: /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project
-=======
 # Install script for directory: /home/abhi/sai2/Conundrum_Project
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -43,11 +39,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-<<<<<<< HEAD
-  include("/home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build/Conundrum/cmake_install.cmake")
-=======
   include("/home/abhi/sai2/Conundrum_Project/build/Conundrum/cmake_install.cmake")
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 
 endif()
 
@@ -59,9 +51,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-<<<<<<< HEAD
-file(WRITE "/home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build/${CMAKE_INSTALL_MANIFEST}"
-=======
 file(WRITE "/home/abhi/sai2/Conundrum_Project/build/${CMAKE_INSTALL_MANIFEST}"
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

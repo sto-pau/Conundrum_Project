@@ -48,17 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-<<<<<<< HEAD
-CMAKE_SOURCE_DIR = /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project
-
-# The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build
-=======
 CMAKE_SOURCE_DIR = /home/abhi/sai2/Conundrum_Project
 
 # The top-level build directory on which CMake was run.
 CMAKE_BINARY_DIR = /home/abhi/sai2/Conundrum_Project/build
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,24 +80,14 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-<<<<<<< HEAD
-	cd /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build/CMakeFiles /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build/Conundrum/CMakeFiles/progress.marks
-	cd /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build && $(MAKE) -f CMakeFiles/Makefile2 Conundrum/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build/CMakeFiles 0
-=======
 	cd /home/abhi/sai2/Conundrum_Project/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/abhi/sai2/Conundrum_Project/build/CMakeFiles /home/abhi/sai2/Conundrum_Project/build/Conundrum/CMakeFiles/progress.marks
 	cd /home/abhi/sai2/Conundrum_Project/build && $(MAKE) -f CMakeFiles/Makefile2 Conundrum/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/abhi/sai2/Conundrum_Project/build/CMakeFiles 0
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 .PHONY : all
 
 # The main clean target
 clean:
-<<<<<<< HEAD
-	cd /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build && $(MAKE) -f CMakeFiles/Makefile2 Conundrum/clean
-=======
 	cd /home/abhi/sai2/Conundrum_Project/build && $(MAKE) -f CMakeFiles/Makefile2 Conundrum/clean
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 .PHONY : clean
 
 # The main clean target
@@ -114,38 +97,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-<<<<<<< HEAD
-	cd /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build && $(MAKE) -f CMakeFiles/Makefile2 Conundrum/preinstall
-=======
 	cd /home/abhi/sai2/Conundrum_Project/build && $(MAKE) -f CMakeFiles/Makefile2 Conundrum/preinstall
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-<<<<<<< HEAD
-	cd /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build && $(MAKE) -f CMakeFiles/Makefile2 Conundrum/preinstall
-=======
 	cd /home/abhi/sai2/Conundrum_Project/build && $(MAKE) -f CMakeFiles/Makefile2 Conundrum/preinstall
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-<<<<<<< HEAD
-	cd /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
-=======
 	cd /home/abhi/sai2/Conundrum_Project/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 .PHONY : depend
 
 # Convenience name for target.
 Conundrum/CMakeFiles/simviz_toro.dir/rule:
-<<<<<<< HEAD
-	cd /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build && $(MAKE) -f CMakeFiles/Makefile2 Conundrum/CMakeFiles/simviz_toro.dir/rule
-=======
 	cd /home/abhi/sai2/Conundrum_Project/build && $(MAKE) -f CMakeFiles/Makefile2 Conundrum/CMakeFiles/simviz_toro.dir/rule
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 .PHONY : Conundrum/CMakeFiles/simviz_toro.dir/rule
 
 # Convenience name for target.
@@ -155,20 +122,12 @@ simviz_toro: Conundrum/CMakeFiles/simviz_toro.dir/rule
 
 # fast build rule for target.
 simviz_toro/fast:
-<<<<<<< HEAD
-	cd /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build && $(MAKE) -f Conundrum/CMakeFiles/simviz_toro.dir/build.make Conundrum/CMakeFiles/simviz_toro.dir/build
-=======
 	cd /home/abhi/sai2/Conundrum_Project/build && $(MAKE) -f Conundrum/CMakeFiles/simviz_toro.dir/build.make Conundrum/CMakeFiles/simviz_toro.dir/build
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 .PHONY : simviz_toro/fast
 
 # Convenience name for target.
 Conundrum/CMakeFiles/controller_toro.dir/rule:
-<<<<<<< HEAD
-	cd /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build && $(MAKE) -f CMakeFiles/Makefile2 Conundrum/CMakeFiles/controller_toro.dir/rule
-=======
 	cd /home/abhi/sai2/Conundrum_Project/build && $(MAKE) -f CMakeFiles/Makefile2 Conundrum/CMakeFiles/controller_toro.dir/rule
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 .PHONY : Conundrum/CMakeFiles/controller_toro.dir/rule
 
 # Convenience name for target.
@@ -178,11 +137,7 @@ controller_toro: Conundrum/CMakeFiles/controller_toro.dir/rule
 
 # fast build rule for target.
 controller_toro/fast:
-<<<<<<< HEAD
-	cd /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build && $(MAKE) -f Conundrum/CMakeFiles/controller_toro.dir/build.make Conundrum/CMakeFiles/controller_toro.dir/build
-=======
 	cd /home/abhi/sai2/Conundrum_Project/build && $(MAKE) -f Conundrum/CMakeFiles/controller_toro.dir/build.make Conundrum/CMakeFiles/controller_toro.dir/build
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 .PHONY : controller_toro/fast
 
 controller.o: controller.cpp.o
@@ -191,11 +146,7 @@ controller.o: controller.cpp.o
 
 # target to build an object file
 controller.cpp.o:
-<<<<<<< HEAD
-	cd /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build && $(MAKE) -f Conundrum/CMakeFiles/controller_toro.dir/build.make Conundrum/CMakeFiles/controller_toro.dir/controller.cpp.o
-=======
 	cd /home/abhi/sai2/Conundrum_Project/build && $(MAKE) -f Conundrum/CMakeFiles/controller_toro.dir/build.make Conundrum/CMakeFiles/controller_toro.dir/controller.cpp.o
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 .PHONY : controller.cpp.o
 
 controller.i: controller.cpp.i
@@ -204,11 +155,7 @@ controller.i: controller.cpp.i
 
 # target to preprocess a source file
 controller.cpp.i:
-<<<<<<< HEAD
-	cd /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build && $(MAKE) -f Conundrum/CMakeFiles/controller_toro.dir/build.make Conundrum/CMakeFiles/controller_toro.dir/controller.cpp.i
-=======
 	cd /home/abhi/sai2/Conundrum_Project/build && $(MAKE) -f Conundrum/CMakeFiles/controller_toro.dir/build.make Conundrum/CMakeFiles/controller_toro.dir/controller.cpp.i
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 .PHONY : controller.cpp.i
 
 controller.s: controller.cpp.s
@@ -217,11 +164,7 @@ controller.s: controller.cpp.s
 
 # target to generate assembly for a file
 controller.cpp.s:
-<<<<<<< HEAD
-	cd /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build && $(MAKE) -f Conundrum/CMakeFiles/controller_toro.dir/build.make Conundrum/CMakeFiles/controller_toro.dir/controller.cpp.s
-=======
 	cd /home/abhi/sai2/Conundrum_Project/build && $(MAKE) -f Conundrum/CMakeFiles/controller_toro.dir/build.make Conundrum/CMakeFiles/controller_toro.dir/controller.cpp.s
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 .PHONY : controller.cpp.s
 
 simviz.o: simviz.cpp.o
@@ -230,11 +173,7 @@ simviz.o: simviz.cpp.o
 
 # target to build an object file
 simviz.cpp.o:
-<<<<<<< HEAD
-	cd /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build && $(MAKE) -f Conundrum/CMakeFiles/simviz_toro.dir/build.make Conundrum/CMakeFiles/simviz_toro.dir/simviz.cpp.o
-=======
 	cd /home/abhi/sai2/Conundrum_Project/build && $(MAKE) -f Conundrum/CMakeFiles/simviz_toro.dir/build.make Conundrum/CMakeFiles/simviz_toro.dir/simviz.cpp.o
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 .PHONY : simviz.cpp.o
 
 simviz.i: simviz.cpp.i
@@ -243,11 +182,7 @@ simviz.i: simviz.cpp.i
 
 # target to preprocess a source file
 simviz.cpp.i:
-<<<<<<< HEAD
-	cd /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build && $(MAKE) -f Conundrum/CMakeFiles/simviz_toro.dir/build.make Conundrum/CMakeFiles/simviz_toro.dir/simviz.cpp.i
-=======
 	cd /home/abhi/sai2/Conundrum_Project/build && $(MAKE) -f Conundrum/CMakeFiles/simviz_toro.dir/build.make Conundrum/CMakeFiles/simviz_toro.dir/simviz.cpp.i
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 .PHONY : simviz.cpp.i
 
 simviz.s: simviz.cpp.s
@@ -256,11 +191,7 @@ simviz.s: simviz.cpp.s
 
 # target to generate assembly for a file
 simviz.cpp.s:
-<<<<<<< HEAD
-	cd /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build && $(MAKE) -f Conundrum/CMakeFiles/simviz_toro.dir/build.make Conundrum/CMakeFiles/simviz_toro.dir/simviz.cpp.s
-=======
 	cd /home/abhi/sai2/Conundrum_Project/build && $(MAKE) -f Conundrum/CMakeFiles/simviz_toro.dir/build.make Conundrum/CMakeFiles/simviz_toro.dir/simviz.cpp.s
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 .PHONY : simviz.cpp.s
 
 # Help Target
@@ -290,10 +221,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-<<<<<<< HEAD
-	cd /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
-=======
 	cd /home/abhi/sai2/Conundrum_Project/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 .PHONY : cmake_check_build_system
 

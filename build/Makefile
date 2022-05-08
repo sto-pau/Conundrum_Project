@@ -48,17 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-<<<<<<< HEAD
-CMAKE_SOURCE_DIR = /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project
-
-# The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build
-=======
 CMAKE_SOURCE_DIR = /home/abhi/sai2/Conundrum_Project
 
 # The top-level build directory on which CMake was run.
 CMAKE_BINARY_DIR = /home/abhi/sai2/Conundrum_Project/build
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,15 +80,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-<<<<<<< HEAD
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build/CMakeFiles /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build/CMakeFiles/progress.marks
-	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ayanoh/cs225a_experimental_robotics/Conundrum_Project/build/CMakeFiles 0
-=======
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/abhi/sai2/Conundrum_Project/build/CMakeFiles /home/abhi/sai2/Conundrum_Project/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/abhi/sai2/Conundrum_Project/build/CMakeFiles 0
->>>>>>> 7ef6b01d1bd570b1319c1386d52d5e8804b7e97b
 .PHONY : all
 
 # The main clean target
