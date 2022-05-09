@@ -42,8 +42,18 @@
 		</visual>
 	</static_object>
 
+	<static_object name="seat">
+		<origin xyz="0 0 -1.15" rpy="0 0 0" />
+		<visual>
+			<origin xyz="0.0 0.0 -0.0001" rpy="0 0 0" />
+			<geometry>
+				<mesh filename="../../model/toro/meshes/obj/SEAT.obj" />
+			</geometry>
+		</visual>
+	</static_object>
+
 	<static_object name="tom1">
-		<origin xyz="1.0 -0.2 -0.5" rpy="0 0 0" />
+		<origin xyz="0.93639 0.04866 -0.42083" rpy="0 0 0" />
 		<visual>
 			<origin xyz="0.0 0.0 -0.0001" rpy="0 0 0" />
 			<geometry>
@@ -52,7 +62,36 @@
 		</visual>
 	</static_object>
 
+	<static_object name="tom2">
+        <origin xyz=".93609 -0.05134 -0.4536" rpy="0 0 0" />
+        <visual>
+            <origin xyz="0.0 0.0 -0.0001" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="../../model/test_objects/meshes/visual/TOM2.obj" />
+            </geometry>
+        </visual>
+    </static_object>
+
+	<static_object name="bass">
+		<origin xyz="0.8 0.002 -1.15" rpy="0 0 0" />
+		<visual>
+			<origin xyz="0.0 0.0 -0.0001" rpy="0 0 0" />
+			<geometry>
+				<mesh filename="../../model/test_objects/meshes/visual/bass.obj" />
+			</geometry>
+		</visual>
+	</static_object>
 	
+
+	<static_object name="snare">
+		<origin xyz="0.365 0.325 -1.15" rpy="0 0 0" />
+		<visual>
+			<origin xyz="0.0 0.0 -0.0001" rpy="0 0 0" />
+			<geometry>
+				<mesh filename="../../model/test_objects/meshes/visual/snare.obj" />
+			</geometry>
+		</visual>
+	</static_object>
 
 	<camera name="camera_fixed">
 		<position xyz="2.0 -0.8 1.0" />
