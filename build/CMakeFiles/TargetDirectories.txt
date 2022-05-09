@@ -1,6 +1,0 @@
-/home/abhi/sai2/Conundrum_Project/build/CMakeFiles/rebuild_cache.dir
-/home/abhi/sai2/Conundrum_Project/build/CMakeFiles/edit_cache.dir
-/home/abhi/sai2/Conundrum_Project/build/Conundrum/CMakeFiles/rebuild_cache.dir
-/home/abhi/sai2/Conundrum_Project/build/Conundrum/CMakeFiles/simviz_toro.dir
-/home/abhi/sai2/Conundrum_Project/build/Conundrum/CMakeFiles/edit_cache.dir
-/home/abhi/sai2/Conundrum_Project/build/Conundrum/CMakeFiles/controller_toro.dir
