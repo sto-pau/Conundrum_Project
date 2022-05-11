@@ -100,7 +100,7 @@ int main() {
 	posori_task_left_foot->_desired_orientation = x_ori; 
 
 	// pose task for right hand 
-	control_link = "ra_end_effector";
+	control_link = "ra_end_effector"; //length is 0.214374
 	control_point = Vector3d(0, 0, 0);
 	auto posori_task_right_hand = new Sai2Primitives::PosOriTask(robot, control_link, control_point);
 
@@ -123,7 +123,7 @@ int main() {
 
 	// pose task for left hand
 	control_link = "la_end_effector";
-	control_point = Vector3d(0, 0, 0);
+	control_point = Vector3d(0, 0, 0); //length is 0.214374
 	auto posori_task_left_hand = new Sai2Primitives::PosOriTask(robot, control_link, control_point);
 	posori_task_left_hand->setDynamicDecouplingFull();
 
