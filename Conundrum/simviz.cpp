@@ -316,7 +316,7 @@ void simulation(Sai2Model::Sai2Model* robot, Simulation::Sai2Simulation* sim, UI
 		// integrate forward
 		double curr_time = timer.elapsedTime();
 		double loop_dt = curr_time - last_time; 
-		sim->integrate(loop_dt);
+		sim->integrate(1./2000);//(loop_dt);
 
 		// read joint positions, velocities, update model
 		sim->getJointPositions(robot_name, robot->_q);

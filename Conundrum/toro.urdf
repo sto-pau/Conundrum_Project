@@ -290,12 +290,12 @@
                 <color rgba="0.0 0.8 0.0 1.0" />
             </material>
         </visual> -->
-        <collision>
+        <!--  <collision>
             <geometry>
                 <box size="0.2 0.1 0.02" />
-                <!-- <box size="0.3 0.15 0.02" /> -->
+                <box size="0.3 0.15 0.02" /> 
             </geometry>
-        </collision>
+        </collision> -->
     </link>
 
     <joint name="j_rfoot_fixed" type="fixed">
@@ -476,12 +476,12 @@
                 <color rgba="0.0 0.8 0.0 1.0" />
             </material>
         </visual> -->
-        <collision>
+        <!-- <collision>
             <geometry>
                 <box size="0.2 0.1 0.02" />
-                <!-- <box size="0.3 0.15 0.02" /> -->
+                <box size="0.3 0.15 0.02" />
             </geometry>
-        </collision>
+        </collision>  -->
     </link>
 
     <joint name="j_lfoot_fixed" type="fixed">
@@ -513,6 +513,12 @@
          <visual>
             <geometry>
                 <mesh filename="../../../model/toro/meshes/obj/trunk.stl.obj"/>
+            </geometry>
+        </visual>
+        <visual>
+            <origin xyz="-0.0772300000 -0.0064300000 0.1945200000" rpy="0 0 0" />
+            <geometry>
+                <sphere radius = "0.1" />
             </geometry>
         </visual>
       </link>
@@ -705,13 +711,13 @@
                 <color rgba="0.0 0.6 0.8 1.0" />
             </material>
         </visual>
+        <!--
         <collision>
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>
                 <box size="0.1 0.1 0.01"/>
-                <!-- <box size="0.2 0.2 0.01"/> -->
             </geometry>
-        </collision>
+        </collision> -->
     </link>
 
     <joint name="j_rhand_fixed" type="fixed">
@@ -903,13 +909,13 @@
                 <color rgba="0.0 0.8 0.0 1.0" />
             </material>
         </visual>
-        <collision>
+        <!--  <collision>
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>
                 <box size="0.1 0.1 0.01"/>
-                <!-- <box size="0.2 0.2 0.01"/> -->
+                <box size="0.2 0.2 0.01"/>
             </geometry>
-        </collision>
+        </collision>  -->
     </link>
 
     <joint name="j_lhand_fixed" type="fixed">
