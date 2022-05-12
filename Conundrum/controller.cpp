@@ -125,7 +125,7 @@ int main() {
 	control_link = "la_end_effector";
 	control_point = Vector3d(0, 0, 0); //length is 0.214374
 	auto posori_task_left_hand = new Sai2Primitives::PosOriTask(robot, control_link, control_point);
-	posori_task_left_hand->setDynamicDecouplingFull();
+	//posori_task_left_hand->setDynamicDecouplingFull(); //only one with this William said to remove
 
 	posori_task_left_hand->_use_interpolation_flag = true;
 	posori_task_left_hand->_use_velocity_saturation_flag = true;
@@ -136,13 +136,31 @@ int main() {
 	posori_task_left_hand->_kp_ori = 200.0;
 	posori_task_left_hand->_kv_ori = 20.0;
 
+	// pose task for torso 
+	control_link = "trunk";
+	control_point = Vector3d(0, 0, 0);
+	auto posori_task_torso = new Sai2Primitives::PosOriTask(robot, control_link, control_point);
+
+	posori_task_torso->_use_interpolation_flag = true;
+	posori_task_torso->_use_velocity_saturation_flag = true;
+
+	VectorXd posori_task_torques_torso = VectorXd::Zero(dof);
+	posori_task_torso->_kp_pos = 400.0;
+	posori_task_torso->_kv_pos = 20.0;
+	posori_task_torso->_kp_ori = 400.0;
+	posori_task_torso->_kv_ori = 20.0;
+
+	// set desired position and orientation to the initial configuration
+	robot->positionInWorld(x_pos, control_link, control_point);
+	robot->rotationInWorld(x_ori, control_link);
+	posori_task_torso->_desired_position = x_pos;
+	posori_task_torso->_desired_orientation = x_ori; 
+
 	// set two goal positions/orientations 
 	robot->positionInWorld(x_pos, control_link, control_point);
 	robot->rotationInWorld(x_ori, control_link);
-	posori_task_left_hand->_desired_position = x_pos + Vector3d(0.1, 0.05, 0.3);//Vector3d(0.5, -0.2, 0.8); //first one is towards toro, second is to the side, third is up
-	posori_task_left_hand->_desired_orientation = AngleAxisd(-M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori; //AngleAxisd(-3*M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori;
-	// posori_task_right_hand->_desired_orientation = AngleAxisd(M_PI/2, Vector3d::UnitX()).toRotationMatrix() * \
-	// 											AngleAxisd(-M_PI/2, Vector3d::UnitY()).toRotationMatrix() * x_ori; 
+	posori_task_left_hand->_desired_position = x_pos;
+	posori_task_left_hand->_desired_orientation = x_ori;
 
 	// joint task
 	auto joint_task = new Sai2Primitives::JointTask(robot);
@@ -207,14 +225,20 @@ int main() {
 		posori_task_left_hand->updateTaskModel(N_prec);
 		posori_task_left_hand->computeTorques(posori_task_torques_left_hand);
 
-		// calculate torques to maintain joint posture
+		// calculate torques to maintain torso posture
 		N_prec = posori_task_left_hand->_N;
+		posori_task_torso->updateTaskModel(N_prec);
+		posori_task_torso->computeTorques(posori_task_torques_torso);
+
+		// calculate torques to maintain joint posture
+		N_prec = posori_task_torso->_N;
 		joint_task->updateTaskModel(N_prec);
 		joint_task->computeTorques(joint_task_torques);
+		
 
 		// calculate torques 
 		command_torques = posori_task_torques_right_foot + posori_task_torques_left_foot 
-							+ posori_task_torques_right_hand + posori_task_torques_left_hand + joint_task_torques;  // gravity compensation handled in sim
+							+ posori_task_torques_right_hand + posori_task_torques_left_hand + posori_task_torques_torso + joint_task_torques;  // gravity compensation handled in sim
 
 		// execute redis write callback
 		redis_client.executeWriteCallback(0);	

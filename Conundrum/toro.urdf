@@ -516,7 +516,7 @@
             </geometry>
         </visual>
         <visual>
-            <origin xyz="-0.0772300000 -0.0064300000 0.1945200000" rpy="0 0 0" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
                 <sphere radius = "0.1" />
             </geometry>
