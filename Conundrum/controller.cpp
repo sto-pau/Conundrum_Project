@@ -60,16 +60,16 @@ int main() {
 	// pose task for right foot 
 	string control_link = "RL_foot";
 	Vector3d control_point = Vector3d(0, 0, 0);
-	auto posori_task_right_foot = new Sai2Primitives::PosOriTask(robot, control_link, control_point);
+	auto posori_task_right_foot = new Sai2Primitives::PositionTask(robot, control_link, control_point); //PosOriTask(robot, control_link, control_point);
 
 	posori_task_right_foot->_use_interpolation_flag = true;
 	posori_task_right_foot->_use_velocity_saturation_flag = true;
 	
 	VectorXd posori_task_torques_right_foot = VectorXd::Zero(dof);
-	posori_task_right_foot->_kp_pos = 400.0;
-	posori_task_right_foot->_kv_pos = 20.0;
-	posori_task_right_foot->_kp_ori = 400.0;
-	posori_task_right_foot->_kv_ori = 20.0;
+	posori_task_right_foot->_kp = 400.0;
+	posori_task_right_foot->_kv = 20.0;
+	// posori_task_right_foot->_kp_ori = 400.0;
+	// posori_task_right_foot->_kv_ori = 20.0;
 
 	// set desired position and orientation to the initial configuration
 	Vector3d x_pos;
@@ -77,98 +77,98 @@ int main() {
 	Matrix3d x_ori;
 	robot->rotationInWorld(x_ori, control_link);
 	posori_task_right_foot->_desired_position = x_pos;
-	posori_task_right_foot->_desired_orientation = x_ori; 
+	//posori_task_right_foot->_desired_orientation = x_ori; 
 
 	// pose task for left foot 
 	control_link = "LL_foot";
 	control_point = Vector3d(0, 0, 0);
-	auto posori_task_left_foot = new Sai2Primitives::PosOriTask(robot, control_link, control_point);
+	auto posori_task_left_foot = new Sai2Primitives::PositionTask(robot, control_link, control_point); //PosOriTask(robot, control_link, control_point);
 
 	posori_task_left_foot->_use_interpolation_flag = true;
 	posori_task_left_foot->_use_velocity_saturation_flag = true;
 
 	VectorXd posori_task_torques_left_foot = VectorXd::Zero(dof);
-	posori_task_left_foot->_kp_pos = 400.0;
-	posori_task_left_foot->_kv_pos = 20.0;
-	posori_task_left_foot->_kp_ori = 400.0;
-	posori_task_left_foot->_kv_ori = 20.0;
+	posori_task_left_foot->_kp = 400.0;
+	posori_task_left_foot->_kv = 20.0;
+	// posori_task_left_foot->_kp_ori = 400.0;
+	// posori_task_left_foot->_kv_ori = 20.0;
 
 	// set desired position and orientation to the initial configuration
 	robot->positionInWorld(x_pos, control_link, control_point);
 	robot->rotationInWorld(x_ori, control_link);
 	posori_task_left_foot->_desired_position = x_pos;
-	posori_task_left_foot->_desired_orientation = x_ori; 
+	//posori_task_left_foot->_desired_orientation = x_ori; 
 
 	// pose task for right hand 
 	control_link = "ra_end_effector"; //length is 0.214374
-	control_point = Vector3d(0, 0, 0);
-	auto posori_task_right_hand = new Sai2Primitives::PosOriTask(robot, control_link, control_point);
+	control_point = Vector3d(0, 0.214374, 0);
+	auto posori_task_right_hand = new Sai2Primitives::PositionTask(robot, control_link, control_point); //PosOriTask(robot, control_link, control_point);
 
 	posori_task_right_hand->_use_interpolation_flag = true;
 	posori_task_right_hand->_use_velocity_saturation_flag = true;
 	
 	VectorXd posori_task_torques_right_hand = VectorXd::Zero(dof);
-	posori_task_right_hand->_kp_pos = 200.0;
-	posori_task_right_hand->_kv_pos = 20.0;
-	posori_task_right_hand->_kp_ori = 200.0;
-	posori_task_right_hand->_kv_ori = 20.0;
+	posori_task_right_hand->_kp = 200.0;
+	posori_task_right_hand->_kv = 20.0;
+	// posori_task_right_hand->_kp_ori = 200.0;
+	// posori_task_right_hand->_kv_ori = 20.0;
 
 	// set two goal positions/orientations 
 	robot->positionInWorld(x_pos, control_link, control_point);
 	robot->rotationInWorld(x_ori, control_link);
 	posori_task_right_hand->_desired_position = x_pos + Vector3d(0.1, -0.05, 0.3);//Vector3d(0.5, -0.2, 0.8);
-	posori_task_right_hand->_desired_orientation = x_ori;// * AngleAxisd(-M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix(); //AngleAxisd(-3*M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori; 
+	//posori_task_right_hand->_desired_orientation = x_ori;// * AngleAxisd(-M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix(); //AngleAxisd(-3*M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori; 
 	// posori_task_right_hand->_desired_orientation = AngleAxisd(M_PI/2, Vector3d::UnitX()).toRotationMatrix() * \
 	// 											AngleAxisd(-M_PI/2, Vector3d::UnitY()).toRotationMatrix() * x_ori; 
 
 	// pose task for left hand
 	control_link = "la_end_effector";
-	control_point = Vector3d(0, 0, 0); //length is 0.214374
-	auto posori_task_left_hand = new Sai2Primitives::PosOriTask(robot, control_link, control_point);
+	control_point = Vector3d(0, 0.214374, 0); //length is 0.214374
+	auto posori_task_left_hand = new Sai2Primitives::PositionTask(robot, control_link, control_point); //PosOriTask(robot, control_link, control_point);
 	//posori_task_left_hand->setDynamicDecouplingFull(); //only one with this William said to remove
 
 	// set two goal positions/orientations 
 	robot->positionInWorld(x_pos, control_link, control_point);
 	robot->rotationInWorld(x_ori, control_link);
 	posori_task_left_hand->_desired_position = x_pos;
-	posori_task_left_hand->_desired_orientation = x_ori;
+	//posori_task_left_hand->_desired_orientation = x_ori;
 
 	posori_task_left_hand->_use_interpolation_flag = true;
 	posori_task_left_hand->_use_velocity_saturation_flag = true;
 	
 	VectorXd posori_task_torques_left_hand = VectorXd::Zero(dof);
-	posori_task_left_hand->_kp_pos = 200.0;
-	posori_task_left_hand->_kv_pos = 20.0;
-	posori_task_left_hand->_kp_ori = 200.0;
-	posori_task_left_hand->_kv_ori = 20.0;
+	posori_task_left_hand->_kp = 200.0;
+	posori_task_left_hand->_kv = 20.0;
+	// posori_task_left_hand->_kp_ori = 200.0;
+	// posori_task_left_hand->_kv_ori = 20.0;
 
 	// set two goal positions/orientations 
 	robot->positionInWorld(x_pos, control_link, control_point);
 	robot->rotationInWorld(x_ori, control_link);
 	posori_task_left_hand->_desired_position = x_pos + Vector3d(0.1, 0.05, 0.3);//Vector3d(0.5, -0.2, 0.8);
-	posori_task_left_hand->_desired_orientation = x_ori; //* AngleAxisd(-M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix(); //AngleAxisd(-3*M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori; 
+	//posori_task_left_hand->_desired_orientation = x_ori; //* AngleAxisd(-M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix(); //AngleAxisd(-3*M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori; 
 	// posori_task_right_hand->_desired_orientation = AngleAxisd(M_PI/2, Vector3d::UnitX()).toRotationMatrix() * \
 	// 											AngleAxisd(-M_PI/2, Vector3d::UnitY()).toRotationMatrix() * x_ori; 
 
 	// pose task for hip_base 
 	control_link = "hip_base";
 	control_point = Vector3d(0, 0, 0);
-	auto posori_task_torso = new Sai2Primitives::PosOriTask(robot, control_link, control_point);
+	auto posori_task_torso = new Sai2Primitives::PositionTask(robot, control_link, control_point); //PosOriTask(robot, control_link, control_point);
 
 	posori_task_torso->_use_interpolation_flag = true;
 	posori_task_torso->_use_velocity_saturation_flag = true;
 
 	VectorXd posori_task_torques_torso = VectorXd::Zero(dof);
-	posori_task_torso->_kp_pos = 400.0;
-	posori_task_torso->_kv_pos = 20.0;
-	posori_task_torso->_kp_ori = 400.0;
-	posori_task_torso->_kv_ori = 20.0;
+	posori_task_torso->_kp = 400.0;
+	posori_task_torso->_kv = 20.0;
+	// posori_task_torso->_kp_ori = 400.0;
+	// posori_task_torso->_kv_ori = 20.0;
 
 	// set desired position and orientation to the initial configuration
 	robot->positionInWorld(x_pos, control_link, control_point);
 	robot->rotationInWorld(x_ori, control_link);
 	posori_task_torso->_desired_position = x_pos;
-	posori_task_torso->_desired_orientation = x_ori; 
+	//posori_task_torso->_desired_orientation = x_ori; 
 
 	// joint task
 	auto joint_task = new Sai2Primitives::JointTask(robot);
