@@ -117,7 +117,7 @@ int main() {
 	robot->positionInWorld(x_pos, control_link, control_point);
 	robot->rotationInWorld(x_ori, control_link);
 	posori_task_right_hand->_desired_position = x_pos + Vector3d(0.1, -0.05, 0.3);//Vector3d(0.5, -0.2, 0.8);
-	posori_task_right_hand->_desired_orientation = AngleAxisd(-M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori; //AngleAxisd(-3*M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori; 
+	posori_task_right_hand->_desired_orientation = x_ori;// * AngleAxisd(-M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix(); //AngleAxisd(-3*M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori; 
 	// posori_task_right_hand->_desired_orientation = AngleAxisd(M_PI/2, Vector3d::UnitX()).toRotationMatrix() * \
 	// 											AngleAxisd(-M_PI/2, Vector3d::UnitY()).toRotationMatrix() * x_ori; 
 
@@ -126,6 +126,12 @@ int main() {
 	control_point = Vector3d(0, 0, 0); //length is 0.214374
 	auto posori_task_left_hand = new Sai2Primitives::PosOriTask(robot, control_link, control_point);
 	//posori_task_left_hand->setDynamicDecouplingFull(); //only one with this William said to remove
+
+	// set two goal positions/orientations 
+	robot->positionInWorld(x_pos, control_link, control_point);
+	robot->rotationInWorld(x_ori, control_link);
+	posori_task_left_hand->_desired_position = x_pos;
+	posori_task_left_hand->_desired_orientation = x_ori;
 
 	posori_task_left_hand->_use_interpolation_flag = true;
 	posori_task_left_hand->_use_velocity_saturation_flag = true;
@@ -136,8 +142,16 @@ int main() {
 	posori_task_left_hand->_kp_ori = 200.0;
 	posori_task_left_hand->_kv_ori = 20.0;
 
-	// pose task for torso 
-	control_link = "trunk";
+	// set two goal positions/orientations 
+	robot->positionInWorld(x_pos, control_link, control_point);
+	robot->rotationInWorld(x_ori, control_link);
+	posori_task_left_hand->_desired_position = x_pos + Vector3d(0.1, 0.05, 0.3);//Vector3d(0.5, -0.2, 0.8);
+	posori_task_left_hand->_desired_orientation = x_ori; //* AngleAxisd(-M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix(); //AngleAxisd(-3*M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori; 
+	// posori_task_right_hand->_desired_orientation = AngleAxisd(M_PI/2, Vector3d::UnitX()).toRotationMatrix() * \
+	// 											AngleAxisd(-M_PI/2, Vector3d::UnitY()).toRotationMatrix() * x_ori; 
+
+	// pose task for hip_base 
+	control_link = "hip_base";
 	control_point = Vector3d(0, 0, 0);
 	auto posori_task_torso = new Sai2Primitives::PosOriTask(robot, control_link, control_point);
 
@@ -155,12 +169,6 @@ int main() {
 	robot->rotationInWorld(x_ori, control_link);
 	posori_task_torso->_desired_position = x_pos;
 	posori_task_torso->_desired_orientation = x_ori; 
-
-	// set two goal positions/orientations 
-	robot->positionInWorld(x_pos, control_link, control_point);
-	robot->rotationInWorld(x_ori, control_link);
-	posori_task_left_hand->_desired_position = x_pos;
-	posori_task_left_hand->_desired_orientation = x_ori;
 
 	// joint task
 	auto joint_task = new Sai2Primitives::JointTask(robot);
@@ -206,8 +214,14 @@ int main() {
 		// update model
 		robot->updateModel();
 		
+		
+		// calculate torques to maintain hip_base posture
+		N_prec.setIdentity();		
+		posori_task_torso->updateTaskModel(N_prec);
+		posori_task_torso->computeTorques(posori_task_torques_torso);
+		
 		// calculate torques to fix the feet 
-		N_prec.setIdentity();
+		N_prec = posori_task_torso->_N;
 		posori_task_right_foot->updateTaskModel(N_prec);
 		posori_task_right_foot->computeTorques(posori_task_torques_right_foot);
 
@@ -225,16 +239,10 @@ int main() {
 		posori_task_left_hand->updateTaskModel(N_prec);
 		posori_task_left_hand->computeTorques(posori_task_torques_left_hand);
 
-		// calculate torques to maintain torso posture
-		N_prec = posori_task_left_hand->_N;
-		posori_task_torso->updateTaskModel(N_prec);
-		posori_task_torso->computeTorques(posori_task_torques_torso);
-
 		// calculate torques to maintain joint posture
-		N_prec = posori_task_torso->_N;
+		N_prec = posori_task_left_hand->_N;
 		joint_task->updateTaskModel(N_prec);
 		joint_task->computeTorques(joint_task_torques);
-		
 
 		// calculate torques 
 		command_torques = posori_task_torques_right_foot + posori_task_torques_left_foot 

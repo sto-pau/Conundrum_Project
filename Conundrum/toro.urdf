@@ -70,6 +70,15 @@
                 <mesh filename="../../../model/toro/meshes/obj/upper_hip.stl.obj"/>
             </geometry>
         </visual>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <sphere radius = "0.15" />
+                <material name="material_ee">
+                    <color rgba="1.0 1.0 1.0 1.0" />
+                </material>
+            </geometry>
+        </visual>
     </link>
 
 
@@ -513,12 +522,6 @@
          <visual>
             <geometry>
                 <mesh filename="../../../model/toro/meshes/obj/trunk.stl.obj"/>
-            </geometry>
-        </visual>
-        <visual>
-            <origin xyz="0 0 0" rpy="0 0 0" />
-            <geometry>
-                <sphere radius = "0.1" />
             </geometry>
         </visual>
       </link>
