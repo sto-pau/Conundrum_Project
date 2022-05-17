@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+ <?xml version="1.0"?>
 <robot name="DLR_TORO">
 
     <link name="ground">
@@ -341,7 +341,7 @@
       </link>
 
     <joint name="j_ll_frontal" type="revolute">
-        <origin xyz="0.0000000000 0.1000000000 -0.1254789680" rpy="0 0 0" />
+        <origin xyz="0.0000000000 0.1000000000 -0.1254789680" rpy="0 0.2 1.1" />
         <parent link="hip_base"/>
         <child link="LL_KOSY_L1"/> 
         <limit lower="-0.7804" upper="1.5708" effort="176" velocity="1.9199" />
