@@ -34,13 +34,6 @@ unsigned long long controller_counter = 0;
 
 int main() {
 
-	//set isntrument positions
-	Vector3d snare = Vector3d(0.36543, 0.32512, -0.50876); //Vector3d(0.36543, 0.32512, -0.53876);
-	Vector3d tom1 = Vector3d(0.72103, 0.18308, -0.35312); //Vector3d(0.72103, 0.18308, -0.41312);
-	Vector3d tom2 = Vector3d(0.74235, -0.18308, -0.26023); //Vector3d(0.74235, -0.18308, -0.27023);
-	Vector3d dZ = Vector3d(0, 0, 0.2);
-	
-
 	int state = JOINT_CONTROLLER;
 	string controller_status = "1";
 
@@ -83,7 +76,7 @@ int main() {
 	robot->positionInWorld(x_pos, control_link, control_point);
 	Matrix3d x_ori;
 	robot->rotationInWorld(x_ori, control_link);
-	posori_task_right_foot->_desired_position = x_pos; //Vector3d(0.8, 0.002, -1.15); //x_pos;
+	posori_task_right_foot->_desired_position = Vector3d(0.8, 0.002, -1.15); //x_pos;
 	//posori_task_right_foot->_desired_orientation = x_ori; 
 
 	// pose task for left foot 
@@ -108,52 +101,52 @@ int main() {
 
 	// pose task for right hand 
 	control_link = "ra_end_effector"; //length is 0.214374
-	control_point = Vector3d(0, 0, -0.214374);
-	auto posori_task_right_hand = new Sai2Primitives::PosOriTask(robot, control_link, control_point); //PosOriTask(robot, control_link, control_point);
+	control_point = Vector3d(0, 0.214374, 0);
+	auto posori_task_right_hand = new Sai2Primitives::PositionTask(robot, control_link, control_point); //PosOriTask(robot, control_link, control_point);
 
 	posori_task_right_hand->_use_interpolation_flag = true;
 	posori_task_right_hand->_use_velocity_saturation_flag = true;
 	
 	VectorXd posori_task_torques_right_hand = VectorXd::Zero(dof);
-	posori_task_right_hand->_kp_pos = 200.0;
-	posori_task_right_hand->_kv_pos = 20.0;
-	posori_task_right_hand->_kp_ori = 200.0;
-	posori_task_right_hand->_kv_ori = 20.0;
+	posori_task_right_hand->_kp = 200.0;
+	posori_task_right_hand->_kv = 20.0;
+	// posori_task_right_hand->_kp_ori = 200.0;
+	// posori_task_right_hand->_kv_ori = 20.0;
 
 	// set two goal positions/orientations 
 	robot->positionInWorld(x_pos, control_link, control_point);
 	robot->rotationInWorld(x_ori, control_link);
-	posori_task_right_hand->_desired_position = tom1 + dZ;//Vector3d(0.5, -0.2, 0.8);
-	posori_task_right_hand->_desired_orientation = x_ori;// * AngleAxisd(-M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix(); //AngleAxisd(-3*M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori; 
+	posori_task_right_hand->_desired_position = x_pos; //Vector3d(0.93609, -0.05134, -0.4536);//Vector3d(0.5, -0.2, 0.8);
+	//posori_task_right_hand->_desired_orientation = x_ori;// * AngleAxisd(-M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix(); //AngleAxisd(-3*M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori; 
 	// posori_task_right_hand->_desired_orientation = AngleAxisd(M_PI/2, Vector3d::UnitX()).toRotationMatrix() * \
 	// 											AngleAxisd(-M_PI/2, Vector3d::UnitY()).toRotationMatrix() * x_ori; 
 
 	// pose task for left hand
 	control_link = "la_end_effector";
-	control_point = Vector3d(0, 0.0, -0.214374); //length is 0.214374
-	auto posori_task_left_hand = new Sai2Primitives::PosOriTask(robot, control_link, control_point); //PosOriTask(robot, control_link, control_point);
+	control_point = Vector3d(0, 0.214374, 0); //length is 0.214374
+	auto posori_task_left_hand = new Sai2Primitives::PositionTask(robot, control_link, control_point); //PosOriTask(robot, control_link, control_point);
 	//posori_task_left_hand->setDynamicDecouplingFull(); //only one with this William said to remove
 
 	// set two goal positions/orientations 
 	robot->positionInWorld(x_pos, control_link, control_point);
 	robot->rotationInWorld(x_ori, control_link);
 	posori_task_left_hand->_desired_position = x_pos;
-	posori_task_left_hand->_desired_orientation = x_ori;
+	//posori_task_left_hand->_desired_orientation = x_ori;
 
 	posori_task_left_hand->_use_interpolation_flag = true;
 	posori_task_left_hand->_use_velocity_saturation_flag = true;
 	
 	VectorXd posori_task_torques_left_hand = VectorXd::Zero(dof);
-	posori_task_left_hand->_kp_pos = 200.0;
-	posori_task_left_hand->_kv_pos = 20.0;
-	posori_task_left_hand->_kp_ori = 200.0;
-	posori_task_left_hand->_kv_ori = 20.0;
+	posori_task_left_hand->_kp = 200.0;
+	posori_task_left_hand->_kv = 20.0;
+	// posori_task_left_hand->_kp_ori = 200.0;
+	// posori_task_left_hand->_kv_ori = 20.0;
 
 	// set two goal positions/orientations 
 	robot->positionInWorld(x_pos, control_link, control_point);
 	robot->rotationInWorld(x_ori, control_link);
-	posori_task_left_hand->_desired_position = snare + dZ; //Vector3d(0.36543, 0.32512, -0.53876); //Vector3d(0.36543, 0.32512, -0.53876); //Vector3d(0.93639, 0.04866, -0.42083); //x_pos + Vector3d(0.1, 0.05, 0.3);//Vector3d(0.5, -0.2, 0.8);
-	posori_task_left_hand->_desired_orientation = x_ori; //* AngleAxisd(-M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix(); //AngleAxisd(-3*M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori; 
+	posori_task_left_hand->_desired_position = Vector3d(0.93639, 0.04866, -0.42083); //x_pos + Vector3d(0.1, 0.05, 0.3);//Vector3d(0.5, -0.2, 0.8);
+	//posori_task_left_hand->_desired_orientation = x_ori; //* AngleAxisd(-M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix(); //AngleAxisd(-3*M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori; 
 	// posori_task_right_hand->_desired_orientation = AngleAxisd(M_PI/2, Vector3d::UnitX()).toRotationMatrix() * \
 	// 											AngleAxisd(-M_PI/2, Vector3d::UnitY()).toRotationMatrix() * x_ori; 
 
@@ -235,58 +228,6 @@ int main() {
 		N_prec = posori_task_right_foot->_N;
 		posori_task_left_foot->updateTaskModel(N_prec);
 		posori_task_left_foot->computeTorques(posori_task_torques_left_foot);
-
-		int movingBeat = 4;
-		int hittingBeat = dZ / 0.3 + 1;
-		int lastBeat = 0;
-
-		if (timer.elapsedTime() - start_time > movingBeat){
-			posori_task_right_hand->_desired_position = tom1;
-			posori_task_left_hand->_desired_position = snare;
-			lastBeat = movingBeat;
-		}
-
-		if (timer.elapsedTime() - start_time > lastBeat + hittingBeat){
-			posori_task_right_hand->_desired_position = tom1 + dZ;
-			posori_task_left_hand->_desired_position = snare + dZ;
-			lastBeat = lastBeat + hittingBeat;
-		}
-
-		if (timer.elapsedTime() - start_time > lastBeat + movingBeat){
-			posori_task_right_hand->_desired_position = tom2 + dZ;
-			posori_task_left_hand->_desired_position = tom1 + dZ;
-			lastBeat = lastBeat + movingBeat;
-		}
-
-		if (timer.elapsedTime() - start_time > lastBeat + movingBeat){
-			posori_task_right_hand->_desired_position = tom2;
-			posori_task_left_hand->_desired_position = tom1;
-			lastBeat = lastBeat + movingBeat;
-		}
-
-		if (timer.elapsedTime() - start_time > lastBeat + hittingBeat){
-			posori_task_right_hand->_desired_position = tom2 + dZ;
-			posori_task_left_hand->_desired_position = tom1 + dZ;
-			lastBeat = lastBeat + hittingBeat;
-		}
-
-		if (timer.elapsedTime() - start_time > lastBeat + movingBeat){
-			posori_task_right_hand->_desired_position = tom2 + dZ;
-			posori_task_left_hand->_desired_position = tom1 + dZ;
-			lastBeat = lastBeat + movingBeat;
-		}
-
-		if (timer.elapsedTime() - start_time > lastBeat + movingBeat){
-			posori_task_right_hand->_desired_position = tom2;
-			posori_task_left_hand->_desired_position = tom1;
-			lastBeat = lastBeat + movingBeat;
-		}
-
-		if (timer.elapsedTime() - start_time > lastBeat + hittingBeat){
-			posori_task_right_hand->_desired_position = tom2 + dZ;
-			posori_task_left_hand->_desired_position = tom1 + dZ;
-			lastBeat = lastBeat + hittingBeat;
-		}
 
 		// calculate torques to move right hand
 		N_prec = posori_task_left_foot->_N;
