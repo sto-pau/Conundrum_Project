@@ -30,7 +30,7 @@
 	</light>
 
 	<static_object name="14cin">
-		<origin xyz="0.31 0.7 -1.15" rpy="0 0 -0.75" />
+		<origin xyz="0.31 0.7 -1.15" rpy="0 0 0.75" />
 		<visual>
 			<origin xyz="0.0 0.0 -0.0001" rpy="0 0 0" />
 			<geometry>
