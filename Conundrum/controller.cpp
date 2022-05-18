@@ -22,6 +22,8 @@
 #define HITTING_DRUM		4
 #define LIFTING_DRUMSTICK	5
 #define WAIT_FOR_MEASURE      6
+#define WAIT     			 7
+#define STOMP     			 8
 
 bool runloop = true;
 void sighandler(int sig)
@@ -184,8 +186,10 @@ int main() {
 	// joint task
 	auto joint_task = new Sai2Primitives::JointTask(robot);
 
-	joint_task->_use_interpolation_flag = true;
+	//joint_task->_use_interpolation_flag = true;
 	joint_task->_use_velocity_saturation_flag = true;
+	Eigen::VectorXd w = M_PI/1.0*Eigen::VectorXd::Ones(dof);
+	joint_task->_saturation_velocity = w;
 
 	VectorXd joint_task_torques = VectorXd::Zero(dof);
 	joint_task->_kp = 100.0;
@@ -195,7 +199,8 @@ int main() {
 	VectorXd q_init_desired = robot->_q;
 	//q_init_desired(11) = 0; 
 	//cout << "ANGLE " << q_init_desired(11);
-	joint_task->_desired_position = q_init_desired;
+	VectorXd joint_desired = q_init_desired;
+	joint_task->_desired_position = joint_desired;
 
 	// setup redis callback
 	redis_client.createReadCallback(0);
@@ -217,6 +222,8 @@ int main() {
 	bool fTimerDidSleep = true;
 	
 	// for state machine
+	double unified_start_time = start_time + 5;
+	bool newMeasure = false;
 	int i;
 	int bpm = 4;
 	Vector3d pos_des; 
@@ -237,12 +244,41 @@ int main() {
 	Vector3d tom2 = Vector3d(0.74235, -0.18308, -0.26023);
 	//data << 0,0.365,0.325,-0.53876, 15,0.74235,-0.18022,-0.30023, 30,0.72103,0.18308,-0.41312, 45,0.365,0.325,-0.53876;
 	time_data << 0, 15, 30, 45;
-	x_data << snare(0), tom1(0), tom2(0), snare(0);
-	y_data << snare(1), tom1(1), tom2(1), snare(1);
-	z_data << snare(2), tom1(2), tom2(2), snare(2);
+	x_data << snare(0), tom1(0), tom2(0), tom1(0);
+	y_data << snare(1), tom1(1), tom2(1), tom1(1);
+	z_data << snare(2), tom1(2), tom2(2), tom1(2);
 	
 	string left_arm_control_link = "la_end_effector";
 	Vector3d left_arm_control_point = Vector3d(0, 0, -0.214); //length is 0.214374
+
+	int sizeTime = time_data.size();
+	Eigen::VectorXd addTime = 60 * Eigen::VectorXd::Ones(sizeTime);
+
+	cout << "\nsizeTime " << sizeTime << "\n";
+	cout << "\naddTime " << addTime << "\n";
+
+	//for LL state machine (HiHat)
+	int LL_joint = 17; //18th joint, indexed with 17
+	int index_LL;
+	float ang_LL_des = q_init_desired[LL_joint]; //initialize with starting value to stay there at home (otherwise garbage angle)
+	//cout << "ang_LL_des" << ang_LL_des;
+	float curr_LL_ang;
+	unsigned LL_state = HOME;
+
+	double LL_start;
+
+	double LL_lift = q_init_desired[LL_joint];
+	//cout << "\nLL_lift" << LL_lift;
+	double dTh = M_PI/3;
+	double LL_stomp = LL_lift + dTh;
+	//cout << "\nLL_stomp" << LL_stomp;	
+
+	double thetaThreshold = 0.1; //apprx 5.73 deg
+	double t_stomp_buffer = 0.75;
+	double time_to_stomp = dTh / w[0]; //w declared above when JointTask sat_vel is declared
+
+	VectorXd LL_time_data(4);
+	LL_time_data << 0, 15, 30, 45;	
 	
 	while (runloop) {
 		// wait for next scheduled loop
@@ -256,9 +292,10 @@ int main() {
 		robot->updateModel();
 		
 		robot->positionInWorld(curr_pos, left_arm_control_link, left_arm_control_point); //get curr pos
+		curr_LL_ang = robot->_q[LL_joint]; //get current left foot angle
 		
 		//cout << "DRUM STATE: " << drum_state << "\n";
-		
+
 		switch(drum_state){
 			case HOME:
 				if (play = true){
@@ -272,7 +309,7 @@ int main() {
 				}
 				break;
 			case FIRST_MOVING:
-				if (time - start >= time_data(i)-time_to_hit-t_buffer){
+				if (time >= unified_start_time - time_to_hit - t_buffer){
 					cout << time - start << "\n";
 					pos_des << x_data(i), y_data(i), z_data(i); //at vhit
 					posori_task_left_hand->_linear_saturation_velocity = v_hit;
@@ -293,9 +330,18 @@ int main() {
 			case LIFTING_DRUMSTICK:
 				if (abs(curr_pos.norm()-pos_des.norm()) < threshold){
 					i++;
-					if (i%bpm == 0){
+					if (i % sizeTime == 0){
+						cout << "reseting drum index";
 						i = 0;
-						drum_state = WAIT_FOR_MEASURE;
+						drum_state = MOVING_DRUMSTICK;
+						
+						time_data = time_data + addTime;
+						newMeasure = false;
+						//these desired pos assignments HAVE to come after setting i = 0!
+						pos_des << x_data(i), y_data(i), z_data(i);
+						pos_des(2) += dz;  //at vtravel
+						posori_task_left_hand->_linear_saturation_velocity = v_travel;
+
 					}
 					else{
 						pos_des << x_data(i), y_data(i), z_data(i);
@@ -307,6 +353,7 @@ int main() {
 				}
 				break;
 			case MOVING_DRUMSTICK:
+				//cout << "\ntime - start" << time - start << "\n";
 				if (time - start >= time_data(i)-time_to_hit-t_buffer){
 					cout << time - start << "\n";
 					pos_des << x_data(i), y_data(i), z_data(i);   //at vhit
@@ -326,6 +373,7 @@ int main() {
 				break;
 			case WAIT_FOR_MEASURE:
 				if (time-start >= 60){
+					newMeasure = true;
 					start = time;
 					drum_state = MOVING_DRUMSTICK;
 				}
@@ -333,7 +381,83 @@ int main() {
 			default:
 				break;
 		}
-		
+
+
+		// switch(LL_state){ //left leg (hi-hat) state machine
+		// 	case HOME:
+		// 		if (play = true){
+		// 			index_LL = 0;
+		// 			LL_state = FIRST_MOVING;
+		// 			cout << "LEFT LEG STATE: " << LL_state << "\n";
+		// 			//cout << "ang_LL_des" << ang_LL_des;
+		// 		}
+		// 		break;
+		// 	case FIRST_MOVING:
+		// 		if (time >= unified_start_time - time_to_stomp - t_stomp_buffer){
+		// 			ang_LL_des = LL_stomp;
+		// 			LL_state = FIRST_HITTING;
+		// 			cout << "LEFT LEG  STATE: " << LL_state << "\n";
+		// 			//cout << "ang_LL_des" << ang_LL_des;
+		// 		}
+		// 		break;
+		// 	case FIRST_HITTING:
+		// 		//cout << "\ncurr_LL_ang" << curr_LL_ang <<"\ncurr_LL_ang - ang_LL_des " << curr_LL_ang - ang_LL_des << "\n ang_LL_des" << ang_LL_des << "\n"; 
+		// 		if (abs(curr_LL_ang - ang_LL_des) < thetaThreshold){
+		// 			ang_LL_des = LL_lift;
+		// 			//LL_start = time;
+		// 			LL_state = WAIT;
+		// 			index_LL++; //need to do this first hitting the legs because they don't have lifting drumstick state and will get stuck checking time index 0
+		// 			cout << "LEFT LEG  STATE: " << LL_state << "\n";
+		// 			//cout << "ang_LL_des" << ang_LL_des;
+		// 			//cout<< "time - LL_start " << time - LL_start << "\nLL_time_data(index_LL)" << LL_time_data(index_LL) << "\nLL_time_data(index_LL) - time_to_stomp - t_buffer " << LL_time_data(index_LL) - time_to_stomp - t_buffer <<"\n";
+		// 		}
+		// 		break;
+		// 	case WAIT:
+		// 		//cout << "\ntime - start " << time - start << "\n";
+		// 		if (time - start >= LL_time_data(index_LL) - time_to_stomp - t_stomp_buffer){
+		// 			ang_LL_des = LL_stomp;
+		// 			LL_state = STOMP;
+		// 			cout << "LEFT LEG  STATE: " << LL_state << "\n";
+		// 			//cout << "ang_LL_des" << ang_LL_des;
+		// 		}
+		// 		break;
+		// 	case STOMP:
+		// 		//cout << "\ncurr_LL_ang" << curr_LL_ang <<"\ncurr_LL_ang - ang_LL_des " << curr_LL_ang - ang_LL_des << "\n ang_LL_des" << ang_LL_des << "\n";
+		// 		if (abs(curr_LL_ang - ang_LL_des) < thetaThreshold){
+		// 			index_LL++;
+		// 			ang_LL_des = LL_lift;
+		// 				if (index_LL % bpm == 0){
+		// 					index_LL = 0;
+		// 					LL_state = WAIT_FOR_MEASURE;
+		// 				}
+		// 				else{
+		// 				LL_state = WAIT;
+		// 				}
+		// 			cout << "LEFT LEG  STATE: " << LL_state << "\n";
+		// 			//cout << "ang_LL_des" << ang_LL_des;
+		// 			//cout<< "time - start " << time - start << "\nLL_time_data(index_LL)" << LL_time_data(index_LL) << "\nLL_time_data(index_LL) - time_to_stomp - t_buffer " << LL_time_data(index_LL) - time_to_stomp - t_buffer <<"\n";
+		// 		}
+		// 		break;
+		// 	case WAIT_FOR_MEASURE:
+		// 		//cout << "\nW4M time - start " << time - start << "\n";
+		// 		if (newMeasure){
+
+		// 			if (time - start >= LL_time_data(index_LL) - time_to_stomp - t_stomp_buffer){
+		// 			ang_LL_des = LL_stomp;
+		// 			LL_state = STOMP;
+		// 			cout << "LEFT LEG  STATE: " << LL_state << "\n";
+		// 			//cout << "ang_LL_des" << ang_LL_des;
+		// 		}
+					
+		// 		}
+		// 		break;
+		// 	default:
+		// 		break;
+		// }//end left leg (hi-hat) state machine
+
+		joint_desired[LL_joint] = ang_LL_des; //set desired LL position
+		joint_task->_desired_position = joint_desired;
+
 		posori_task_left_hand->_desired_position = pos_des;  //set position desired
 		
 		// calculate torques to maintain hip_base posture
