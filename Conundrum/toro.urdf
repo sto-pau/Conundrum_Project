@@ -560,7 +560,7 @@
         <parent link="trunk"/>
         <child link="ra_link1"/> 
         <limit lower="-2.0944" upper="2.0944" effort="100" velocity="2.7402" />
-        <calibration falling="15.0" />
+        <calibration falling="19.0" /> <!-- PBS --> 
         <axis xyz="0 0 1"/>
     </joint>
 
