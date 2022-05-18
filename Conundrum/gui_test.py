@@ -17,7 +17,6 @@ class MainWindow(QWidget):
         self.n_measures = 1 # number of measures
         self.beats_per_measure = 4 # beats per measure
         self.is_playing = False # whether the simulation should be running
-        self.is_valid = True # whether current score is valid
         self.tempo = 4 # tempo in BPM - TODO: make this tunable
 
         # define and initialize redis keys
@@ -25,26 +24,35 @@ class MainWindow(QWidget):
         self.redis_client.set(self.IS_PLAYING_KEY, 0)
 
         # instruments and coordinates
-        # from left to right: snare, tom1, tom2
-
+        # ordered according to position on drum score (top to bottom)
         self.instrument_names = ["Tom 1", "Tom 2", "Snare", "Bass", "Hi-Hat Pedal"]
+        self.instrument_names = np.array(self.instrument_names)
         self.n_instruments = len(self.instrument_names)
 
+        # order must match self.instrument_names
         self.inst_to_coords = { 
-            "Bass": np.array([0, 0, 0]),
-            "Snare": np.array([0.36543, 0.32512, -0.50876]),
-            "Hi-Hat Pedal": np.array([0, 0, 0]),
             "Tom 1": np.array([0.72103, 0.18308, -0.35312]),
             "Tom 2": np.array([0.74235, -0.18308, -0.26023]),
+            "Snare": np.array([0.36543, 0.32512, -0.50876]),
+            # "Bass": np.array([0, 0, 0]),
+            # "Hi-Hat Pedal": np.array([0, 0, 0]),
             }
 
         self.coords = np.array( list(self.inst_to_coords.values()) )
+
+        # instruments from right to left: inst2_r2l["instrument name"] = 0 for right-most instrument 
+        self.inst_r2l = dict(sorted(self.inst_to_coords.items(), key=lambda item: item[1][1]))
+        for i, key in enumerate(self.inst_r2l.keys()):
+            self.inst_r2l[key] = i
+
+        self.rh_priority_idx = len(self.inst_r2l) // 2
+        print(self.rh_priority_idx)
 
         # list to store all buttons in measure grid
         self.measure_buttons = [ [] for i in range(self.n_instruments) ]
 
         # array containing button activation status
-        self.button_activation = np.array((self.n_instruments, self.n_measures * self.beats_per_measure))
+        self.button_activation = np.zeros((self.n_instruments, self.n_measures * self.beats_per_measure))
 
         self._initGUI()
 
@@ -106,13 +114,14 @@ class MainWindow(QWidget):
 
         print("Clicked PLAY")
 
-        self.save_score_text()
-
+        # make sure input is valid before exporting txt file
         if not self._is_valid_input():
-            print("Input score is invalid. You cannot select more than 4 instruments on the same beat")
+            print("Input score is invalid.")
             return
 
+        # if input is valid and the simulation is not already playing, save coordinate files and start simulation
         if not self.is_playing:
+            self.save_score_text()
             self.is_playing = True
             self.redis_client.set(self.IS_PLAYING_KEY, 1)
 
@@ -133,11 +142,11 @@ class MainWindow(QWidget):
         """
 
         print("Clicked button in measure grid")
-        self._check_btn_activation()
+        self._update_btn_activation()
         
 
     ###################### Check Button Activation States ########################
-    def _check_btn_activation(self):
+    def _update_btn_activation(self):
         """
         Get binary array of button activation state
         """
@@ -147,30 +156,74 @@ class MainWindow(QWidget):
 
     def _is_valid_input(self):
         """
-        Check if input score is valid
+        Check if input score is valid.
+        Valid input has at most 4 instruments playing at each beat, and no more than 2 notes per beat can be played by arms.
         """
 
-        # number of activated buttons per beat
-        n_active = np.sum(self.button_activation, axis=0)
-        return np.all(n_active <= 4)
+        n_active = np.sum(self.button_activation[:-2], axis=0)
+        return np.all(n_active <= 2)
+
 
     ####################### Saving Score Array ################################
     def save_score_text(self):
         """
         Computes score array for each limb and saves them as txt files to be read by controller
         """
-        # TODO - Currently returns dummy array for testing purposes
+        # print(self.button_activation)
 
-        score_array = np.zeros_like(self.n_instruments, self.n_measures * self.beats_per_measure, )
-        score_array
-        
-        print("activation\n", self.button_activation)
+        # prepare time array from tempo and total number of beats
+        dt = 60 / self.tempo # time between each beat
+        time = np.arange(0, dt * self.n_measures * self.beats_per_measure, dt) # time array
 
-        print("coords\n", self.coords)
+        # left foot (hi-hat pedal)
+        score_array = time[self.button_activation[-1] == 1]
+        score_array = np.hstack( (score_array[:, np.newaxis], np.zeros((score_array.shape[0], 3))) )
+        np.savetxt("left_foot", score_array.flatten(), delimiter=',')
 
-        np.savetxt("dummy_score.txt", score_array, delimiter=',')
+        # right foot (bass)
+        score_array = time[self.button_activation[-2] == 1]
+        score_array = np.hstack( (score_array[:, np.newaxis], np.zeros((score_array.shape[0], 3))) )
+        np.savetxt("right_foot", score_array.flatten(), delimiter=',')
 
-        
+        # arms:
+        # if 1 hand instrument is selected: assign to hand that is closer to the instrument
+        # if 2 hand instruments are selected: assign one that is further to the right to right hand, and the other to the left hand
+
+        right_hand = []
+        left_hand = []
+
+        for i in range(self.n_measures * self.beats_per_measure):
+            n_active = np.sum(self.button_activation[:-2, i])
+            # if 1 arm instruments are selected for this beat
+            if n_active == 1:                
+                inst_idx = np.where(self.button_activation[:-2,i]==1)[0][0] # row number (on grid) of selected instrument
+                inst_name = self.instrument_names[inst_idx] # name of instrument
+                
+                if self.inst_r2l[inst_name] < self.rh_priority_idx: # if right hand has priority
+                    right_hand.append( np.append(time[i], self.inst_to_coords[inst_name]) )
+                else:
+                    left_hand.append( np.append(time[i], self.inst_to_coords[inst_name]) )
+
+            # if 2 arm instruments are selected for this beat
+            elif n_active == 2:
+                inst_idx = np.where(self.button_activation[:-2,i] == 1)[0]
+                inst_name = self.instrument_names[inst_idx]
+                print(inst_idx)
+                print(inst_name)
+                if self.inst_r2l[inst_name[0]] < self.inst_r2l[inst_name[1]]:
+                    # first instrument is further to the right
+                    right_hand.append( np.append(time[i], self.inst_to_coords[inst_name[0]]) )
+                    left_hand.append( np.append(time[i], self.inst_to_coords[inst_name[1]]) )
+                else:
+                    # second instrument is further to the right
+                    right_hand.append( np.append(time[i], self.inst_to_coords[inst_name[1]]) )
+                    left_hand.append( np.append(time[i], self.inst_to_coords[inst_name[0]]) )
+
+        right_hand = np.array(right_hand).flatten()
+        left_hand = np.array(left_hand).flatten()
+        np.savetxt("right_hand", right_hand, delimiter=',')
+        np.savetxt("left_hand", left_hand, delimiter=',')                 
+      
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
