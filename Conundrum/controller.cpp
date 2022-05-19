@@ -332,15 +332,6 @@ int main() {
 					cout << "DRUM STATE: " << drum_state << "\n";
 				}
 				break;
-			case FIRST_HITTING:
-				if (abs(curr_pos.norm()-pos_des.norm()) < threshold){
-					pos_des << x_data(i), y_data(i), z_data(i); 
-					pos_des(2) += dz;		//at vtravel
-					posori_task_left_hand->_linear_saturation_velocity = v_travel;
-					drum_state = LIFTING_DRUMSTICK;
-					cout << "DRUM STATE: " << drum_state << "\n";
-				}
-				break;
 			case LIFTING_DRUMSTICK:
 				if (abs(curr_pos.norm()-pos_des.norm()) < threshold){
 					i++;
@@ -400,16 +391,7 @@ int main() {
 			case FIRST_MOVING:
 				if (time >= unified_start_time + LL_time_data(index_LL) - time_to_stomp - t_stomp_buffer){
 					ang_LL_des = LL_stomp;
-					LL_state = FIRST_HITTING;
-					cout << "LEFT LEG  STATE: " << LL_state << "\n";
-				}
-				break;
-			case FIRST_HITTING:
-
-				if (abs(curr_LL_ang - ang_LL_des) < thetaThreshold){
-					ang_LL_des = LL_lift;
-					LL_state = WAIT;
-					index_LL++; //need to do this first hitting the legs because they don't have lifting drumstick state and will get stuck checking time index 0
+					LL_state = STOMP;
 					cout << "LEFT LEG  STATE: " << LL_state << "\n";
 				}
 				break;
