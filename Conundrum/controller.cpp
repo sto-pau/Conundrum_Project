@@ -11,9 +11,9 @@
 
 #include <iostream>
 #include <string>
-
+#include <fstream>
 #include <signal.h>
-
+using namespace std;
 // state machine
 #define HOME				0
 #define FIRST_MOVING		1
@@ -45,6 +45,19 @@ enum Control
 unsigned long long controller_counter = 0;
 
 int main() {
+
+
+	//Set up file read from GUI
+
+	ifstream right_hand;
+	right_hand.open ("right_hand.txt", ios::in);
+	ifstream left_hand;
+	left_hand.open ("left_hand.txt", ios::in);
+	ifstream right_foot;
+	right_foot.open ("right_foot.txt", ios::in);
+	ifstream left_foot;
+	left_foot.open ("left_foot.txt", ios::in);
+
 
 	int state = JOINT_CONTROLLER;
 	string controller_status = "1";

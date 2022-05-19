@@ -2,9 +2,7 @@ import threading as th
 import redis
 
 from playsound import playsound
-playsound('./sound/Bass.mp3',False)
-playsound('./sound/Snare.mp3',False)
-playsound('./sound/Tom2.mp3') 
+print('Here')
 
 # def snare():
 #     r = redis.Redis(host='localhost', port=6379)
@@ -43,3 +41,53 @@ playsound('./sound/Tom2.mp3')
 #     snareThread.join()
 #     bassThread.join()
 #     tom2Thread.join()
+
+
+
+
+r = redis.Redis(host='localhost', port=6379)
+r.set('drum_key', "0")
+while True:
+	val = r.get('drum_key')
+	print("Current value is ", val)
+	if(val == '1'):
+		print('Playing bass')
+		#playsound('./sound/Bass.mp3')
+		r.set('drum_key', '0')
+
+	if(r.get('drum_key') == '2'):
+		print('Playing Snare')
+		playsound('./sound/Snare.mp3')
+		r.set('drum_key', '0')
+
+	if(r.get('drum_key') == '3'):
+		playsound('./sound/Tom1.mp3')
+		r.set('drum_key', '0')
+
+	if(r.get('drum_key') == '4'):
+		playsound('./sound/Tom2.mp3')
+		r.set('drum_key', '0')
+
+	if(r.get('drum_key') == '5'):
+		playsound('./sound/Hihat.mp3')
+		r.set('drum_key', '0')
+
+	if(r.get('drum_key') == '6'):
+		playsound('./sound/Bass.mp3',False)
+		playsound('./sound/Snare.mp3')
+		r.set('drum_key', '0')
+
+	if(r.get('drum_key') == '7'):
+		playsound('./sound/Bass.mp3',False)
+		playsound('./sound/Tom1.mp3')
+		r.set('drum_key', '0')
+
+	if(r.get('drum_key') == '8'):
+		playsound('./sound/Bass.mp3',False)
+		playsound('./sound/Tom2.mp3')
+		r.set('drum_key', '0')						
+		
+
+	
+	
+		
