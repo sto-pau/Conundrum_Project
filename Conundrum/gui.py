@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt
 
 import redis
 import numpy as np
+import os
 
 """
 TODOs
@@ -238,12 +239,10 @@ class MainWindow(QWidget):
         # left foot (hi-hat pedal)
         score_array = time[self.button_activation[-1] == 1]
         score_array = np.hstack( (score_array[:, np.newaxis], np.zeros((score_array.shape[0], 3))) )
-        np.savetxt("left_foot.txt", score_array.flatten(), delimiter=',')
 
         # right foot (bass)
         score_array = time[self.button_activation[-2] == 1]
         score_array = np.hstack( (score_array[:, np.newaxis], np.zeros((score_array.shape[0], 3))) )
-        np.savetxt("right_foot.txt", score_array.flatten(), delimiter=',')
 
         # arms:
         # if 1 hand instrument is selected: assign to hand that is closer to the instrument
@@ -279,6 +278,10 @@ class MainWindow(QWidget):
 
         right_hand = np.array(right_hand).flatten()
         left_hand = np.array(left_hand).flatten()
+
+        os.chdir("../bin")
+        np.savetxt("left_foot.txt", score_array.flatten(), delimiter=',')
+        np.savetxt("right_foot.txt", score_array.flatten(), delimiter=',')
         np.savetxt("right_hand.txt", right_hand, newline="\n", fmt='%1.5f')
         np.savetxt("left_hand.txt", left_hand, newline="\n", fmt='%1.5f')     
 
