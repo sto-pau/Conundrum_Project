@@ -44,7 +44,6 @@ print('Here')
 
 
 
-
 r = redis.Redis(host='localhost', port=6379)
 r.set('drum_key', "0")
 while True:

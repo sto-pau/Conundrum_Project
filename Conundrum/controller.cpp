@@ -30,7 +30,10 @@ void sighandler(int sig)
 { runloop = false; }
 
 using namespace std;
-using namespace Eigen;
+
+/*Module level function to read GUI output file and store time,x,y,z data*/
+
+void readGUI(string filename, float s[4][10], int& no_tsteps);
 
 const string robot_file = "./resources/toro.urdf";	
 
@@ -47,16 +50,7 @@ unsigned long long controller_counter = 0;
 int main() {
 
 
-	//Set up file read from GUI
-
-	ifstream right_hand;
-	right_hand.open ("right_hand.txt", ios::in);
-	ifstream left_hand;
-	left_hand.open ("left_hand.txt", ios::in);
-	ifstream right_foot;
-	right_foot.open ("right_foot.txt", ios::in);
-	ifstream left_foot;
-	left_foot.open ("left_foot.txt", ios::in);
+	
 
 
 	int state = JOINT_CONTROLLER;
@@ -290,6 +284,70 @@ int main() {
 	int sizeLLTime = LL_time_data.size();
 	Eigen::VectorXd addLLTime = 60 * Eigen::VectorXd::Ones(sizeLLTime);
 	
+
+
+
+	//Wait for play button to be hit
+	redis_client.set("gui::is_playing","0");
+	while(!stoi(redis_client.get("gui::is_playing"))){}
+
+	
+	
+	//Call read function to read text files from GUI
+
+	//Right hand
+	int no_tsteps_rh; float rh[4][10];
+	readGUI("right_hand.txt", rh, no_tsteps_rh);	
+	VectorXd time_data_rh(no_tsteps_rh), x_data_rh(no_tsteps_rh), y_data_rh(no_tsteps_rh), z_data_rh(no_tsteps_rh);
+	//Store time,x,y,z data
+	for(int ct = 0; ct<no_tsteps_rh;ct++){
+
+		time_data_rh(ct) = rh[0][ct];
+		x_data_rh(ct) = rh[1][ct];
+		y_data_rh(ct) = rh[2][ct];
+		z_data_rh(ct) = rh[3][ct];
+
+	
+	}
+	
+	cout<< time_data_rh(0);
+
+	//Uncomment the following for other limbs
+
+	/*
+	//Left hand
+	int no_tsteps_lh; float lh[4][10];
+	readGUI("left_hand.txt", lh, no_tsteps_lh);	
+	VectorXd time_data_lh(no_tsteps_lh), x_data_lh(no_tsteps_lh), y_data_lh(no_tsteps_lh), z_data_lh(no_tsteps_lh);
+	//Store time,x,y,z data
+	time_data_lh << lh[0];
+	x_data_lh << lh[1];
+	y_data_lh << lh[2];
+	z_data_lh << lh[3];
+
+	//Right foot
+	int no_tsteps_rf; float rf[4][10];
+	readGUI("right_foot.txt", rf, no_tsteps_rf);	
+	VectorXd time_data_rf(no_tsteps_rf), x_data_rf(no_tsteps_rf), y_data_rf(no_tsteps_rf), z_data_rf(no_tsteps_rf);
+	//Store time,x,y,z data
+	time_data_rf << rf[0];
+	x_data_rf << rf[1];
+	y_data_rf << rf[2];
+	z_data_rf << rf[3];
+
+	//Left Foot
+	int no_tsteps_lf; float lf[4][10];
+	readGUI("left_foot.txt", lf, no_tsteps_lf);	
+	VectorXd time_data_lf(no_tsteps_lf), x_data_lf(no_tsteps_lf), y_data_lf(no_tsteps_lf), z_data_lf(no_tsteps_lf);
+	//Store time,x,y,z data
+	time_data_lf << lf[0];
+	x_data_lf << lf[1];
+	y_data_lf << lf[2];
+	z_data_lf << lf[3];
+	*/
+
+
+
 	while (runloop) {
 		// wait for next scheduled loop
 		timer.waitForNextLoop();
@@ -321,7 +379,7 @@ int main() {
 					//cout << pos_des << "\n";
 					drum_state = FIRST_MOVING;
 					cout << "DRUM STATE: " << drum_state << "\n";
-				}
+				} 
 				break;
 			case FIRST_MOVING:
 				if (time >= unified_start_time + time_data(i) - time_to_hit - t_buffer){ //move in anticipation to the synchronized start before 'start' has been set
@@ -474,4 +532,38 @@ int main() {
 	redis_client.setEigenMatrixJSON(JOINT_TORQUES_COMMANDED_KEY, 0 * command_torques);
 
 	return 0;
+}
+
+
+/*Module level function to read GUI output file and store time,x,y,z data*/
+
+void readGUI(string filename, float s[4][10], int& no_tsteps){
+
+	//Set up file read from GUI
+	ifstream myfile;
+	myfile.open (filename, ios::in);
+	
+	//array to store initial read from file
+	string line;
+	// i counts number of timesteps
+	// j iterates across time,x,y,z of each timestep
+	int i = 0; int j=0;
+	//Read elements from the file
+	while ( getline (myfile,line) )
+	{
+		s[j][i] = stof(line);
+		j++;
+		//If we're done reading one vector
+		if(j==4){
+			//Move to next timestep
+			j=0; i++;
+		}
+
+	}
+	//Find number of timesteps
+	no_tsteps = i;
+
+	myfile.close();
+
+
 }
