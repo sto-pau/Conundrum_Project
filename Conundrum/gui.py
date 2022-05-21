@@ -231,7 +231,7 @@ class MainWindow(QWidget):
         loop_time = dt * self.n_measures * self.beats_per_measure # seconds per loop
         
         self.redis_client.set(self.BPM_KEY, self.tempo) # upload BPM to redis 
-        self.redis_client.ser(self.LOOPTIME_KEY, loop_time)
+        self.redis_client.set(self.LOOPTIME_KEY, loop_time)
 
         time = np.arange(0, loop_time, dt) # time array
 
@@ -279,8 +279,8 @@ class MainWindow(QWidget):
 
         right_hand = np.array(right_hand).flatten()
         left_hand = np.array(left_hand).flatten()
-        np.savetxt("right_hand.txt", right_hand, delimiter=',')
-        np.savetxt("left_hand.txt", left_hand, delimiter=',')     
+        np.savetxt("right_hand.txt", right_hand, newline="\n")
+        np.savetxt("left_hand.txt", left_hand, newline="\n")     
 
         print("Toro is ready to CONUN-DRUM!!!")            
       
