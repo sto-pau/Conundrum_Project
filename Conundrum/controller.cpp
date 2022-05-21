@@ -12,6 +12,8 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <sstream>
+#include <vector> 
 #include <signal.h>
 using namespace std;
 // state machine
@@ -307,10 +309,9 @@ int main() {
 		y_data_rh(ct) = rh[2][ct];
 		z_data_rh(ct) = rh[3][ct];
 
-	
 	}
 	
-	cout<< time_data_rh(0);
+	//cout<< rh[0][0]<< endl;
 
 	//Uncomment the following for other limbs
 
@@ -541,22 +542,24 @@ void readGUI(string filename, float s[4][10], int& no_tsteps){
 
 	//Set up file read from GUI
 	ifstream myfile;
-	myfile.open (filename, ios::in);
+	myfile.open("tester.txt", ios::in);
 	
 	//array to store initial read from file
 	string line;
 	// i counts number of timesteps
 	// j iterates across time,x,y,z of each timestep
 	int i = 0; int j=0;
+	//char test = getline(myfile,line,'\n'); 
+	//cout<<test<<endl;
 	//Read elements from the file
-	while ( getline (myfile,line) )
-	{
+	while ( getline(myfile,line,'\n') )
+	{   cout<<"hi"<<endl;
 		s[j][i] = stof(line);
 		j++;
 		//If we're done reading one vector
 		if(j==4){
 			//Move to next timestep
-			j=0; i++;
+			i=0; j++;
 		}
 
 	}
@@ -565,5 +568,6 @@ void readGUI(string filename, float s[4][10], int& no_tsteps){
 
 	myfile.close();
 
+	return;
 
 }
