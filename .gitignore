@@ -1,3 +1,8 @@
 # Ignore build and bin directories
 build/**
 bin/
+Conundrum/right_hand.txt
+Conundrum/right_foot.txt
+Conundrum/left_hand.txt
+Conundrum/left_foot.txt
+
