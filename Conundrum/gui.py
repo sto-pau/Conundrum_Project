@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt
 
 import redis
 import numpy as np
+import os
 
 """
 TODOs
@@ -30,7 +31,8 @@ class MainWindow(QWidget):
         # define and initialize redis keys
         self.IS_PLAYING_KEY = "gui::is_playing" # should simulation be running?
         self.redis_client.set(self.IS_PLAYING_KEY, 0)
-        self.LOOPTIME_KEY = "gui::looptime" # how many seconds in a single loop
+        self.BPM_KEY = "gui::bpm" # BPM
+        self.LOOPTIME_KEY = "gui::looptime" # seconds per loop
 
         # instruments and coordinates
         # ordered according to position on drum score (top to bottom)
@@ -135,7 +137,7 @@ class MainWindow(QWidget):
         # add all child layouts to main
         title_text = QLabel("Welcome to Toro the Conun-Drummer's Livehouse!")
         title_text.setFont(QFont('Arial', 25))
-        directions_text = QLabel("Input a drum score for Toro to play, set the tempo, and press PLAY to see toro drum!")
+        directions_text = QLabel("Input a drum score for Toro to play, set the tempo, and press PLAY to see toro drum!\nThe entire grid represents a measure, and each button is an eigth note.")
         self.error_text = QLabel("")
         self.error_text.setStyleSheet("color:rgb(255,0,0)")
 
@@ -228,18 +230,19 @@ class MainWindow(QWidget):
         # prepare time array from tempo and total number of beats
         dt = 60 / (self.tempo * self.beats_per_measure / self.time_sig) # time between each beat
         loop_time = dt * self.n_measures * self.beats_per_measure # seconds per loop
-        self.redis_client.set(self.LOOPTIME_KEY, loop_time) # upload looptime to redis 
+        
+        self.redis_client.set(self.BPM_KEY, self.tempo) # upload BPM to redis 
+        self.redis_client.set(self.LOOPTIME_KEY, loop_time)
+
         time = np.arange(0, loop_time, dt) # time array
 
         # left foot (hi-hat pedal)
         score_array = time[self.button_activation[-1] == 1]
         score_array = np.hstack( (score_array[:, np.newaxis], np.zeros((score_array.shape[0], 3))) )
-        np.savetxt("left_foot.txt", score_array.flatten(), delimiter=',')
 
         # right foot (bass)
         score_array = time[self.button_activation[-2] == 1]
         score_array = np.hstack( (score_array[:, np.newaxis], np.zeros((score_array.shape[0], 3))) )
-        np.savetxt("right_foot.txt", score_array.flatten(), delimiter=',')
 
         # arms:
         # if 1 hand instrument is selected: assign to hand that is closer to the instrument
@@ -275,8 +278,12 @@ class MainWindow(QWidget):
 
         right_hand = np.array(right_hand).flatten()
         left_hand = np.array(left_hand).flatten()
-        np.savetxt("right_hand.txt", right_hand, delimiter=',')
-        np.savetxt("left_hand.txt", left_hand, delimiter=',')     
+
+        os.chdir("../bin")
+        np.savetxt("left_foot.txt", score_array.flatten(), delimiter=',')
+        np.savetxt("right_foot.txt", score_array.flatten(), delimiter=',')
+        np.savetxt("right_hand.txt", right_hand, newline="\n", fmt='%1.5f')
+        np.savetxt("left_hand.txt", left_hand, newline="\n", fmt='%1.5f')     
 
         print("Toro is ready to CONUN-DRUM!!!")            
       
