@@ -279,8 +279,8 @@ class MainWindow(QWidget):
 
         right_hand = np.array(right_hand).flatten()
         left_hand = np.array(left_hand).flatten()
-        np.savetxt("right_hand.txt", right_hand, newline="\n")
-        np.savetxt("left_hand.txt", left_hand, newline="\n")     
+        np.savetxt("right_hand.txt", right_hand, newline="\n", fmt='%1.5f')
+        np.savetxt("left_hand.txt", left_hand, newline="\n", fmt='%1.5f')     
 
         print("Toro is ready to CONUN-DRUM!!!")            
       
