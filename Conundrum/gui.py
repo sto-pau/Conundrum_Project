@@ -1,8 +1,15 @@
 import sys
 from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt
 
 import redis
 import numpy as np
+
+"""
+TODOs
+- reset all button might be nice to have
+"""
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -15,13 +22,15 @@ class MainWindow(QWidget):
 
         # set constants and flags
         self.n_measures = 1 # number of measures
-        self.beats_per_measure = 4 # beats per measure
+        self.beats_per_measure = 8 # beats per measure
+        self.time_sig = 4 # time signature: 4 means 4/4
         self.is_playing = False # whether the simulation should be running
-        self.tempo = 4 # tempo in BPM - TODO: make this tunable
+        self.tempo = 4 # tempo in BPM 
 
         # define and initialize redis keys
-        self.IS_PLAYING_KEY = "gui::is_playing"
+        self.IS_PLAYING_KEY = "gui::is_playing" # should simulation be running?
         self.redis_client.set(self.IS_PLAYING_KEY, 0)
+        self.LOOPTIME_KEY = "gui::looptime" # how many seconds in a single loop
 
         # instruments and coordinates
         # ordered according to position on drum score (top to bottom)
@@ -53,6 +62,13 @@ class MainWindow(QWidget):
         # array containing button activation status
         self.button_activation = np.zeros((self.n_instruments, self.n_measures * self.beats_per_measure))
 
+        # tempo slider and text objects
+        self.tempo_slider = None
+        self.tempo_text = None
+
+        # error text object
+        self.error_text = None
+
         self._initGUI()
 
     def _initGUI(self):
@@ -61,14 +77,19 @@ class MainWindow(QWidget):
         """
         # Root parent layout
         main_layout = QVBoxLayout()
+        main_layout.setSpacing(30)
 
         # score grid layout
         score_layout = QGridLayout()
         score_layout.setVerticalSpacing(0)
         score_layout.setHorizontalSpacing(0)
 
+        # Add instument names to each row
         for i, inst in enumerate(self.instrument_names):
             score_layout.addWidget(QLabel(inst), i, 0)
+
+        # Add score buttons
+        btn_colors = ["ff3333", "ffed18", "77f32c", "2cf3e7", "b12cf3"]
 
         for i in range(self.n_instruments):
             for j in range(self.beats_per_measure * self.n_measures):
@@ -77,15 +98,30 @@ class MainWindow(QWidget):
                 btn.setCheckable(True) # make button checkable
                 btn.clicked.connect(self._note_callback)
 
-                if i >= self.n_instruments - 2:
-                    # make buttons for feet instruments red for clarity
-                    btn.setStyleSheet("background-color: red")
+                btn.setStyleSheet(f"background-color:#{btn_colors[i]}")
 
                 # store button object
                 self.measure_buttons[i].append(btn)
                 
                 score_layout.addWidget(btn, i, j+1)
 
+        
+        # Tempo selection layout
+        tempo_layout = QHBoxLayout()
+        tempo_layout.setSpacing(30)
+        self.tempo_slider = QSlider(Qt.Horizontal)
+        self.tempo_slider.setMinimum(4)
+        self.tempo_slider.setMaximum(180)
+        self.tempo_slider.setSingleStep(1)
+        self.tempo_slider.setFocusPolicy(Qt.StrongFocus)
+        self.tempo_slider.setTickPosition(QSlider.TicksBothSides)
+        self.tempo_slider.setTickInterval(10)
+        self.tempo_slider.valueChanged.connect(self._tempo_slider_callback)
+        
+        self.tempo_text = QLabel("4 BPM")
+        tempo_layout.addWidget(self.tempo_text)
+        tempo_layout.addWidget(self.tempo_slider)
+        
         # play and stop layout
         play_stop_layout = QHBoxLayout()
 
@@ -97,14 +133,24 @@ class MainWindow(QWidget):
         play_stop_layout.addWidget(stop_btn)
 
         # add all child layouts to main
+        title_text = QLabel("Welcome to Toro the Conun-Drummer's Livehouse!")
+        title_text.setFont(QFont('Arial', 25))
+        directions_text = QLabel("Input a drum score for Toro to play, set the tempo, and press PLAY to see toro drum!")
+        self.error_text = QLabel("")
+        self.error_text.setStyleSheet("color:rgb(255,0,0)")
+
+        main_layout.addWidget(title_text)
+        main_layout.addWidget(directions_text)
+        main_layout.addWidget(self.error_text)
         main_layout.addLayout(score_layout)
+        main_layout.addLayout(tempo_layout)
         main_layout.addLayout(play_stop_layout)
 
         self.setLayout(main_layout)   
         self.show()
 
 
-    ################# Button Callback Functions ##################
+    ################# Button and Slider Callback Functions ##################
     def _play_callback(self):
 
         """
@@ -116,10 +162,12 @@ class MainWindow(QWidget):
         # make sure input is valid before exporting txt file
         if not self._is_valid_input():
             print("Input score is invalid.")
+            self.error_text.setText("Toro only has 2 arms! Please try another beat!")
             return
 
         # if input is valid and the simulation is not already playing, save coordinate files and start simulation
         if not self.is_playing:
+            self.error_text.setText("Watch Toro play your beat!!")
             self.save_score_text()
             self.is_playing = True
             self.redis_client.set(self.IS_PLAYING_KEY, 1)
@@ -132,6 +180,7 @@ class MainWindow(QWidget):
 
         print("Clicked STOP")
         if self.is_playing:
+            self.error_text.setText("")
             self.is_playing = False
             self.redis_client.set(self.IS_PLAYING_KEY, 0)
 
@@ -141,6 +190,13 @@ class MainWindow(QWidget):
         """
 
         self._update_btn_activation()
+
+    def _tempo_slider_callback(self, value):
+        """
+        Called when slider value changes
+        """
+        self.tempo_text.setText(str(value) + " BPM")
+        self.tempo = value
         
 
     ###################### Check Button Activation States ########################
@@ -170,18 +226,20 @@ class MainWindow(QWidget):
         # print(self.button_activation)
 
         # prepare time array from tempo and total number of beats
-        dt = 60 / self.tempo # time between each beat
-        time = np.arange(0, dt * self.n_measures * self.beats_per_measure, dt) # time array
+        dt = 60 / (self.tempo * self.beats_per_measure / self.time_sig) # time between each beat
+        loop_time = dt * self.n_measures * self.beats_per_measure # seconds per loop
+        self.redis_client.set(self.LOOPTIME_KEY, loop_time) # upload looptime to redis 
+        time = np.arange(0, loop_time, dt) # time array
 
         # left foot (hi-hat pedal)
         score_array = time[self.button_activation[-1] == 1]
         score_array = np.hstack( (score_array[:, np.newaxis], np.zeros((score_array.shape[0], 3))) )
-        np.savetxt("left_foot", score_array.flatten(), delimiter=',')
+        np.savetxt("left_foot.txt", score_array.flatten(), delimiter=',')
 
         # right foot (bass)
         score_array = time[self.button_activation[-2] == 1]
         score_array = np.hstack( (score_array[:, np.newaxis], np.zeros((score_array.shape[0], 3))) )
-        np.savetxt("right_foot", score_array.flatten(), delimiter=',')
+        np.savetxt("right_foot.txt", score_array.flatten(), delimiter=',')
 
         # arms:
         # if 1 hand instrument is selected: assign to hand that is closer to the instrument
@@ -217,8 +275,10 @@ class MainWindow(QWidget):
 
         right_hand = np.array(right_hand).flatten()
         left_hand = np.array(left_hand).flatten()
-        np.savetxt("right_hand", right_hand, delimiter=',')
-        np.savetxt("left_hand", left_hand, delimiter=',')                 
+        np.savetxt("right_hand.txt", right_hand, delimiter=',')
+        np.savetxt("left_hand.txt", left_hand, delimiter=',')     
+
+        print("Toro is ready to CONUN-DRUM!!!")            
       
 
 if __name__ == '__main__':
