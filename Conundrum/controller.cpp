@@ -238,7 +238,7 @@ int main() {
 	int i;
 	Vector3d pos_des; 
 	Vector3d curr_pos;	
-	unsigned drum_state = HOME;
+	unsigned LH_state = HOME;
 	double t_buffer = 0.1;	
 	double dz = 0.2;
 	double threshold = 0.01;
@@ -246,6 +246,8 @@ int main() {
 	double v_travel = 0.3;
 	double time_to_hit = dz/v_hit;
 	
+	//For testing
+	/*
 	VectorXd time_data(3), x_data(3), y_data(3), z_data(3); 
 	Vector3d snare = Vector3d(0.36543, 0.32512, -0.50876);
 	Vector3d tom1 = Vector3d(0.72103, 0.18308, -0.35312);
@@ -257,32 +259,34 @@ int main() {
 	z_data << snare(2), tom1(2), tom1(2);
 
 	int sizeTime = time_data.size();
-	Eigen::VectorXd addTime = 60 * Eigen::VectorXd::Ones(sizeTime);
+	*/
+
+	
 	
 	string left_arm_control_link = "la_end_effector";
 	Vector3d left_arm_control_point = Vector3d(0, 0, -0.214); //length is 0.214374
 
 
 	//for LL state machine (HiHat)
-	int LL_joint = 17; //18th joint, indexed with 17
-	unsigned LL_state = HOME;
-	int index_LL;
+	int LF_joint = 17; //18th joint, indexed with 17
+	unsigned LF_state = HOME;
+	int index_LF;
 
-	float ang_LL_des = q_init_desired[LL_joint]; //initialize with starting value to stay there at home (otherwise garbage angle)
-	float curr_LL_ang;	
-	double LL_lift = q_init_desired[LL_joint];
+	float ang_LF_des = q_init_desired[LF_joint]; //initialize with starting value to stay there at home (otherwise garbage angle)
+	float curr_LF_ang;	
+	double LF_lift = q_init_desired[LF_joint];
 	double dTh = M_PI/6;
-	double LL_stomp = LL_lift + dTh;
+	double LF_stomp = LF_lift + dTh;
 
 	double thetaThreshold = 0.1; //apprx 5.73 deg
 	double t_stomp_buffer = 0.75;
 	double time_to_stomp = dTh / w[0]; //w declared above when JointTask sat_vel is declared
 
-	VectorXd LL_time_data(2);
-	LL_time_data << 15, 30;	
+	/*VectorXd time_data_lf(2);
+	time_data_lf << 15, 30;	 
 
-	int sizeLLTime = LL_time_data.size();
-	Eigen::VectorXd addLLTime = 60 * Eigen::VectorXd::Ones(sizeLLTime);
+	int no_tsteps_lf = time_data_lf.size();*/
+	
 	
 
 
@@ -293,7 +297,7 @@ int main() {
 
 	
 	
-	//Call read function to read text files from GUI
+	/**************START OF GUI FILE-READ******************/
 
 	//Right hand
 	int no_tsteps_rh; float rh[4][10];
@@ -310,43 +314,49 @@ int main() {
 	
 	}
 	
-	cout<< time_data_rh(0);
-
-	//Uncomment the following for other limbs
-
-	/*
 	//Left hand
 	int no_tsteps_lh; float lh[4][10];
 	readGUI("left_hand.txt", lh, no_tsteps_lh);	
 	VectorXd time_data_lh(no_tsteps_lh), x_data_lh(no_tsteps_lh), y_data_lh(no_tsteps_lh), z_data_lh(no_tsteps_lh);
 	//Store time,x,y,z data
-	time_data_lh << lh[0];
-	x_data_lh << lh[1];
-	y_data_lh << lh[2];
-	z_data_lh << lh[3];
+	for(int ct = 0; ct<no_tsteps_lh;ct++){
+
+		time_data_lh(ct) = lh[0][ct];
+		x_data_lh(ct) = lh[1][ct];
+		y_data_lh(ct) = lh[2][ct];
+		z_data_lh(ct) = lh[3][ct];
+
+	}
+	
 
 	//Right foot
 	int no_tsteps_rf; float rf[4][10];
 	readGUI("right_foot.txt", rf, no_tsteps_rf);	
 	VectorXd time_data_rf(no_tsteps_rf), x_data_rf(no_tsteps_rf), y_data_rf(no_tsteps_rf), z_data_rf(no_tsteps_rf);
 	//Store time,x,y,z data
-	time_data_rf << rf[0];
-	x_data_rf << rf[1];
-	y_data_rf << rf[2];
-	z_data_rf << rf[3];
+	for(int ct = 0; ct<no_tsteps_rf;ct++){
+		time_data_rf(ct) = rf[0][ct];
+		x_data_rf(ct) = rf[1][ct];
+		y_data_rf(ct) = rf[2][ct];
+		z_data_rf(ct) = rf[3][ct];
+	}
 
 	//Left Foot
 	int no_tsteps_lf; float lf[4][10];
 	readGUI("left_foot.txt", lf, no_tsteps_lf);	
 	VectorXd time_data_lf(no_tsteps_lf), x_data_lf(no_tsteps_lf), y_data_lf(no_tsteps_lf), z_data_lf(no_tsteps_lf);
 	//Store time,x,y,z data
-	time_data_lf << lf[0];
-	x_data_lf << lf[1];
-	y_data_lf << lf[2];
-	z_data_lf << lf[3];
-	*/
+	for(int ct = 0; ct<no_tsteps_lf;ct++){
+		time_data_lf(ct) = lf[0][ct];
+		x_data_lf(ct) = lf[1][ct];
+		y_data_lf(ct) = lf[2][ct];
+		z_data_lf(ct) = lf[3][ct];
+	}
 
 
+ /*******END OF GUI FILE-READ*********************/
+
+/***START OF STATE MACHINE***************/
 
 	while (runloop) {
 		// wait for next scheduled loop
@@ -366,71 +376,71 @@ int main() {
 		robot->updateModel();
 		
 		robot->positionInWorld(curr_pos, left_arm_control_link, left_arm_control_point); //get curr pos
-		curr_LL_ang = robot->_q[LL_joint]; //get current left foot angle
+		curr_LF_ang = robot->_q[LF_joint]; //get current left foot angle
 		
 
-		switch(drum_state){
+		switch(LH_state){
 			case HOME:
 				if (play = true){
 					i = 0;
-					pos_des << x_data(i), y_data(i), z_data(i);
+					pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
 					pos_des(2) += dz;  //at vtravel
 					posori_task_left_hand->_linear_saturation_velocity = v_travel;
 					//cout << pos_des << "\n";
-					drum_state = FIRST_MOVING;
-					cout << "DRUM STATE: " << drum_state << "\n";
+					LH_state = FIRST_MOVING;
+					cout << "DRUM STATE: " << LH_state << "\n";
 				} 
 				break;
 			case FIRST_MOVING:
-				if (time >= unified_start_time + time_data(i) - time_to_hit - t_buffer){ //move in anticipation to the synchronized start before 'start' has been set
+				if (time >= unified_start_time + time_data_lh(i) - time_to_hit - t_buffer){ //move in anticipation to the synchronized start before 'start' has been set
 					
-					pos_des << x_data(i), y_data(i), z_data(i); //at vhit
+					pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i); //at vhit
 					posori_task_left_hand->_linear_saturation_velocity = v_hit;
-					drum_state = HITTING_DRUM;
-					cout << "DRUM STATE: " << drum_state << "\n";
+					LH_state = HITTING_DRUM;
+					cout << "DRUM STATE: " << LH_state << "\n";
 				}
 				break;
 			case LIFTING_DRUMSTICK:
 				if (abs(curr_pos.norm()-pos_des.norm()) < threshold){
 					i++;
-					if (i % sizeTime == 0){
+					if (i % no_tsteps_lh == 0){
 						i = 0;
-						drum_state = MOVING_DRUMSTICK;
-						
-						time_data = time_data + addTime; //wrap time around by adding the length of one time measure (one song meter)
+						LH_state = MOVING_DRUMSTICK;
+						Eigen::VectorXd addTime = 60 * Eigen::VectorXd::Ones(no_tsteps_lh);
+						time_data_lh = time_data_lh + addTime; //wrap time around by adding the length of one time measure (one song meter)
 
 						//these desired pos assignments HAVE to come after setting i = 0!
-						pos_des << x_data(i), y_data(i), z_data(i);
+						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
 						pos_des(2) += dz;  //at vtravel
 						posori_task_left_hand->_linear_saturation_velocity = v_travel;
 
 					}
 					else{
-						pos_des << x_data(i), y_data(i), z_data(i);
+						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
 						pos_des(2) += dz;      //at vtravel
 						posori_task_left_hand->_linear_saturation_velocity = v_travel;
-						drum_state = MOVING_DRUMSTICK;
-						cout << "DRUM STATE: " << drum_state << "\n";
+						LH_state = MOVING_DRUMSTICK;
+						cout << "DRUM STATE: " << LH_state << "\n";
 					}
 				}
 				break;
 			case MOVING_DRUMSTICK:
 				
-				if (time - start >= time_data(i)-time_to_hit-t_buffer){
+				if (time - start >= time_data_lh(i)-time_to_hit-t_buffer){
 					cout << "\nstarting hit ra " << time - start << "\n";
-					pos_des << x_data(i), y_data(i), z_data(i);   //at vhit
+					pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);   //at vhit
 					posori_task_left_hand->_linear_saturation_velocity = v_hit;
-					drum_state = HITTING_DRUM;
-					cout << "DRUM STATE: " << drum_state << "\n";
+					LH_state = HITTING_DRUM;
+					cout << "DRUM STATE: " << LH_state << "\n";
 				}
 				break;
 			case HITTING_DRUM:
 				if (abs(curr_pos.norm()-pos_des.norm()) < threshold){
-					pos_des << x_data(i), y_data(i), z_data(i);
+					pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
 					pos_des(2) += dz;      //at vtravel
 					posori_task_left_hand->_linear_saturation_velocity = v_travel;
-					drum_state = LIFTING_DRUMSTICK;
-					cout << "DRUM STATE: " << drum_state << "\n";
+					LH_state = LIFTING_DRUMSTICK;
+					cout << "DRUM STATE: " << LH_state << "\n";
 				}
 				break;
 			default:
@@ -438,40 +448,41 @@ int main() {
 		}
 
 
-		switch(LL_state){ //left leg (hi-hat) state machine
+		switch(LF_state){ //left leg (hi-hat) state machine
 			case HOME:
 				if (play = true){
-					index_LL = 0;
-					LL_state = FIRST_MOVING;
-					cout << "LEFT LEG STATE: " << LL_state << "\n";
+					index_LF = 0;
+					LF_state = FIRST_MOVING;
+					cout << "LEFT LEG STATE: " << LF_state << "\n";
 				}
 				break;
 			case FIRST_MOVING:
-				if (time >= unified_start_time + LL_time_data(index_LL) - time_to_stomp - t_stomp_buffer){
-					ang_LL_des = LL_stomp;
-					LL_state = STOMP;
-					cout << "LEFT LEG  STATE: " << LL_state << "\n";
+				if (time >= unified_start_time + time_data_lf(index_LF) - time_to_stomp - t_stomp_buffer){
+					ang_LF_des = LF_stomp;
+					LF_state = STOMP;
+					cout << "LEFT LEG  STATE: " << LF_state << "\n";
 				}
 				break;
 			case WAIT:
-				if (time - start >= LL_time_data(index_LL) - time_to_stomp - t_stomp_buffer){
+				if (time - start >= time_data_lf(index_LF) - time_to_stomp - t_stomp_buffer){
 					cout << "\nstarting stomp LL " << time - start << "\n";
-					ang_LL_des = LL_stomp;
-					LL_state = STOMP;
-					cout << "LEFT LEG  STATE: " << LL_state << "\n";
+					ang_LF_des = LF_stomp;
+					LF_state = STOMP;
+					cout << "LEFT LEG  STATE: " << LF_state << "\n";
 				}
 				break;
 			case STOMP:
-				if (abs(curr_LL_ang - ang_LL_des) < thetaThreshold){
-					index_LL++;
-					ang_LL_des = LL_lift;
-					LL_state = WAIT;
+				if (abs(curr_LF_ang - ang_LF_des) < thetaThreshold){
+					index_LF++;
+					ang_LF_des = LF_lift;
+					LF_state = WAIT;
 
-					if (index_LL % sizeLLTime == 0){
-						index_LL = 0;
-						LL_time_data = LL_time_data + addLLTime;
+					if (index_LF % no_tsteps_lf == 0){
+						index_LF = 0;
+						Eigen::VectorXd addLLTime = 60 * Eigen::VectorXd::Ones(no_tsteps_lf);
+						time_data_lf = time_data_lf + addLLTime;
 					}
-					cout << "LEFT LEG  STATE: " << LL_state << "\n";
+					cout << "LEFT LEG  STATE: " << LF_state << "\n";
 				}
 				break;
 
@@ -479,7 +490,7 @@ int main() {
 				break;
 		}//end left leg (hi-hat) state machine
 
-		joint_desired[LL_joint] = ang_LL_des; //set desired LL position
+		joint_desired[LF_joint] = ang_LF_des; //set desired LL position
 		joint_task->_desired_position = joint_desired;
 
 		posori_task_left_hand->_desired_position = pos_des;  //set position desired
