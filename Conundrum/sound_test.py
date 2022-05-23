@@ -46,7 +46,7 @@ print('Here')
 
 r = redis.Redis(host='localhost', port=6379)
 r.set('drum_key', "0")
-while True:
+while False:
 	val = r.get('drum_key')
 	print("Current value is ", val)
 	if(val == '1'):

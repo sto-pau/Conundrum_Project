@@ -87,8 +87,8 @@ int main() {
 	// load simulation world
 	auto sim = new Simulation::Sai2Simulation(world_file, false);
 	sim->setCollisionRestitution(0);
-	sim->setCoeffFrictionStatic(0.6);
-	sim->setCoeffFrictionDynamic(0.1);
+	sim->setCoeffFrictionStatic(0.0);
+	sim->setCoeffFrictionDynamic(0.0);
 
 	graphics->showLinkFrame(true, robot_name,"",0.2); //visualize frame of end effector
 
