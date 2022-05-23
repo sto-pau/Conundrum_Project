@@ -42,4 +42,7 @@ while True:
 	if (val == '4'):
 		pygame.mixer.Channel(3).play(hihat)
 		r.set(DRUM_KEY, '0')
+	if (val == '5'):
+		pygame.mixer.Channel(3).play(bass)
+		r.set(DRUM_KEY, '0')
 		

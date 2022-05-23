@@ -204,7 +204,7 @@ int main() {
 	// set desired joint posture to be the initial robot configuration
 	VectorXd q_init_desired = robot->_q;
 	//q_init_desired(11) = 0; 
-	//cout << "ANGLE " << q_init_desired(11);
+	//cout << "ANGLES " << robot->_q;
 	VectorXd joint_desired = q_init_desired;
 	joint_task->_desired_position = joint_desired;
 
@@ -264,6 +264,12 @@ int main() {
 	string right_arm_control_link = "ra_end_effector";
 	Vector3d right_arm_control_point = Vector3d(0, 0, -0.214); //length is 0.21437
 
+	//for both leg state machines
+	double thetaThreshold = 0.1; //apprx 5.73 deg
+	double t_stomp_buffer = 0.5;
+	double dTh = M_PI/12;
+	double time_to_stomp = dTh / w[0]; //w declared above when JointTask sat_vel is declared
+	
 	//for left leg state machine (HiHat)
 	int LF_joint = 17; //18th joint, indexed with 17
 	unsigned LF_state = HOME;
@@ -271,12 +277,16 @@ int main() {
 	float ang_LF_des = q_init_desired[LF_joint]; //initialize with starting value to stay there at home (otherwise garbage angle)
 	float curr_LF_ang;	
 	double LF_lift = q_init_desired[LF_joint];
-	double dTh = M_PI/12;
 	double LF_stomp = LF_lift + dTh;
-	double thetaThreshold = 0.1; //apprx 5.73 deg
-	double t_stomp_buffer = 0.5;
-	double time_to_stomp = dTh / w[0]; //w declared above when JointTask sat_vel is declared
-	
+
+	//for right leg state machine (Bass)
+	int RF_joint = 11; //12th joint, indexed with 11
+	unsigned RF_state = HOME;
+	int index_RF;
+	float ang_RF_des = q_init_desired[RF_joint]; //initialize with starting value to stay there at home (otherwise garbage angle)
+	float curr_RF_ang;	
+	double RF_lift = q_init_desired[RF_joint];
+	double RF_stomp = RF_lift + dTh;	
 	
 	//Wait for play button to be hit
 	redis_client.set("gui::is_playing","0");
@@ -365,6 +375,7 @@ int main() {
 		robot->positionInWorld(curr_pos, left_arm_control_link, left_arm_control_point); //get curr pos left arm
 		robot->positionInWorld(curr_pos_ra, right_arm_control_link, right_arm_control_point); //get curr pos right arm
 		curr_LF_ang = robot->_q[LF_joint]; //get current left foot angle
+		curr_RF_ang = robot->_q[RF_joint]; //get current right foot angle
 		
 		
 		if (no_tsteps_lh != 0){
@@ -583,6 +594,52 @@ int main() {
 			joint_desired[LF_joint] = ang_LF_des; //set desired LL position
 		}
 		
+		if (no_tsteps_rf != 0){
+			switch(RF_state){ //right leg (bass) state machine
+				case HOME:
+					if (play == true){
+						index_RF = 0;
+						RF_state = FIRST_MOVING;
+						cout << "RIGHT LEG  STATE: " << RF_state << "\n";
+					}
+					break;
+				case FIRST_MOVING:
+					if (time >= unified_start_time + time_data_rf(index_RF) - time_to_stomp - t_stomp_buffer){
+						ang_RF_des = RF_stomp;
+						RF_state = STOMP;
+						cout << "RIGHT LEG  STATE: " << RF_state << "\n";
+					}
+					break;
+				case WAIT:
+					if (time - start >= time_data_rf(index_RF) - time_to_stomp - t_stomp_buffer){
+						cout << "\nstarting stomp LL " << time - start << "\n";
+						ang_RF_des = RF_stomp;
+						RF_state = STOMP;
+						cout << "RIGHT LEG  STATE: " << RF_state << "\n";
+					}
+					break;
+				case STOMP:
+					if (abs(curr_RF_ang - ang_RF_des) < thetaThreshold){
+						redis_client.set(DRUM_KEY, "5");
+						index_RF++;
+						ang_RF_des = RF_lift;
+						RF_state = WAIT;
+						cout << "TIME AT BASS HIT: " << time - start << "\n";
+						if (index_RF % no_tsteps_rf == 0){
+							index_RF = 0;
+							Eigen::VectorXd addLLTime = 60 * Eigen::VectorXd::Ones(no_tsteps_rf);
+							time_data_rf = time_data_rf + addLLTime;
+						}
+						cout << "RIGHT LEG  STATE: " << RF_state << "\n";
+					}
+					break;
+				default:
+					break;
+			}//end right leg (bass) state machine
+			
+			joint_desired[RF_joint] = ang_RF_des; //set desired LL position
+		}
+
 		joint_task->_desired_position = joint_desired;
 		
 		// calculate torques to maintain hip_base posture
