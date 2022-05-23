@@ -228,7 +228,7 @@ int main() {
 	bool fTimerDidSleep = true;
 	
 	// for timing
-	double unified_start_time = start_time + 5;
+	double unified_start_time = start_time + 10;
 	bool startedPlaying = false;
 	bool play = true;
 	double start;
@@ -287,6 +287,13 @@ int main() {
 	float curr_RF_ang;	
 	double RF_lift = q_init_desired[RF_joint];
 	double RF_stomp = RF_lift + dTh;	
+
+	//for Head BoB control
+	int Head_joint = 34;
+	float ang_Head_des = 0.0;
+	float amplitudeBob = 0.785398/2;
+	double t_bob_buffer = 0.1;
+	double time_to_bob = M_PI/4 / w[0]; //w declared above when JointTask sat_vel is declared	
 	
 	//Wait for play button to be hit
 	redis_client.set("gui::is_playing","0");
@@ -376,6 +383,19 @@ int main() {
 		robot->positionInWorld(curr_pos_ra, right_arm_control_link, right_arm_control_point); //get curr pos right arm
 		curr_LF_ang = robot->_q[LF_joint]; //get current left foot angle
 		curr_RF_ang = robot->_q[RF_joint]; //get current right foot angle
+
+		//head state
+		float bpm = 4.0; // has to come from redis
+		float measureLength = 60; //[seconds]
+		//redis_client.get("gui::bpm").decode('utf-8')// BPMeasure from gui
+    	//redis_client.get("gui::looptime").decode('utf-8') // seconds per loop from gui
+		double period = bpm / measureLength; // 2.0 * M_PI
+		//set desired joint sinusoidal circular motion
+		if (time >= unified_start_time - time_to_bob){	
+			// cout << "time / (period * 2.0 * M_PI) )" << time / (period * 2.0 * M_PI) << "\n";	
+			ang_Head_des = amplitudeBob * sin( time * (2 * M_PI * period) * 2 + M_PI/4);//time * 2 * M_PI * period is 1/2 head nod is one beat
+			joint_desired[Head_joint] = ang_Head_des; //set desired head position
+		}
 		
 		
 		if (no_tsteps_lh != 0){
