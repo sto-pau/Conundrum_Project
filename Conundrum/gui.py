@@ -33,6 +33,16 @@ class MainWindow(QWidget):
         self.redis_client.set(self.IS_PLAYING_KEY, 0)
         self.BPM_KEY = "gui::bpm" # BPM
         self.LOOPTIME_KEY = "gui::looptime" # seconds per loop
+        
+        self.RH_PLAYS_KEY = "gui::rh_plays"
+        self.RF_PLAYS_KEY = "gui::rf_plays"
+        self.LH_PLAYS_KEY = "gui::lh_plays"
+        self.LF_PLAYS_KEY = "gui::lf_plays"
+        self.redis_client.set(self.RH_PLAYS_KEY, "1")
+        self.redis_client.set(self.RF_PLAYS_KEY, "1")
+        self.redis_client.set(self.LH_PLAYS_KEY, "1")
+        self.redis_client.set(self.LF_PLAYS_KEY, "1")
+
 
         # instruments and coordinates
         # ordered according to position on drum score (top to bottom)
@@ -237,12 +247,12 @@ class MainWindow(QWidget):
         time = np.arange(0, loop_time, dt) # time array
 
         # left foot (hi-hat pedal)
-        score_array = time[self.button_activation[-1] == 1]
-        score_array = np.hstack( (score_array[:, np.newaxis], np.zeros((score_array.shape[0], 3))) )
+        left_foot = time[self.button_activation[-1] == 1]
+        left_foot = np.hstack( (left_foot[:, np.newaxis], np.zeros((left_foot.shape[0], 3))) )
 
         # right foot (bass)
-        score_array = time[self.button_activation[-2] == 1]
-        score_array = np.hstack( (score_array[:, np.newaxis], np.zeros((score_array.shape[0], 3))) )
+        right_foot = time[self.button_activation[-2] == 1]
+        right_foot = np.hstack( (right_foot[:, np.newaxis], np.zeros((right_foot.shape[0], 3))) )
 
         # arms:
         # if 1 hand instrument is selected: assign to hand that is closer to the instrument
@@ -279,13 +289,23 @@ class MainWindow(QWidget):
         right_hand = np.array(right_hand).flatten()
         left_hand = np.array(left_hand).flatten()
 
-        os.chdir("../bin/Conundrum")
-        np.savetxt("left_foot.txt", score_array.flatten(), delimiter=',')
-        np.savetxt("right_foot.txt", score_array.flatten(), delimiter=',')
-        np.savetxt("right_hand.txt", right_hand, newline="\n", fmt='%1.5f')
-        np.savetxt("left_hand.txt", left_hand, newline="\n", fmt='%1.5f')     
+        if left_foot.size == 0:
+            self.redis_client.set(self.LF_PLAYS_KEY, "0")
+        if right_foot.size == 0:
+            self.redis_client.set(self.RF_PLAYS_KEY, "0")
+        if left_hand.size == 0:
+            self.redis_client.set(self.LH_PLAYS_KEY, "0")
+        if right_hand.size == 0:
+            self.redis_client.set(self.RH_PLAYS_KEY, "0")
 
-        print("Toro is ready to CONUN-DRUM!!!")            
+        os.chdir("../bin/Conundrum")
+        np.savetxt("left_foot.txt", left_foot.flatten(), newline="\n", fmt='%1.5f')
+        np.savetxt("right_foot.txt", right_foot.flatten(), newline="\n", fmt='%1.5f')
+        np.savetxt("right_hand.txt", right_hand, newline="\n", fmt='%1.5f')
+        np.savetxt("left_hand.txt", left_hand, newline="\n", fmt='%1.5f')
+
+        print("Toro is ready to CONUN-DRUM!!!")
+        os.chdir("../../Conundrum")            
       
 
 if __name__ == '__main__':
