@@ -84,13 +84,28 @@
 	
 
 	<static_object name="snare">
-		<origin xyz="0.365 0.325 -1.15" rpy="0 0 0" />
+		<origin xyz="0.36543 0.32512 -1.15" rpy="0 0 0" />
 		<visual>
 			<origin xyz="0.0 0.0 -0.0001" rpy="0 0 0" />
 			<geometry>
 				<mesh filename="../../model/test_objects/meshes/visual/snare.obj" />
 			</geometry>
 		</visual>
+		<collision>
+            <origin xyz="0 0 0.572" rpy="0 0 0"/>
+            <geometry>
+                <sphere radius = "0.075"/>
+            </geometry>
+        </collision> 
+		<visual>
+            <origin xyz="0 0 0.572" rpy="0 0 0" />
+            <geometry>
+                <sphere radius = "0.075" />
+                <material name="material_ee">
+                    <color rgba="1.0 1.0 1.0 1.0" />
+                </material>
+            </geometry>
+        </visual>
 	</static_object>
 
 	<camera name="camera_fixed">

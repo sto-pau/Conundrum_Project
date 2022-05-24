@@ -52,6 +52,9 @@ void keySelect(GLFWwindow* window, int key, int scancode, int action, int mods);
 // callback when a mouse button is pressed
 void mouseClick(GLFWwindow* window, int button, int action, int mods);
 
+//check if an object is in contact
+bool isObjectInContact(const Simulation::Sai2Simulation& sim, const string object_name);
+
 // flags for scene camera movement
 bool fTransXp = false;
 bool fTransXn = false;
@@ -138,9 +141,13 @@ int main() {
 	// initialize glew
 	glewInitialize();
 
+	//initialize collision keys
+	const std::string SNARE_HIT = "snarehit::key"; //need to either make a global var or add to redis keys header 
+	redis_client.set(SNARE_HIT, "false");
+
 	fSimulationRunning = true;
 	thread sim_thread(simulation, robot, sim, ui_force_widget);
-	
+
 	// while window is open:
 	while (!glfwWindowShouldClose(window) && fSimulationRunning)
 	{
@@ -244,6 +251,15 @@ int main() {
 		// 		// then drag the mouse over a link to start applying a force to it.
 		// 	}
 		// }
+
+
+		if(isObjectInContact(*sim, "snare")) { //check if drumstick has collided with objects in world //move to simualtion thread
+
+			redis_client.set(SNARE_HIT, "true");
+			cout << "snarehit \n";
+
+		}
+
 	}
 
 	// stop simulation
@@ -428,5 +444,49 @@ void mouseClick(GLFWwindow* window, int button, int action, int mods) {
 		default:
 			break;
 	}
+}
+
+//------------------------------------------------------------------------------
+
+bool isObjectInContact(const Simulation::Sai2Simulation& sim, const string object_name) {
+
+	bool object_exists = false;
+
+	list<cDynamicBase*>::iterator i;
+
+	for(i = sim._world->m_dynamicObjects.begin(); i != sim._world->m_dynamicObjects.end(); ++i)
+
+	{
+
+	cDynamicBase* object = *i;
+
+	if(object->m_name == object_name)
+
+	{
+
+	object_exists = true;
+
+	int num_contacts = object->m_dynamicContacts->getNumContacts();
+
+	if(num_contacts > 0)
+
+	{
+
+	return true;
+
+	}
+
+	}
+
+	}
+
+	if(!object_exists) {
+
+	throw std::runtime_error("object does not exists in isObjectInContact()");
+
+	}
+
+	return false;
+
 }
 

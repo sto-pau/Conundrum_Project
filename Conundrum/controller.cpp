@@ -248,7 +248,7 @@ int main() {
 	unsigned LH_state = HOME;	
 	
 	string left_arm_control_link = "la_end_effector";
-	Vector3d left_arm_control_point = Vector3d(0, 0, -0.214); //length is 0.214374
+	Vector3d left_arm_control_point = Vector3d(0, 0, -0.214374); //length is 0.214374
 
 	//for right arm state machine
 	int index_ra;
@@ -257,7 +257,7 @@ int main() {
 	unsigned RH_state = HOME;	
 	
 	string right_arm_control_link = "ra_end_effector";
-	Vector3d right_arm_control_point = Vector3d(0, 0, -0.214); //length is 0.21437
+	Vector3d right_arm_control_point = Vector3d(0, 0, -0.214374); //length is 0.21437
 
 	//for both leg state machines
 	double thetaThreshold = 0.1; //apprx 5.73 deg
@@ -300,7 +300,7 @@ int main() {
 	double start_time = timer.elapsedTime(); //secs	
 	
 	// for timing
-	double unified_start_time = start_time + 10;
+	double unified_start_time = start_time + 2;
 	bool startedPlaying = false;
 	bool play = true;
 	double start;	
@@ -390,9 +390,8 @@ int main() {
 		curr_RF_ang = robot->_q[RF_joint]; //get current right foot angle
 
 		//head state
-		float bpm = 4.0; // has to come from redis
 		float measureLength = 60; //[seconds]
-		//redis_client.get("gui::bpm").decode('utf-8')// BPMeasure from gui
+		float bpm = stof(redis_client.get("gui::bpm"));// BPMeasure from gui		
     	//redis_client.get("gui::looptime").decode('utf-8') // seconds per loop from gui
 		double period = bpm / measureLength; // 2.0 * M_PI
 		//set desired joint sinusoidal circular motion
@@ -473,7 +472,8 @@ int main() {
 					}
 					break;
 				case HITTING_DRUM:
-					if (abs(curr_pos.norm()-pos_des.norm()) < threshold){
+					//if (abs(curr_pos.norm()-pos_des.norm()) < threshold){
+					if (redis_client.get("snarehit::key") == "true"){
 						if ((float)pos_des(0) == (float)snare(0)){
 							redis_client.set(DRUM_KEY, "1");
 							cout << "SNARE" << "\n";
@@ -492,6 +492,7 @@ int main() {
 						posori_task_left_hand->_linear_saturation_velocity = v_travel;
 						LH_state = LIFTING_DRUMSTICK;
 						cout << "DRUM STATE: " << LH_state << "\n";
+						redis_client.set("snarehit::key", "false");
 					}
 					break;
 				default:
