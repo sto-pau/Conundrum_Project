@@ -285,22 +285,20 @@ int main() {
 	int Head_joint = 34;
 	float ang_Head_des = 0.0;
 	float amplitudeBob = 0.785398/2;
-	double t_bob_buffer = 0.1;
-	double time_to_bob = (M_PI/2) / w[0]; //want bottom of head motion to correspond to beat
+	double t_bob_buffer = 0.15;
+	double time_to_bob = (5*M_PI) / w[0]; //want bottom of head motion to correspond to beat
 	
 	//Wait for play button to be hit
 	redis_client.set("gui::is_playing","0");
 	while(!stoi(redis_client.get("gui::is_playing"))){}
-	cout << "starting time";
-	double start_time = timer.elapsedTime(); //secs
-	
+	cout << "starting time" << t_bob_buffer + time_to_bob <<"\n";
+	double start_time = timer.elapsedTime(); //secs	
 	
 	// for timing
-	double unified_start_time = start_time + 5;
+	double unified_start_time = start_time + 10;
 	bool startedPlaying = false;
 	bool play = true;
-	double start;
-	
+	double start;	
 	
 	/**************START OF GUI FILE-READ******************/
 
@@ -393,9 +391,9 @@ int main() {
     	//redis_client.get("gui::looptime").decode('utf-8') // seconds per loop from gui
 		double period = bpm / measureLength; // 2.0 * M_PI
 		//set desired joint sinusoidal circular motion
-		if (time >= unified_start_time - time_to_bob){	
+		if (time >= unified_start_time - time_to_bob - t_bob_buffer){	
 			// cout << "time / (period * 2.0 * M_PI) )" << time / (period * 2.0 * M_PI) << "\n";	
-			ang_Head_des = amplitudeBob * sin( time * (2 * M_PI * period) * 2 + M_PI);//time * 2 * M_PI * period is 1/2 head nod is one beat
+			ang_Head_des = amplitudeBob * sin( time * (2 * M_PI * period) * 2);//time * 2 * M_PI * period is 1/2 head nod is one beat
 			joint_desired[Head_joint] = ang_Head_des; //set desired head position
 		}
 		
