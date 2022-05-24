@@ -81,7 +81,7 @@ int main() {
 	Vector3d control_point = Vector3d(0, 0, 0);
 	auto posori_task_right_foot = new Sai2Primitives::PositionTask(robot, control_link, control_point); //PosOriTask(robot, control_link, control_point);
 
-	posori_task_right_foot->_use_interpolation_flag = true;
+	posori_task_right_foot->_use_interpolation_flag = false;
 	posori_task_right_foot->_use_velocity_saturation_flag = true;
 	
 	VectorXd posori_task_torques_right_foot = VectorXd::Zero(dof);
@@ -103,7 +103,7 @@ int main() {
 	control_point = Vector3d(0, 0, 0);
 	auto posori_task_left_foot = new Sai2Primitives::PositionTask(robot, control_link, control_point); //PosOriTask(robot, control_link, control_point);
 
-	posori_task_left_foot->_use_interpolation_flag = true;
+	posori_task_left_foot->_use_interpolation_flag = false;
 	posori_task_left_foot->_use_velocity_saturation_flag = true;
 
 	VectorXd posori_task_torques_left_foot = VectorXd::Zero(dof);
@@ -123,7 +123,7 @@ int main() {
 	control_point = Vector3d(0, 0, -0.214);
 	auto posori_task_right_hand = new Sai2Primitives::PosOriTask(robot, control_link, control_point); //PosOriTask(robot, control_link, control_point);
 
-	posori_task_right_hand->_use_interpolation_flag = true;
+	posori_task_right_hand->_use_interpolation_flag = false;
 	posori_task_right_hand->_use_velocity_saturation_flag = true;
 	
 	VectorXd posori_task_torques_right_hand = VectorXd::Zero(dof);
@@ -224,14 +224,7 @@ int main() {
 	LoopTimer timer;
 	timer.initializeTimer();
 	timer.setLoopFrequency(1000); 
-	double start_time = timer.elapsedTime(); //secs
 	bool fTimerDidSleep = true;
-	
-	// for timing
-	double unified_start_time = start_time + 10;
-	bool startedPlaying = false;
-	bool play = true;
-	double start;
 
 	//location of the instruments
 	Vector3d snare = Vector3d(0.36543, 0.32512, -0.50876);
@@ -293,11 +286,20 @@ int main() {
 	float ang_Head_des = 0.0;
 	float amplitudeBob = 0.785398/2;
 	double t_bob_buffer = 0.1;
-	double time_to_bob = M_PI/4 / w[0]; //w declared above when JointTask sat_vel is declared	
+	double time_to_bob = (M_PI/2) / w[0]; //want bottom of head motion to correspond to beat
 	
 	//Wait for play button to be hit
 	redis_client.set("gui::is_playing","0");
 	while(!stoi(redis_client.get("gui::is_playing"))){}
+	cout << "starting time";
+	double start_time = timer.elapsedTime(); //secs
+	
+	
+	// for timing
+	double unified_start_time = start_time + 5;
+	bool startedPlaying = false;
+	bool play = true;
+	double start;
 	
 	
 	/**************START OF GUI FILE-READ******************/
@@ -393,7 +395,7 @@ int main() {
 		//set desired joint sinusoidal circular motion
 		if (time >= unified_start_time - time_to_bob){	
 			// cout << "time / (period * 2.0 * M_PI) )" << time / (period * 2.0 * M_PI) << "\n";	
-			ang_Head_des = amplitudeBob * sin( time * (2 * M_PI * period) * 2 + M_PI/4);//time * 2 * M_PI * period is 1/2 head nod is one beat
+			ang_Head_des = amplitudeBob * sin( time * (2 * M_PI * period) * 2 + M_PI);//time * 2 * M_PI * period is 1/2 head nod is one beat
 			joint_desired[Head_joint] = ang_Head_des; //set desired head position
 		}
 		
