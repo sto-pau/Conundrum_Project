@@ -24,6 +24,8 @@ using namespace std;
 #define WAIT_FOR_MEASURE      6
 #define WAIT     			 7
 #define STOMP     			 8
+#define START     			 9
+#define NODDING     		 10
 
 bool runloop = true;
 void sighandler(int sig)
@@ -194,7 +196,7 @@ int main() {
 
 	//joint_task->_use_interpolation_flag = true;
 	joint_task->_use_velocity_saturation_flag = true;
-	Eigen::VectorXd w = M_PI/1.0*Eigen::VectorXd::Ones(dof);
+	Eigen::VectorXd w = M_PI/3.0*Eigen::VectorXd::Ones(dof);
 	joint_task->_saturation_velocity = w;
 
 	VectorXd joint_task_torques = VectorXd::Zero(dof);
@@ -282,11 +284,14 @@ int main() {
 	double RF_stomp = RF_lift + dTh;	
 
 	//for Head BoB control
+	unsigned Head_state = START;
 	int Head_joint = 34;
 	float ang_Head_des = 0.0;
-	float amplitudeBob = 0.785398/2;
-	double t_bob_buffer = 0.15;
-	double time_to_bob = (5*M_PI) / w[0]; //want bottom of head motion to correspond to beat
+	float amplitudeBob = (60 * M_PI / 180) / 2;
+	double t_bob_buffer = 0.5;
+	double time_to_bob = (3 * M_PI) / w[0]; //want bottom of head motion to correspond to beat
+	double start_nod_time;
+	double nod_time;
 	
 	//Wait for play button to be hit
 	redis_client.set("gui::is_playing","0");
@@ -391,12 +396,25 @@ int main() {
     	//redis_client.get("gui::looptime").decode('utf-8') // seconds per loop from gui
 		double period = bpm / measureLength; // 2.0 * M_PI
 		//set desired joint sinusoidal circular motion
-		if (time >= unified_start_time - time_to_bob - t_bob_buffer){	
-			// cout << "time / (period * 2.0 * M_PI) )" << time / (period * 2.0 * M_PI) << "\n";	
-			ang_Head_des = amplitudeBob * sin( time * (2 * M_PI * period) * 2);//time * 2 * M_PI * period is 1/2 head nod is one beat
-			joint_desired[Head_joint] = ang_Head_des; //set desired head position
-		}
-		
+		if (time >= unified_start_time - time_to_bob - t_bob_buffer){
+		//cout << "moving to head start";
+			switch(Head_state){
+				case START:
+					start_nod_time = time;
+					nod_time = 0;
+					ang_Head_des = amplitudeBob * sin( start_nod_time * (2 * M_PI * period) * 2 + M_PI);//time * 2 * M_PI * period is 1/2 head nod is one beat
+					//cout << sin( time * (2 * M_PI * period) * 2 + M_PI) << "\n";
+					joint_desired[Head_joint] = ang_Head_des; //set desired head position
+					Head_state = NODDING;
+
+				case NODDING:
+					// cout << "time / (period * 2.0 * M_PI) )" << time / (period * 2.0 * M_PI) << "\n";	
+					nod_time = start_nod_time - time;
+					ang_Head_des = amplitudeBob * sin( nod_time * (2 * M_PI * period) * 2 + M_PI);//time * 2 * M_PI * period is 1/2 head nod is one beat
+					//cout << sin( time * (2 * M_PI * period) * 2 + M_PI) << "\n";
+					joint_desired[Head_joint] = ang_Head_des; //set desired head position
+			}
+		}		
 		
 		if (no_tsteps_lh != 0){
 			switch(LH_state){
