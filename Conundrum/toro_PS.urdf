@@ -560,7 +560,7 @@
         <parent link="trunk"/>
         <child link="ra_link1"/> 
         <limit lower="-2.0944" upper="2.0944" effort="100" velocity="2.7402" />
-        <calibration falling="19.0" /> <!-- PBS --> 
+        <calibration falling="15.0" />
         <axis xyz="0 0 1"/>
     </joint>
 
@@ -945,7 +945,7 @@
             <mass value="0.1" />
             <inertia ixx="0.001" iyy="0.001" izz="0.001" ixy="-0.0" ixz="-0.0" iyz="-0.0" />
         </inertial>   
-        <visual>
+           <visual>
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>
                 <mesh filename="../../../model/toro/meshes/obj/drumstick.obj"/>
@@ -954,21 +954,13 @@
                 <color rgba="0.0 0.8 0.0 1.0" />
             </material>
         </visual>
-        <collision>
-            <origin xyz="0.00 0 -0.21" rpy="0 0 0"/>
+        <!--  <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>
-                <sphere radius = "0.01"/>
+                <box size="0.1 0.1 0.01"/>
+                <box size="0.2 0.2 0.01"/>
             </geometry>
-        </collision> 
-        <visual>
-            <origin xyz="0.00 0 -0.21" rpy="0 0 0" />
-            <geometry>
-                <sphere radius = "0.01" />
-                <material name="material_ee">
-                    <color rgba="1.0 1.0 1.0 1.0" />
-                </material>
-            </geometry>
-        </visual>
+        </collision>  -->
     </link>
 
     <joint name="j_lhand_fixed" type="fixed">

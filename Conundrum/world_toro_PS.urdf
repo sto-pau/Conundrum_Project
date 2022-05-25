@@ -30,7 +30,7 @@
 	</light>
 
 	<static_object name="14cin">
-		<origin xyz="0.31 0.7 -1.15" rpy="0 0 0.75" />
+		<origin xyz="0.31 -0.7 -1.15" rpy="0 0 -0.75" />
 		<visual>
 			<origin xyz="0.0 0.0 -0.0001" rpy="0 0 0" />
 			<geometry>
@@ -53,7 +53,11 @@
 	</static_object>
 
 	<static_object name="tom1">
+<<<<<<< HEAD
 		<origin xyz="0.93639 0.04866 -0.42083" rpy="0 0 0" />
+=======
+		<origin xyz="0.94 -0.05 -0.45" rpy="0 0 0.575" />
+>>>>>>> 1ae838c0ccb72f3563fcd1cc153cda0eecf433bb
 		<visual>
 			<origin xyz="0.0 0.0 -0.0001" rpy="0 0 0" />
 			<geometry>
@@ -84,28 +88,13 @@
 	
 
 	<static_object name="snare">
-		<origin xyz="0.36543 0.32512 -1.15" rpy="0 0 0" />
+		<origin xyz="0.365 0.325 -1.15" rpy="0 0 0" />
 		<visual>
 			<origin xyz="0.0 0.0 -0.0001" rpy="0 0 0" />
 			<geometry>
 				<mesh filename="../../model/test_objects/meshes/visual/snare.obj" />
 			</geometry>
 		</visual>
-		<collision>
-            <origin xyz="0.0 0.0 0.59124" rpy="0 0 0" />
-            <geometry>
-                <cylinder radius="0.06" length="0.04"/>
-            </geometry>
-        </collision> 
-		 <visual>
-            <origin xyz="0.0 0.0 0.59124" rpy="0 0 0" />
-            <geometry>
-                <cylinder radius="0.06" length="0.04"/>
-            </geometry>
-            <material name="material_blue">
-                <color rgba="0.3 0.3 0.9 1.0" />
-            </material>
-        </visual>
 	</static_object>
 
 	<camera name="camera_fixed">

@@ -13,3 +13,4 @@ const std::string JOINT_ANGLES_KEY = "sai2::cs225a::project::sensors::q";
 const std::string JOINT_VELOCITIES_KEY = "sai2::cs225a::project::sensors::dq";
 const std::string JOINT_TORQUES_COMMANDED_KEY = "sai2::cs225a::project::actuators::fgc";
 const std::string CONTROLLER_RUNNING_KEY = "sai2::sim::toro::controller";
+const std::string SNARE_HIT = "snarehit::key"; //need to either make a global var or add to redis keys header 

@@ -53,17 +53,17 @@ unsigned long long controller_counter = 0;
 
 int main() {
 
-	// ofstream data_file;
-	// data_file.open("hitTime.csv");
+	ofstream data_file;
+	data_file.open("hitTime.csv");
 
-	// ofstream data_filera;
-	// data_filera.open("hitTimera.csv");
+	ofstream data_filera;
+	data_filera.open("hitTimera.csv");
 
-	// ofstream data_filelf;
-	// data_filelf.open("hitTimelf.csv");
+	ofstream data_filelf;
+	data_filelf.open("hitTimelf.csv");
 
-	// ofstream data_filerf;
-	// data_filerf.open("hitTimerf.csv");
+	ofstream data_filerf;
+	data_filerf.open("hitTimerf.csv");
 
 
 	int state = JOINT_CONTROLLER;
@@ -134,7 +134,7 @@ int main() {
 
 	// pose task for right hand 
 	control_link = "ra_end_effector"; //length is 0.214374
-	control_point = Vector3d(0, 0, -0.214374);
+	control_point = Vector3d(0, 0, -0.214);
 	auto posori_task_right_hand = new Sai2Primitives::PosOriTask(robot, control_link, control_point); //PosOriTask(robot, control_link, control_point);
 
 	posori_task_right_hand->_use_interpolation_flag = true;
@@ -156,7 +156,7 @@ int main() {
 
 	// pose task for left hand
 	control_link = "la_end_effector";
-	control_point = Vector3d(0, 0, -0.214374); //length is 0.214374
+	control_point = Vector3d(0, 0, -0.214); //length is 0.214374
 	auto posori_task_left_hand = new Sai2Primitives::PosOriTask(robot, control_link, control_point); //PosOriTask(robot, control_link, control_point);
 	//posori_task_left_hand->setDynamicDecouplingFull(); //only one with this William said to remove
 
@@ -248,10 +248,10 @@ int main() {
 	Vector3d tom2 = Vector3d(0.74235, -0.18308, -0.26023);
 
 	//for both arm state machines
-	double t_buffer = 0.1;	
+	double t_buffer = 0.7;	
 	double dz = 0.2;
 	double threshold = 0.0001;
-	double v_hit = 0.3;
+	double v_hit = 1.0;
 	double v_travel = 0.3;
 	double time_to_hit = dz/v_hit;
 
@@ -266,7 +266,7 @@ int main() {
 	unsigned LH_state = HOME;	
 	
 	string left_arm_control_link = "la_end_effector";
-	Vector3d left_arm_control_point = Vector3d(0, 0, -0.214374); //length is 0.214374
+	Vector3d left_arm_control_point = Vector3d(0, 0, -0.214); //length is 0.214374
 
 	//for right arm state machine
 	int index_ra;
@@ -276,7 +276,7 @@ int main() {
 	
 	
 	string right_arm_control_link = "ra_end_effector";
-	Vector3d right_arm_control_point = Vector3d(0, 0, -0.214374); //length is 0.21437
+	Vector3d right_arm_control_point = Vector3d(0, 0, -0.214); //length is 0.21437
 
 	//for both leg state machines
 	double thetaThreshold = 0.05; //apprx 5.73 deg
@@ -317,6 +317,14 @@ int main() {
 	//Wait for play button to be hit
 	redis_client.set("gui::is_playing","0");
 	while(!stoi(redis_client.get("gui::is_playing"))){}
+	cout << "starting time" << t_bob_buffer + time_to_bob <<"\n";
+	double start_time = timer.elapsedTime(); //secs	
+	
+	// for timing
+	double unified_start_time = start_time + 10;
+	bool startedPlaying = false;
+	bool play = true;
+	double start;	
 	
 	/**************START OF GUI FILE-READ******************/
 
@@ -334,7 +342,6 @@ int main() {
 		z_data_rh(ct) = rh[3][ct];
 	
 	}
-	cout << "no_tsteps_rh " << no_tsteps_rh; 
 	
 	//Left hand
 	int no_tsteps_lh; float lh[4][10];
@@ -377,13 +384,7 @@ int main() {
 		z_data_lf(ct) = lf[3][ct];
 	}
 
-	double start_time = timer.elapsedTime(); //secs	
-	
-	// for timing
-	double unified_start_time = start_time + 5;
-	bool startedPlaying = false;
-	bool play = true;
-	double start;
+
 /*******END OF GUI FILE-READ*********************/
 
 /***START OF STATE MACHINE***************/
@@ -490,15 +491,13 @@ int main() {
 						//posori_task_left_hand->_linear_saturation_velocity = v_hit;
 						LH_state = HITTING_DRUM;
 						cout << "DRUM STATE: " << LH_state << "\n";			
-						// data_file << "starting" << " ";
-						// data_file << curr_pos.transpose() << " ";
-						// data_file << time - start << "\n";
+						data_file << "starting" << " ";
+						data_file << curr_pos.transpose() << " ";
+						data_file << time - start << "\n";
 					}
 					break;
 				case HITTING_DRUM:
-					//if (abs(curr_pos.norm()-pos_des.norm()) < threshold){
-					if (redis_client.get("snarehit::key") == "true"){
-						
+					if (abs(curr_pos.norm()-pos_des.norm()) < threshold){
 						if ((float)pos_des(0) == (float)snare(0)){
 							redis_client.set(DRUM_KEY, "1");
 							cout << "SNARE" << "\n";
@@ -517,12 +516,9 @@ int main() {
 						//posori_task_left_hand->_linear_saturation_velocity = v_travel;
 						LH_state = LIFTING_DRUMSTICK;
 						cout << "DRUM STATE: " << LH_state << "\n";
-						// data_file << "detected" << " ";
-						// data_file << curr_pos.transpose() << " ";
-						// data_file << time - start << "\n";
-
-						redis_client.set("snarehit::key", "false");
-
+						data_file << "detected" << " ";
+						data_file << curr_pos.transpose() << " ";
+						data_file << time - start << "\n";
 					}
 					break;
 				default:
@@ -539,7 +535,7 @@ int main() {
 						index_ra = 0;
 						pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);
 						pos_des_ra(2) += dz;  //at vtravel
-						//posori_task_right_hand->_linear_saturation_velocity = v_travel;
+						posori_task_right_hand->_linear_saturation_velocity = v_travel;
 						//cout << pos_des_ra << "\n";
 						RH_state = FIRST_MOVING;
 						cout << "DRUM STATE RH: " << RH_state << "\n";
@@ -549,7 +545,7 @@ int main() {
 					if (time >= unified_start_time + time_data_rh(index_ra) - time_to_hit - t_buffer){ //move in anticipation to the synchronized start before 'start' has been set
 						
 						pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra); //at vhit
-						//posori_task_right_hand->_linear_saturation_velocity = v_hit;
+						posori_task_right_hand->_linear_saturation_velocity = v_hit;
 						RH_state = HITTING_DRUM;
 						cout << "DRUM STATE RH: " << RH_state << "\n";
 					}
@@ -566,13 +562,13 @@ int main() {
 							//these desired pos assignments HAVE to come after setting i = 0!
 							pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);
 							pos_des_ra(2) += dz;  //at vtravel
-							//posori_task_right_hand->_linear_saturation_velocity = v_travel;
+							posori_task_right_hand->_linear_saturation_velocity = v_travel;
 
 						}
 						else{
 							pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);
 							pos_des_ra(2) += dz;      //at vtravel
-							//posori_task_right_hand->_linear_saturation_velocity = v_travel;
+							posori_task_right_hand->_linear_saturation_velocity = v_travel;
 							RH_state = MOVING_DRUMSTICK;
 							cout << "DRUM STATE RH: " << RH_state << "\n";
 
@@ -584,16 +580,16 @@ int main() {
 					if (time - start >= time_data_rh(index_ra)-time_to_hit-t_buffer){
 						cout << "\nstarting hit ra " << time - start << "\n";
 						pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);   //at vhit
-						//posori_task_right_hand->_linear_saturation_velocity = v_hit;
+						posori_task_right_hand->_linear_saturation_velocity = v_hit;
 						RH_state = HITTING_DRUM;
 						cout << "DRUM STATE RH: " << RH_state << "\n";
-						// data_filera << "starting" << " ";
-						// data_filera << curr_pos_ra.transpose() << " ";
-						// data_filera<< time - start << "\n";
+						data_filera << "starting" << " ";
+						data_filera << curr_pos_ra.transpose() << " ";
+						data_filera<< time - start << "\n";
 					}
 					break;
 				case HITTING_DRUM:
-					if (abs(curr_pos_ra.norm()-pos_des_ra.norm()) < threshold){					
+					if (abs(curr_pos_ra.norm()-pos_des_ra.norm()) < threshold){
 						if ((float)pos_des_ra(0) == (float)snare(0)){
 							redis_client.set(DRUM_KEY, "1");
 							cout << "SNARE" << "\n";
@@ -607,14 +603,14 @@ int main() {
 							cout << "TOM2" << "\n";
 						}
 						cout  << "TIME AT DRUM HIT: " << time - start << "\n";
-						pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);
+						pos_des_ra << x_data_rh(i), y_data_rh(i), z_data_rh(i);
 						pos_des_ra(2) += dz;      //at vtravel
-						//posori_task_right_hand->_linear_saturation_velocity = v_travel;
+						posori_task_right_hand->_linear_saturation_velocity = v_travel;
 						RH_state = LIFTING_DRUMSTICK;
 						cout << "DRUM STATE RH: " << RH_state << "\n";
-						// data_filera << "detected" << " ";
-						// data_filera << curr_pos_ra.transpose() << " ";
-						// data_filera << time - start << "\n";
+						data_filera << "detected" << " ";
+						data_filera << curr_pos_ra.transpose() << " ";
+						data_filera << time - start << "\n";
 					}
 					break;
 				default:
@@ -647,9 +643,9 @@ int main() {
 						LF_state = STOMP;
 						cout << "LEFT LEG  STATE: " << LF_state << "\n";
 						
-						// data_filelf << "starting" << " ";
-						// data_filelf << curr_LF_ang << " ";
-						// data_filelf << time - start << "\n";
+						data_filelf << "starting" << " ";
+						data_filelf << curr_LF_ang << " ";
+						data_filelf << time - start << "\n";
 					}
 					break;
 				case STOMP:
@@ -666,9 +662,9 @@ int main() {
 						}
 
 						cout << "LEFT LEG  STATE: " << LF_state << "\n";
-						// data_filelf << "detected" << " ";
-						// data_filelf << curr_LF_ang << " ";
-						// data_filelf << time - start << "\n";
+						data_filelf << "detected" << " ";
+						data_filelf << curr_LF_ang << " ";
+						data_filelf << time - start << "\n";
 					}
 					break;
 				default:
@@ -701,9 +697,9 @@ int main() {
 						RF_state = STOMP;
 						cout << "RIGHT LEG  STATE: " << RF_state << "\n";
 						
-						// data_filerf << "starting" << " ";
-						// data_filerf << curr_RF_ang << " ";
-						// data_filerf << time - start << "\n";
+						data_filerf << "starting" << " ";
+						data_filerf << curr_RF_ang << " ";
+						data_filerf << time - start << "\n";
 					}
 					break;
 				case STOMP:
@@ -719,9 +715,9 @@ int main() {
 							time_data_rf = time_data_rf + addLLTime;
 						}
 						cout << "RIGHT LEG  STATE: " << RF_state << "\n";
-						// data_filerf << "detected" << " ";
-						// data_filerf << curr_RF_ang << " ";
-						// data_filerf << time - start << "\n";
+						data_filerf << "detected" << " ";
+						data_filerf << curr_RF_ang << " ";
+						data_filerf << time - start << "\n";
 					}
 					break;
 				default:
@@ -780,10 +776,10 @@ int main() {
 
 	redis_client.setEigenMatrixJSON(JOINT_TORQUES_COMMANDED_KEY, 0 * command_torques);
 
-	// data_file.close();
-	// data_filera.close();
-	// data_filelf.close();
-	// data_filerf.close();
+	data_file.close();
+	data_filera.close();
+	data_filelf.close();
+	data_filerf.close();
 
 	return 0;
 }

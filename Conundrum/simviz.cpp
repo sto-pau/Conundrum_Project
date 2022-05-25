@@ -141,11 +141,8 @@ int main() {
 	// initialize glew
 	glewInitialize();
 
-	//initialize collision keys
-	const std::string SNARE_HIT = "snarehit::key"; //need to either make a global var or add to redis keys header 
-	redis_client.set(SNARE_HIT, "false");
-
 	fSimulationRunning = true;
+	redis_client.set(SNARE_HIT, "false"); //simulation and the visual thread below cannot call redis keys at same time
 	thread sim_thread(simulation, robot, sim, ui_force_widget);
 
 	// while window is open:
@@ -253,13 +250,6 @@ int main() {
 		// }
 
 
-		if(isObjectInContact(*sim, "snare")) { //check if drumstick has collided with objects in world //move to simualtion thread
-
-			redis_client.set(SNARE_HIT, "true");
-			cout << "snarehit \n";
-
-		}
-
 	}
 
 	// stop simulation
@@ -314,6 +304,14 @@ void simulation(Sai2Model::Sai2Model* robot, Simulation::Sai2Simulation* sim, UI
 	redis_client.addEigenToWriteCallback(0, JOINT_VELOCITIES_KEY, robot->_dq);
 
 	while (fSimulationRunning) {
+
+		if(isObjectInContact(*sim, "snare")) { //check if drumstick has collided with objects in world //move to simualtion thread
+
+			redis_client.set(SNARE_HIT, "true");
+			//cout << "snarehit \n";
+
+		}
+
 		fTimerDidSleep = timer.waitForNextLoop();
 
 		// execute redis read callback
@@ -351,6 +349,7 @@ void simulation(Sai2Model::Sai2Model* robot, Simulation::Sai2Simulation* sim, UI
 
 		// update last time
 		last_time = curr_time;
+		
 	}
 
 	double end_time = timer.elapsedTime();
