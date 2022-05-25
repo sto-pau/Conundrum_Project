@@ -53,6 +53,18 @@ unsigned long long controller_counter = 0;
 
 int main() {
 
+	ofstream data_file;
+	data_file.open("hitTime.csv");
+
+	ofstream data_filera;
+	data_filera.open("hitTimera.csv");
+
+	ofstream data_filelf;
+	data_filelf.open("hitTimelf.csv");
+
+	ofstream data_filerf;
+	data_filerf.open("hitTimerf.csv");
+
 
 	int state = JOINT_CONTROLLER;
 	string controller_status = "1";
@@ -125,8 +137,8 @@ int main() {
 	control_point = Vector3d(0, 0, -0.214);
 	auto posori_task_right_hand = new Sai2Primitives::PosOriTask(robot, control_link, control_point); //PosOriTask(robot, control_link, control_point);
 
-	posori_task_right_hand->_use_interpolation_flag = false;
-	posori_task_right_hand->_use_velocity_saturation_flag = true;
+	posori_task_right_hand->_use_interpolation_flag = true;
+	posori_task_right_hand->_use_velocity_saturation_flag = false;
 	
 	VectorXd posori_task_torques_right_hand = VectorXd::Zero(dof);
 	posori_task_right_hand->_kp_pos = 200.0;
@@ -154,8 +166,8 @@ int main() {
 	posori_task_left_hand->_desired_position = x_pos;
 	posori_task_left_hand->_desired_orientation = x_ori;
 
-	posori_task_left_hand->_use_interpolation_flag = false;
-	posori_task_left_hand->_use_velocity_saturation_flag = true;
+	posori_task_left_hand->_use_interpolation_flag = true;
+	posori_task_left_hand->_use_velocity_saturation_flag = false;
 	
 	VectorXd posori_task_torques_left_hand = VectorXd::Zero(dof);
 	posori_task_left_hand->_kp_pos = 200.0;
@@ -195,9 +207,11 @@ int main() {
 	auto joint_task = new Sai2Primitives::JointTask(robot);
 
 	//joint_task->_use_interpolation_flag = true;
-	joint_task->_use_velocity_saturation_flag = true;
+	joint_task->_use_velocity_saturation_flag = false;
+	//Eigen::VectorXd w = M_PI/3.0*Eigen::VectorXd::Ones(dof);
+	//joint_task->_saturation_velocity = w;
 	Eigen::VectorXd w = M_PI/3.0*Eigen::VectorXd::Ones(dof);
-	joint_task->_saturation_velocity = w;
+	joint_task->_use_interpolation_flag = true;
 
 	VectorXd joint_task_torques = VectorXd::Zero(dof);
 	joint_task->_kp = 100.0;
@@ -236,10 +250,14 @@ int main() {
 	//for both arm state machines
 	double t_buffer = 0.7;	
 	double dz = 0.2;
-	double threshold = 0.01;
-	double v_hit = 1.0;
+	double threshold = 0.0001;
+	double v_hit = 0.3;
 	double v_travel = 0.3;
 	double time_to_hit = dz/v_hit;
+
+	//_otg->setMaxLinearVelocity(0.3);
+	//_otg->setMaxLinearAcceleration(1.0);
+	//_otg->setMaxLinearJerk(3.0);
 	
 	//left arm state machine
 	int i;
@@ -256,15 +274,18 @@ int main() {
 	Vector3d curr_pos_ra;	
 	unsigned RH_state = HOME;	
 	
+	
 	string right_arm_control_link = "ra_end_effector";
 	Vector3d right_arm_control_point = Vector3d(0, 0, -0.214); //length is 0.21437
 
 	//for both leg state machines
-	double thetaThreshold = 0.1; //apprx 5.73 deg
-	double t_stomp_buffer = 0.5;
-	double dTh = M_PI/12;
-	double time_to_stomp = dTh / w[0]; //w declared above when JointTask sat_vel is declared
+	double thetaThreshold = 0.05; //apprx 5.73 deg
+	double t_stomp_buffer = 0.77;
+	double dTh = M_PI/3;
+	double time_to_stomp = (dTh - thetaThreshold) / w[0]; //w declared above when JointTask sat_vel is declared
 	
+	cout << "time total buffer" << t_stomp_buffer + time_to_stomp <<"\n";
+
 	//for left leg state machine (HiHat)
 	int LF_joint = 17; //18th joint, indexed with 17
 	unsigned LF_state = HOME;
@@ -423,7 +444,7 @@ int main() {
 						i = 0;
 						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
 						pos_des(2) += dz;  //at vtravel
-						posori_task_left_hand->_linear_saturation_velocity = v_travel;
+						//posori_task_left_hand->_linear_saturation_velocity = v_travel;
 						//cout << pos_des << "\n";
 						LH_state = FIRST_MOVING;
 						cout << "DRUM STATE: " << LH_state << "\n";
@@ -433,7 +454,7 @@ int main() {
 					if (time >= unified_start_time + time_data_lh(i) - time_to_hit - t_buffer){ //move in anticipation to the synchronized start before 'start' has been set
 						
 						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i); //at vhit
-						posori_task_left_hand->_linear_saturation_velocity = v_hit;
+						//posori_task_left_hand->_linear_saturation_velocity = v_hit;
 						LH_state = HITTING_DRUM;
 						cout << "DRUM STATE: " << LH_state << "\n";
 					}
@@ -450,26 +471,29 @@ int main() {
 							//these desired pos assignments HAVE to come after setting i = 0!
 							pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
 							pos_des(2) += dz;  //at vtravel
-							posori_task_left_hand->_linear_saturation_velocity = v_travel;
+							//posori_task_left_hand->_linear_saturation_velocity = v_travel;
 
 						}
 						else{
 							pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
 							pos_des(2) += dz;      //at vtravel
-							posori_task_left_hand->_linear_saturation_velocity = v_travel;
+							//posori_task_left_hand->_linear_saturation_velocity = v_travel;
 							LH_state = MOVING_DRUMSTICK;
 							cout << "DRUM STATE: " << LH_state << "\n";
+
 						}
 					}
 					break;
-				case MOVING_DRUMSTICK:
-					
+				case MOVING_DRUMSTICK:				
 					if (time - start >= time_data_lh(i)-time_to_hit-t_buffer){
 						cout << "\nstarting hit ra " << time - start << "\n";
 						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);   //at vhit
-						posori_task_left_hand->_linear_saturation_velocity = v_hit;
+						//posori_task_left_hand->_linear_saturation_velocity = v_hit;
 						LH_state = HITTING_DRUM;
-						cout << "DRUM STATE: " << LH_state << "\n";
+						cout << "DRUM STATE: " << LH_state << "\n";			
+						data_file << "starting" << " ";
+						data_file << curr_pos.transpose() << " ";
+						data_file << time - start << "\n";
 					}
 					break;
 				case HITTING_DRUM:
@@ -489,9 +513,12 @@ int main() {
 						cout  << "TIME AT DRUM HIT: " << time - start << "\n";
 						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
 						pos_des(2) += dz;      //at vtravel
-						posori_task_left_hand->_linear_saturation_velocity = v_travel;
+						//posori_task_left_hand->_linear_saturation_velocity = v_travel;
 						LH_state = LIFTING_DRUMSTICK;
 						cout << "DRUM STATE: " << LH_state << "\n";
+						data_file << "detected" << " ";
+						data_file << curr_pos.transpose() << " ";
+						data_file << time - start << "\n";
 					}
 					break;
 				default:
@@ -544,6 +571,7 @@ int main() {
 							posori_task_right_hand->_linear_saturation_velocity = v_travel;
 							RH_state = MOVING_DRUMSTICK;
 							cout << "DRUM STATE RH: " << RH_state << "\n";
+
 						}
 					}
 					break;
@@ -555,6 +583,9 @@ int main() {
 						posori_task_right_hand->_linear_saturation_velocity = v_hit;
 						RH_state = HITTING_DRUM;
 						cout << "DRUM STATE RH: " << RH_state << "\n";
+						data_filera << "starting" << " ";
+						data_filera << curr_pos_ra.transpose() << " ";
+						data_filera<< time - start << "\n";
 					}
 					break;
 				case HITTING_DRUM:
@@ -577,6 +608,9 @@ int main() {
 						posori_task_right_hand->_linear_saturation_velocity = v_travel;
 						RH_state = LIFTING_DRUMSTICK;
 						cout << "DRUM STATE RH: " << RH_state << "\n";
+						data_filera << "detected" << " ";
+						data_filera << curr_pos_ra.transpose() << " ";
+						data_filera << time - start << "\n";
 					}
 					break;
 				default:
@@ -608,6 +642,10 @@ int main() {
 						ang_LF_des = LF_stomp;
 						LF_state = STOMP;
 						cout << "LEFT LEG  STATE: " << LF_state << "\n";
+						
+						data_filelf << "starting" << " ";
+						data_filelf << curr_LF_ang << " ";
+						data_filelf << time - start << "\n";
 					}
 					break;
 				case STOMP:
@@ -622,7 +660,11 @@ int main() {
 							Eigen::VectorXd addLLTime = 60 * Eigen::VectorXd::Ones(no_tsteps_lf);
 							time_data_lf = time_data_lf + addLLTime;
 						}
+
 						cout << "LEFT LEG  STATE: " << LF_state << "\n";
+						data_filelf << "detected" << " ";
+						data_filelf << curr_LF_ang << " ";
+						data_filelf << time - start << "\n";
 					}
 					break;
 				default:
@@ -654,6 +696,10 @@ int main() {
 						ang_RF_des = RF_stomp;
 						RF_state = STOMP;
 						cout << "RIGHT LEG  STATE: " << RF_state << "\n";
+						
+						data_filerf << "starting" << " ";
+						data_filerf << curr_RF_ang << " ";
+						data_filerf << time - start << "\n";
 					}
 					break;
 				case STOMP:
@@ -669,6 +715,9 @@ int main() {
 							time_data_rf = time_data_rf + addLLTime;
 						}
 						cout << "RIGHT LEG  STATE: " << RF_state << "\n";
+						data_filerf << "detected" << " ";
+						data_filerf << curr_RF_ang << " ";
+						data_filerf << time - start << "\n";
 					}
 					break;
 				default:
@@ -726,6 +775,11 @@ int main() {
     std::cout << "Controller Loop frequency : " << timer.elapsedCycles()/end_time << "Hz\n";
 
 	redis_client.setEigenMatrixJSON(JOINT_TORQUES_COMMANDED_KEY, 0 * command_torques);
+
+	data_file.close();
+	data_filera.close();
+	data_filelf.close();
+	data_filerf.close();
 
 	return 0;
 }
