@@ -134,7 +134,7 @@ int main() {
 
 	// pose task for right hand 
 	control_link = "ra_end_effector"; //length is 0.214374
-	control_point = Vector3d(0, 0, -0.214);
+	control_point = Vector3d(0, 0, -0.214374);
 	auto posori_task_right_hand = new Sai2Primitives::PosOriTask(robot, control_link, control_point); //PosOriTask(robot, control_link, control_point);
 
 	posori_task_right_hand->_use_interpolation_flag = true;
@@ -156,7 +156,7 @@ int main() {
 
 	// pose task for left hand
 	control_link = "la_end_effector";
-	control_point = Vector3d(0, 0, -0.214); //length is 0.214374
+	control_point = Vector3d(0, 0, -0.214374); //length is 0.214374
 	auto posori_task_left_hand = new Sai2Primitives::PosOriTask(robot, control_link, control_point); //PosOriTask(robot, control_link, control_point);
 	//posori_task_left_hand->setDynamicDecouplingFull(); //only one with this William said to remove
 
@@ -266,7 +266,7 @@ int main() {
 	unsigned LH_state = HOME;	
 	
 	string left_arm_control_link = "la_end_effector";
-	Vector3d left_arm_control_point = Vector3d(0, 0, -0.214); //length is 0.214374
+	Vector3d left_arm_control_point = Vector3d(0, 0, -0.214374); //length is 0.214374
 
 	//for right arm state machine
 	int index_ra;
@@ -276,7 +276,7 @@ int main() {
 	
 	
 	string right_arm_control_link = "ra_end_effector";
-	Vector3d right_arm_control_point = Vector3d(0, 0, -0.214); //length is 0.21437
+	Vector3d right_arm_control_point = Vector3d(0, 0, -0.214374); //length is 0.21437
 
 	//for both leg state machines
 	double thetaThreshold = 0.05; //apprx 5.73 deg
@@ -334,6 +334,7 @@ int main() {
 		z_data_rh(ct) = rh[3][ct];
 	
 	}
+	cout << "no_tsteps_rh " << no_tsteps_rh; 
 	
 	//Left hand
 	int no_tsteps_lh; float lh[4][10];
@@ -533,7 +534,7 @@ int main() {
 						index_ra = 0;
 						pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);
 						pos_des_ra(2) += dz;  //at vtravel
-						posori_task_right_hand->_linear_saturation_velocity = v_travel;
+						//posori_task_right_hand->_linear_saturation_velocity = v_travel;
 						//cout << pos_des_ra << "\n";
 						RH_state = FIRST_MOVING;
 						cout << "DRUM STATE RH: " << RH_state << "\n";
@@ -543,7 +544,7 @@ int main() {
 					if (time >= unified_start_time + time_data_rh(index_ra) - time_to_hit - t_buffer){ //move in anticipation to the synchronized start before 'start' has been set
 						
 						pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra); //at vhit
-						posori_task_right_hand->_linear_saturation_velocity = v_hit;
+						//posori_task_right_hand->_linear_saturation_velocity = v_hit;
 						RH_state = HITTING_DRUM;
 						cout << "DRUM STATE RH: " << RH_state << "\n";
 					}
@@ -560,7 +561,7 @@ int main() {
 							//these desired pos assignments HAVE to come after setting i = 0!
 							pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);
 							pos_des_ra(2) += dz;  //at vtravel
-							posori_task_right_hand->_linear_saturation_velocity = v_travel;
+							//posori_task_right_hand->_linear_saturation_velocity = v_travel;
 
 						}
 						else{
