@@ -248,7 +248,7 @@ int main() {
 	Vector3d tom2 = Vector3d(0.74235, -0.18308, -0.26023);
 
 	//for both arm state machines
-	double t_buffer = 0.7;	
+	double t_buffer = 0.1;	
 	double dz = 0.2;
 	double threshold = 0.0001;
 	double v_hit = 0.3;
@@ -321,7 +321,7 @@ int main() {
 	double start_time = timer.elapsedTime(); //secs	
 	
 	// for timing
-	double unified_start_time = start_time + 10;
+	double unified_start_time = start_time + 5;
 	bool startedPlaying = false;
 	bool play = true;
 	double start;	
