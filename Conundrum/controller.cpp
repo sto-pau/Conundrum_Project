@@ -317,14 +317,6 @@ int main() {
 	//Wait for play button to be hit
 	redis_client.set("gui::is_playing","0");
 	while(!stoi(redis_client.get("gui::is_playing"))){}
-	cout << "starting time" << t_bob_buffer + time_to_bob <<"\n";
-	double start_time = timer.elapsedTime(); //secs	
-	
-	// for timing
-	double unified_start_time = start_time + 5;
-	bool startedPlaying = false;
-	bool play = true;
-	double start;	
 	
 	/**************START OF GUI FILE-READ******************/
 
@@ -384,7 +376,13 @@ int main() {
 		z_data_lf(ct) = lf[3][ct];
 	}
 
-
+	double start_time = timer.elapsedTime(); //secs	
+	
+	// for timing
+	double unified_start_time = start_time + 5;
+	bool startedPlaying = false;
+	bool play = true;
+	double start;
 /*******END OF GUI FILE-READ*********************/
 
 /***START OF STATE MACHINE***************/
@@ -568,7 +566,7 @@ int main() {
 						else{
 							pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);
 							pos_des_ra(2) += dz;      //at vtravel
-							posori_task_right_hand->_linear_saturation_velocity = v_travel;
+							//posori_task_right_hand->_linear_saturation_velocity = v_travel;
 							RH_state = MOVING_DRUMSTICK;
 							cout << "DRUM STATE RH: " << RH_state << "\n";
 
@@ -580,7 +578,7 @@ int main() {
 					if (time - start >= time_data_rh(index_ra)-time_to_hit-t_buffer){
 						cout << "\nstarting hit ra " << time - start << "\n";
 						pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);   //at vhit
-						posori_task_right_hand->_linear_saturation_velocity = v_hit;
+						//posori_task_right_hand->_linear_saturation_velocity = v_hit;
 						RH_state = HITTING_DRUM;
 						cout << "DRUM STATE RH: " << RH_state << "\n";
 						data_filera << "starting" << " ";
@@ -603,9 +601,9 @@ int main() {
 							cout << "TOM2" << "\n";
 						}
 						cout  << "TIME AT DRUM HIT: " << time - start << "\n";
-						pos_des_ra << x_data_rh(i), y_data_rh(i), z_data_rh(i);
+						pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);
 						pos_des_ra(2) += dz;      //at vtravel
-						posori_task_right_hand->_linear_saturation_velocity = v_travel;
+						//posori_task_right_hand->_linear_saturation_velocity = v_travel;
 						RH_state = LIFTING_DRUMSTICK;
 						cout << "DRUM STATE RH: " << RH_state << "\n";
 						data_filera << "detected" << " ";
