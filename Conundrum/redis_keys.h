@@ -13,3 +13,5 @@ const std::string JOINT_ANGLES_KEY = "sai2::cs225a::project::sensors::q";
 const std::string JOINT_VELOCITIES_KEY = "sai2::cs225a::project::sensors::dq";
 const std::string JOINT_TORQUES_COMMANDED_KEY = "sai2::cs225a::project::actuators::fgc";
 const std::string CONTROLLER_RUNNING_KEY = "sai2::sim::toro::controller";
+const std::string BPM_KEY = "gui::bpm";
+const std::string LOOP_TIME_KEY = "gui::looptime";

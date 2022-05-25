@@ -251,8 +251,8 @@ int main() {
 	double t_buffer = 0.1;	
 	double dz = 0.2;
 	double threshold = 0.0001;
-	double v_hit = 0.3;
-	double v_travel = 0.3;
+	double v_hit = 0.3; 
+	double v_travel = 0.3; 
 	double time_to_hit = dz/v_hit;
 
 	//_otg->setMaxLinearVelocity(0.3);
@@ -319,6 +319,9 @@ int main() {
 	while(!stoi(redis_client.get("gui::is_playing"))){}
 	
 	/**************START OF GUI FILE-READ******************/
+	// Read BPM and looptime from redis
+	int bpm = std::stoi(redis_client.get(BPM_KEY));
+	int measureLength = std::stoi(redis_client.get(LOOP_TIME_KEY));
 
 	//Right hand
 	int no_tsteps_rh; float rh[4][10];
@@ -410,8 +413,8 @@ int main() {
 		curr_RF_ang = robot->_q[RF_joint]; //get current right foot angle
 
 		//head state
-		float bpm = 4.0; // has to come from redis
-		float measureLength = 60; //[seconds]
+		// float bpm = 4.0; // has to come from redis - read at beginning of GUI-FILEREAD section
+		// float measureLength = 60; //[seconds] - read at beginning of GUI-FILEREAD section
 		//redis_client.get("gui::bpm").decode('utf-8')// BPMeasure from gui
     	//redis_client.get("gui::looptime").decode('utf-8') // seconds per loop from gui
 		double period = bpm / measureLength; // 2.0 * M_PI
@@ -443,7 +446,7 @@ int main() {
 						i = 0;
 						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
 						pos_des(2) += dz;  //at vtravel
-						//posori_task_left_hand->_linear_saturation_velocity = v_travel;
+						// posori_task_left_hand->_linear_saturation_velocity = v_travel; 
 						//cout << pos_des << "\n";
 						LH_state = FIRST_MOVING;
 						cout << "DRUM STATE: " << LH_state << "\n";
@@ -453,30 +456,32 @@ int main() {
 					if (time >= unified_start_time + time_data_lh(i) - time_to_hit - t_buffer){ //move in anticipation to the synchronized start before 'start' has been set
 						
 						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i); //at vhit
-						//posori_task_left_hand->_linear_saturation_velocity = v_hit;
+						// posori_task_left_hand->_linear_saturation_velocity = v_hit; 
 						LH_state = HITTING_DRUM;
 						cout << "DRUM STATE: " << LH_state << "\n";
 					}
 					break;
 				case LIFTING_DRUMSTICK:
-					if (abs(curr_pos.norm()-pos_des.norm()) < threshold){
+					// QUESTION: (curr_pos - pos_desired).norm() < threshold?
+					if (abs(curr_pos.norm()-pos_des.norm()) < threshold){ 
 						i++;
 						if (i % no_tsteps_lh == 0){
 							i = 0;
 							LH_state = MOVING_DRUMSTICK;
-							Eigen::VectorXd addTime = 60 * Eigen::VectorXd::Ones(no_tsteps_lh);
+							// Eigen::VectorXd addTime = 60 * Eigen::VectorXd::Ones(no_tsteps_lh); // CHANGED TO BELOW
+							Eigen::VectorXd addTime = measureLength * Eigen::VectorXd::Ones(no_tsteps_lh);
 							time_data_lh = time_data_lh + addTime; //wrap time around by adding the length of one time measure (one song meter)
 
 							//these desired pos assignments HAVE to come after setting i = 0!
 							pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
 							pos_des(2) += dz;  //at vtravel
-							//posori_task_left_hand->_linear_saturation_velocity = v_travel;
+							// posori_task_left_hand->_linear_saturation_velocity = v_travel; 
 
 						}
 						else{
 							pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
 							pos_des(2) += dz;      //at vtravel
-							//posori_task_left_hand->_linear_saturation_velocity = v_travel;
+							// posori_task_left_hand->_linear_saturation_velocity = v_travel; 
 							LH_state = MOVING_DRUMSTICK;
 							cout << "DRUM STATE: " << LH_state << "\n";
 
@@ -484,10 +489,10 @@ int main() {
 					}
 					break;
 				case MOVING_DRUMSTICK:				
-					if (time - start >= time_data_lh(i)-time_to_hit-t_buffer){
+					if (time - start >= time_data_lh(i) - time_to_hit - t_buffer){
 						cout << "\nstarting hit ra " << time - start << "\n";
 						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);   //at vhit
-						//posori_task_left_hand->_linear_saturation_velocity = v_hit;
+						// posori_task_left_hand->_linear_saturation_velocity = v_hit; 
 						LH_state = HITTING_DRUM;
 						cout << "DRUM STATE: " << LH_state << "\n";			
 						data_file << "starting" << " ";
@@ -512,7 +517,7 @@ int main() {
 						cout  << "TIME AT DRUM HIT: " << time - start << "\n";
 						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
 						pos_des(2) += dz;      //at vtravel
-						//posori_task_left_hand->_linear_saturation_velocity = v_travel;
+						// posori_task_left_hand->_linear_saturation_velocity = v_travel; 
 						LH_state = LIFTING_DRUMSTICK;
 						cout << "DRUM STATE: " << LH_state << "\n";
 						data_file << "detected" << " ";
@@ -555,7 +560,8 @@ int main() {
 						if (index_ra % no_tsteps_rh == 0){
 							index_ra = 0;
 							RH_state = MOVING_DRUMSTICK;
-							Eigen::VectorXd addTime = 60 * Eigen::VectorXd::Ones(no_tsteps_rh);
+							// Eigen::VectorXd addTime = 60 * Eigen::VectorXd::Ones(no_tsteps_rh);
+							Eigen::VectorXd addTime = measureLength * Eigen::VectorXd::Ones(no_tsteps_rh);
 							time_data_rh = time_data_rh + addTime; //wrap time around by adding the length of one time measure (one song meter)
 
 							//these desired pos assignments HAVE to come after setting i = 0!
@@ -656,7 +662,8 @@ int main() {
 						cout << "TIME AT HIHAT HIT: " << time - start << "\n";
 						if (index_LF % no_tsteps_lf == 0){
 							index_LF = 0;
-							Eigen::VectorXd addLLTime = 60 * Eigen::VectorXd::Ones(no_tsteps_lf);
+							// Eigen::VectorXd addLLTime = 60 * Eigen::VectorXd::Ones(no_tsteps_lf);
+							Eigen::VectorXd addLLTime = measureLength * Eigen::VectorXd::Ones(no_tsteps_lf);
 							time_data_lf = time_data_lf + addLLTime;
 						}
 
@@ -710,7 +717,8 @@ int main() {
 						cout << "TIME AT BASS HIT: " << time - start << "\n";
 						if (index_RF % no_tsteps_rf == 0){
 							index_RF = 0;
-							Eigen::VectorXd addLLTime = 60 * Eigen::VectorXd::Ones(no_tsteps_rf);
+							// Eigen::VectorXd addLLTime = 60 * Eigen::VectorXd::Ones(no_tsteps_rf);
+							Eigen::VectorXd addLLTime = measureLength * Eigen::VectorXd::Ones(no_tsteps_rf);
 							time_data_rf = time_data_rf + addLLTime;
 						}
 						cout << "RIGHT LEG  STATE: " << RF_state << "\n";
