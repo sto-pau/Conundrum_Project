@@ -90,7 +90,7 @@ class MainWindow(QWidget):
         Initialize GUI layout and components
         """
 
-        bg_image = QImage("drums.jpg").scaled(QSize(1024, 512))
+        bg_image = QImage("gui_bgnd.png").scaled(QSize(1024, 512))
         palette = QPalette()
         palette.setBrush(QPalette.Window, QBrush(bg_image))
         self.setPalette(palette)
@@ -107,10 +107,13 @@ class MainWindow(QWidget):
 
         # Add instument names to each row
         for i, inst in enumerate(self.instrument_names):
-            score_layout.addWidget(QLabel(inst), i, 0)
+            text = QLabel(inst)
+            text.setStyleSheet("color : white")
+            text.setFont(QFont("Arial", 14))
+            score_layout.addWidget(text, i, 0)
 
         # Add score buttons
-        btn_colors = ["ff3333", "ffed18", "77f32c", "2cf3e7", "b12cf3"]
+        btn_colors = ["7c04b8", "e0e0e0", "a553b5", "1e177a", "85d7e6"]
 
         for i in range(self.n_instruments):
             for j in range(self.beats_per_measure * self.n_measures):
@@ -140,6 +143,8 @@ class MainWindow(QWidget):
         self.tempo_slider.valueChanged.connect(self._tempo_slider_callback)
         
         self.tempo_text = QLabel("4 BPM")
+        self.tempo_text.setStyleSheet("color : white")
+        self.tempo_text.setFont(QFont("Arial", 16))
         tempo_layout.addWidget(self.tempo_text)
         tempo_layout.addWidget(self.tempo_slider)
         
@@ -147,12 +152,15 @@ class MainWindow(QWidget):
         play_stop_layout = QHBoxLayout()
 
         play_btn = QPushButton("PLAY")
+        play_btn.setStyleSheet("background-color : #5cd699")
         play_btn.clicked.connect(self._play_callback)
 
         stop_btn = QPushButton("STOP")
+        stop_btn.setStyleSheet("background-color : #de3165")
         stop_btn.clicked.connect(self._stop_callback)
 
         clear_btn = QPushButton("CLEAR")
+        clear_btn.setStyleSheet("background-color : #38246e")
         clear_btn.clicked.connect(self._clear_callback)
   
         play_stop_layout.addWidget(play_btn)
@@ -161,9 +169,14 @@ class MainWindow(QWidget):
 
         # add all child layouts to main
         title_text = QLabel("Welcome to Toro the Conun-Drummer's Livehouse!")
-        title_text.setFont(QFont('Fixedsys', 25))
+        title_text.setStyleSheet("color : white")
+        title_text.setFont(QFont('Fixedsys', 28))
         directions_text = QLabel("Input a drum score for Toro to play, set the tempo, and press PLAY to see toro drum!\nThe entire grid represents a measure, and each button is an eigth note.")
+        directions_text.setStyleSheet("color : white")
+        directions_text.setFont(QFont("Arial", 16))
+        
         self.error_text = QLabel("")
+        self.error_text.setFont(QFont("Arial", 16))
         self.error_text.setStyleSheet("color:rgb(255,0,0)")
 
         main_layout.addWidget(title_text)
