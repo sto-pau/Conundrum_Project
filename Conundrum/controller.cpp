@@ -106,10 +106,12 @@ int main() {
 
 	// set desired position and orientation to the initial configuration
 	Vector3d x_pos;
-	robot->positionInWorld(x_pos, control_link, control_point);
+	Vector3d rf_init_pos;
+	robot->positionInWorld(rf_init_pos, control_link, control_point);
+	//rf_init_pos = x_pos;
 	Matrix3d x_ori;
 	robot->rotationInWorld(x_ori, control_link);
-	posori_task_right_foot->_desired_position = x_pos; //Vector3d(0.8, 0.002, -1.15); //x_pos;
+	posori_task_right_foot->_desired_position = rf_init_pos; //Vector3d(0.8, 0.002, -1.15); //x_pos;
 	//posori_task_right_foot->_desired_orientation = x_ori; 
 
 	// pose task for left foot 
@@ -127,9 +129,11 @@ int main() {
 	// posori_task_left_foot->_kv_ori = 20.0;
 
 	// set desired position and orientation to the initial configuration
-	robot->positionInWorld(x_pos, control_link, control_point);
+	Vector3d lf_init_pos;
+	robot->positionInWorld(lf_init_pos, control_link, control_point);
+	//lf_init_pos = x_pos;
 	robot->rotationInWorld(x_ori, control_link);
-	posori_task_left_foot->_desired_position = x_pos;
+	posori_task_left_foot->_desired_position = lf_init_pos;
 	//posori_task_left_foot->_desired_orientation = x_ori; 
 
 	// pose task for right hand 
@@ -147,9 +151,11 @@ int main() {
 	posori_task_right_hand->_kv_ori = 20.0;
 
 	// set two goal positions/orientations 
-	robot->positionInWorld(x_pos, control_link, control_point);
+	Vector3d rh_init_pos;
+	robot->positionInWorld(rh_init_pos, control_link, control_point);
+	//rh_init_pos = x_pos;
 	robot->rotationInWorld(x_ori, control_link);
-	posori_task_right_hand->_desired_position = x_pos; //Vector3d(0.93609, -0.05134, -0.4536);//Vector3d(0.5, -0.2, 0.8);
+	posori_task_right_hand->_desired_position = rh_init_pos; //Vector3d(0.93609, -0.05134, -0.4536);//Vector3d(0.5, -0.2, 0.8);
 	posori_task_right_hand->_desired_orientation = x_ori;// * AngleAxisd(-M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix(); //AngleAxisd(-3*M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori; 
 	// posori_task_right_hand->_desired_orientation = AngleAxisd(M_PI/2, Vector3d::UnitX()).toRotationMatrix() * \
 	// 											AngleAxisd(-M_PI/2, Vector3d::UnitY()).toRotationMatrix() * x_ori; 
@@ -161,10 +167,10 @@ int main() {
 	//posori_task_left_hand->setDynamicDecouplingFull(); //only one with this William said to remove
 
 	// set two goal positions/orientations 
-	robot->positionInWorld(x_pos, control_link, control_point);
-	robot->rotationInWorld(x_ori, control_link);
-	posori_task_left_hand->_desired_position = x_pos;
-	posori_task_left_hand->_desired_orientation = x_ori;
+	//robot->positionInWorld(x_pos, control_link, control_point);
+	//robot->rotationInWorld(x_ori, control_link);
+	//posori_task_left_hand->_desired_position = x_pos;
+	//posori_task_left_hand->_desired_orientation = x_ori;
 
 	posori_task_left_hand->_use_interpolation_flag = true;
 	posori_task_left_hand->_use_velocity_saturation_flag = false;
@@ -176,9 +182,11 @@ int main() {
 	posori_task_left_hand->_kv_ori = 20.0;
 
 	// set two goal positions/orientations 
-	robot->positionInWorld(x_pos, control_link, control_point);
+	Vector3d lh_init_pos;
+	robot->positionInWorld(lh_init_pos, control_link, control_point);
+	//lh_init_pos = x_pos;
 	robot->rotationInWorld(x_ori, control_link);
-	posori_task_left_hand->_desired_position = x_pos; //Vector3d(0.92103,0.18308,-0.41312); //x_pos + Vector3d(0.1, 0.05, 0.3);//Vector3d(0.5, -0.2, 0.8);
+	posori_task_left_hand->_desired_position = lh_init_pos; //Vector3d(0.92103,0.18308,-0.41312); //x_pos + Vector3d(0.1, 0.05, 0.3);//Vector3d(0.5, -0.2, 0.8);
 	posori_task_left_hand->_desired_orientation = x_ori; //* AngleAxisd(-M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix(); //AngleAxisd(-3*M_PI/4, Vector3d::UnitY()).toRotationMatrix() * AngleAxisd(0 * M_PI/4, Vector3d::UnitZ()).toRotationMatrix() * x_ori; 
 	// posori_task_right_hand->_desired_orientation = AngleAxisd(M_PI/2, Vector3d::UnitX()).toRotationMatrix() * \
 	// 											AngleAxisd(-M_PI/2, Vector3d::UnitY()).toRotationMatrix() * x_ori; 
@@ -261,7 +269,7 @@ int main() {
 	
 	//left arm state machine
 	int i;
-	Vector3d pos_des; 
+	Vector3d pos_des = lh_init_pos; 
 	Vector3d curr_pos;	
 	unsigned LH_state = HOME;	
 	
@@ -270,7 +278,7 @@ int main() {
 
 	//for right arm state machine
 	int index_ra;
-	Vector3d pos_des_ra; 
+	Vector3d pos_des_ra = rh_init_pos; 
 	Vector3d curr_pos_ra;	
 	unsigned RH_state = HOME;	
 	
@@ -322,7 +330,7 @@ int main() {
 	// Read BPM and looptime from redis
 	int bpm = std::stoi(redis_client.get(BPM_KEY));
 	int measureLength = std::stoi(redis_client.get(LOOP_TIME_KEY));
-
+	
 	//Right hand
 	int no_tsteps_rh; float rh[4][10];
 	readGUI("right_hand.txt", rh, no_tsteps_rh);	
@@ -381,11 +389,11 @@ int main() {
 	}
 
 	double start_time = timer.elapsedTime(); //secs	
-	
+	cout << "START_TIME: " << start_time << "\n";
 	// for timing
-	double unified_start_time = start_time + 5;
-	bool startedPlaying = false;
-	bool play = true;
+	double unified_start_time = 5.0;
+	bool startedPlaying = true;
+	bool restart = false;
 	double start;
 /*******END OF GUI FILE-READ*********************/
 
@@ -395,14 +403,39 @@ int main() {
 		// wait for next scheduled loop
 		timer.waitForNextLoop();
 		double time = timer.elapsedTime() - start_time;
-
-		if( time >= unified_start_time && startedPlaying == false) { //synchronized start at unified start time
-			start = time;
+		
+		// execute redis read callback
+		redis_client.executeReadCallback(0);
+		
+		//cout << "TIME: " << time << "	" << "UNIFIED START TIME: " << unified_start_time << " " << "START TIME: " << start_time << "\n";
+		if (stoi(redis_client.get("gui::is_playing")) == 0 && restart == false){   //check to see if stop button has been pressed
+			cout << "DRUM STOPPED" << "\n";
+			startedPlaying = false;
+			restart = true;
+			//set all limbs to go to home state
+			LH_state = HOME;		
+			RH_state = HOME;
+			LF_state = HOME;
+			RF_state = HOME;
+			
+			//set task des pos to initial positions
+			pos_des = lh_init_pos;
+			pos_des_ra = rh_init_pos;
+			
+			//set joint space to initial joint configuration
+			joint_desired = q_init_desired;
+		}
+		if (stoi(redis_client.get("gui::is_playing")) == 1 && restart == true){  //if start button has been pressed again
+			cout << "DRUM START AGAIN" << "\n";
+			restart = false;
+			start_time = time;
+			time = timer.elapsedTime() - start_time;
 			startedPlaying = true;
 		}
 
-		// execute redis read callback
-		redis_client.executeReadCallback(0);
+		if( time >= unified_start_time && start == 0 && restart == false) { //synchronized start at unified start time
+			start = time;
+		}
 
 		// update model
 		robot->updateModel();
@@ -442,9 +475,10 @@ int main() {
 		if (no_tsteps_lh != 0){
 			switch(LH_state){
 				case HOME:
-					if (play == true){
+					if (startedPlaying == true){
 						i = 0;
 						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
+						cout << "INITIAL_POS_DES: " << pos_des << "\n";
 						pos_des(2) += dz;  //at vtravel
 						// posori_task_left_hand->_linear_saturation_velocity = v_travel; 
 						//cout << pos_des << "\n";
@@ -535,9 +569,10 @@ int main() {
 		if (no_tsteps_rh != 0){
 			switch(RH_state){
 				case HOME:
-					if (play == true){
+					if (startedPlaying == true){
 						index_ra = 0;
 						pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);
+						cout << "INITIAL_POS_DES_RA: " << pos_des_ra << "\n";
 						pos_des_ra(2) += dz;  //at vtravel
 						//posori_task_right_hand->_linear_saturation_velocity = v_travel;
 						//cout << pos_des_ra << "\n";
@@ -628,7 +663,7 @@ int main() {
 		if (no_tsteps_lf != 0){
 			switch(LF_state){ //left leg (hi-hat) state machine
 				case HOME:
-					if (play == true){
+					if (startedPlaying == true){
 						index_LF = 0;
 						LF_state = FIRST_MOVING;
 						cout << "LEFT LEG STATE: " << LF_state << "\n";
@@ -683,7 +718,7 @@ int main() {
 		if (no_tsteps_rf != 0){
 			switch(RF_state){ //right leg (bass) state machine
 				case HOME:
-					if (play == true){
+					if (startedPlaying == true){
 						index_RF = 0;
 						RF_state = FIRST_MOVING;
 						cout << "RIGHT LEG  STATE: " << RF_state << "\n";
