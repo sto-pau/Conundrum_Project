@@ -313,7 +313,13 @@ int main() {
 	double time_to_bob = (3 * M_PI) / w[0]; //want bottom of head motion to correspond to beat
 	double start_nod_time;
 	double nod_time;
-	
+
+	//for playing sound
+	int soundIndex = 0;
+	bool snareFlag = false;
+	bool tom1Flag = false;
+	bool tom2Flag = false;
+		
 	//Wait for play button to be hit
 	redis_client.set("gui::is_playing","0");
 	while(!stoi(redis_client.get("gui::is_playing"))){}
@@ -321,7 +327,7 @@ int main() {
 	/**************START OF GUI FILE-READ******************/
 	// Read BPM and looptime from redis
 	int bpm = std::stoi(redis_client.get(BPM_KEY));
-	int measureLength = std::stoi(redis_client.get(LOOP_TIME_KEY));
+	int measureLength = std::stod(redis_client.get(LOOP_TIME_KEY));
 
 	//Right hand
 	int no_tsteps_rh; float rh[4][10];
@@ -383,23 +389,27 @@ int main() {
 	double start_time = timer.elapsedTime(); //secs	
 	
 	// for timing
-	double unified_start_time = start_time + 5;
+	double unified_start_time = 5;
+	double sound_unified_start_time = unified_start_time;
 	bool startedPlaying = false;
 	bool play = true;
-	double start;
+	double start = 0.0;
+	double sound_start = 0.0;
 /*******END OF GUI FILE-READ*********************/
 
 /***START OF STATE MACHINE***************/
 
 	while (runloop) {	
+
 		// wait for next scheduled loop
 		timer.waitForNextLoop();
 		double time = timer.elapsedTime() - start_time;
 
 		if( time >= unified_start_time && startedPlaying == false) { //synchronized start at unified start time
 			start = time;
+			sound_start = start;
 			startedPlaying = true;
-		}
+		}	
 
 		// execute redis read callback
 		redis_client.executeReadCallback(0);
@@ -503,16 +513,15 @@ int main() {
 				case HITTING_DRUM:
 					if (abs(curr_pos.norm()-pos_des.norm()) < threshold){
 						if ((float)pos_des(0) == (float)snare(0)){
-							redis_client.set(DRUM_KEY, "1");
+							//redis_client.set(DRUM_KEY, "1");
+							snareFlag = true;
 							cout << "SNARE" << "\n";
 						}
 						if ((float)pos_des(0) == (float)tom1(0)){
-							redis_client.set(DRUM_KEY, "2");
-							cout << "TOM1" << "\n";
+							tom1Flag = true;
 						}
 						if ((float)pos_des(0) == (float)tom2(0)){
-							redis_client.set(DRUM_KEY, "3");
-							cout << "TOM2" << "\n";
+							tom2Flag = true;
 						}
 						cout  << "TIME AT DRUM HIT: " << time - start << "\n";
 						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
@@ -596,16 +605,13 @@ int main() {
 				case HITTING_DRUM:
 					if (abs(curr_pos_ra.norm()-pos_des_ra.norm()) < threshold){
 						if ((float)pos_des_ra(0) == (float)snare(0)){
-							redis_client.set(DRUM_KEY, "1");
-							cout << "SNARE" << "\n";
+							snareFlag = true;
 						}
 						if ((float)pos_des_ra(0) == (float)tom1(0)){
-							redis_client.set(DRUM_KEY, "2");
-							cout << "TOM1" << "\n";
+							tom1Flag = true;
 						}
 						if ((float)pos_des_ra(0) == (float)tom2(0)){
-							redis_client.set(DRUM_KEY, "3");
-							cout << "TOM2" << "\n";
+							tom2Flag = true;
 						}
 						cout  << "TIME AT DRUM HIT: " << time - start << "\n";
 						pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);
@@ -732,6 +738,37 @@ int main() {
 			}//end right leg (bass) state machine
 			
 			joint_desired[RF_joint] = ang_RF_des; //set desired LL position
+		}
+
+
+		if (time - sound_start >= (sound_unified_start_time + (measureLength / 8.0) * soundIndex + 0.15)) { //added buffer to let all of the instruments get hit if out of synch
+			cout << "\nmeasureLength " << measureLength;
+			cout << "\n sound_unified_start_time + (measureLength / 8.0) * soundIndex + 0.15" << sound_unified_start_time + (measureLength / 8) * soundIndex + 0.15;
+			cout << "\time - start " << time - start;
+			// cout << "\nsnareFlag " << snareFlag; 
+
+			if (snareFlag == true){
+				redis_client.set(DRUM_KEY, "1");
+				snareFlag = false;
+				cout << "SNARE" << "\n";
+			}
+			if (tom1Flag == true){
+				redis_client.set(DRUM_KEY, "2");
+				cout << "TOM1" << "\n";
+				tom1Flag = false;
+				
+			}
+			if (tom2Flag == true){
+				redis_client.set(DRUM_KEY, "3");
+				cout << "TOM2" << "\n";
+				tom2Flag = false;
+			}
+
+			soundIndex++;
+			sound_unified_start_time = 0;
+			// cout << "\n(measureLength / bpm) * soundIndex + 0.5) " << (measureLength / bpm) * soundIndex + 0.15;
+			// cout << "\nsnareFlag " << snareFlag; 
+		
 		}
 
 		joint_task->_desired_position = joint_desired;
