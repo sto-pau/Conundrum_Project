@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSize
 
 import redis
 import numpy as np
@@ -14,7 +14,9 @@ TODOs
 
 class MainWindow(QWidget):
     def __init__(self):
-        super().__init__()
+
+        QWidget.__init__(self)
+        # super().__init__()
         self.redis_client = redis.Redis()
 
         # set window size and position
@@ -87,6 +89,13 @@ class MainWindow(QWidget):
         """
         Initialize GUI layout and components
         """
+
+        bg_image = QImage("gui_bgnd.png").scaled(QSize(1024, 512))
+        palette = QPalette()
+        palette.setBrush(QPalette.Window, QBrush(bg_image))
+        self.setPalette(palette)
+
+
         # Root parent layout
         main_layout = QVBoxLayout()
         main_layout.setSpacing(30)
@@ -98,10 +107,13 @@ class MainWindow(QWidget):
 
         # Add instument names to each row
         for i, inst in enumerate(self.instrument_names):
-            score_layout.addWidget(QLabel(inst), i, 0)
+            text = QLabel(inst)
+            text.setStyleSheet("color : white")
+            text.setFont(QFont("Arial", 14))
+            score_layout.addWidget(text, i, 0)
 
         # Add score buttons
-        btn_colors = ["ff3333", "ffed18", "77f32c", "2cf3e7", "b12cf3"]
+        btn_colors = ["7c04b8", "e0e0e0", "a553b5", "1e177a", "85d7e6"]
 
         for i in range(self.n_instruments):
             for j in range(self.beats_per_measure * self.n_measures):
@@ -123,32 +135,48 @@ class MainWindow(QWidget):
         tempo_layout.setSpacing(30)
         self.tempo_slider = QSlider(Qt.Horizontal)
         self.tempo_slider.setMinimum(4)
-        self.tempo_slider.setMaximum(180)
+        self.tempo_slider.setMaximum(15)
         self.tempo_slider.setSingleStep(1)
         self.tempo_slider.setFocusPolicy(Qt.StrongFocus)
         self.tempo_slider.setTickPosition(QSlider.TicksBothSides)
-        self.tempo_slider.setTickInterval(10)
+        self.tempo_slider.setTickInterval(1)
         self.tempo_slider.valueChanged.connect(self._tempo_slider_callback)
         
         self.tempo_text = QLabel("4 BPM")
+        self.tempo_text.setStyleSheet("color : white")
+        self.tempo_text.setFont(QFont("Arial", 16))
         tempo_layout.addWidget(self.tempo_text)
         tempo_layout.addWidget(self.tempo_slider)
         
-        # play and stop layout
+        # play stop clear layout
         play_stop_layout = QHBoxLayout()
 
         play_btn = QPushButton("PLAY")
+        play_btn.setStyleSheet("background-color : #5cd699")
         play_btn.clicked.connect(self._play_callback)
+
         stop_btn = QPushButton("STOP")
+        stop_btn.setStyleSheet("background-color : #de3165")
         stop_btn.clicked.connect(self._stop_callback)
+
+        clear_btn = QPushButton("CLEAR")
+        clear_btn.setStyleSheet("background-color : #38246e")
+        clear_btn.clicked.connect(self._clear_callback)
+  
         play_stop_layout.addWidget(play_btn)
         play_stop_layout.addWidget(stop_btn)
+        play_stop_layout.addWidget(clear_btn)
 
         # add all child layouts to main
         title_text = QLabel("Welcome to Toro the Conun-Drummer's Livehouse!")
-        title_text.setFont(QFont('Arial', 25))
+        title_text.setStyleSheet("color : white")
+        title_text.setFont(QFont('Fixedsys', 28))
         directions_text = QLabel("Input a drum score for Toro to play, set the tempo, and press PLAY to see toro drum!\nThe entire grid represents a measure, and each button is an eigth note.")
+        directions_text.setStyleSheet("color : white")
+        directions_text.setFont(QFont("Arial", 16))
+        
         self.error_text = QLabel("")
+        self.error_text.setFont(QFont("Arial", 16))
         self.error_text.setStyleSheet("color:rgb(255,0,0)")
 
         main_layout.addWidget(title_text)
@@ -158,7 +186,7 @@ class MainWindow(QWidget):
         main_layout.addLayout(tempo_layout)
         main_layout.addLayout(play_stop_layout)
 
-        self.setLayout(main_layout)   
+        self.setLayout(main_layout)
         self.show()
 
 
@@ -195,6 +223,18 @@ class MainWindow(QWidget):
             self.error_text.setText("")
             self.is_playing = False
             self.redis_client.set(self.IS_PLAYING_KEY, 0)
+
+    def _clear_callback(self):
+        """
+        Button callback for CLEAR button
+        """
+        print("CLEAR")
+
+        for row in self.measure_buttons:
+            for btn in row:
+                btn.setChecked(False)
+
+        self._update_btn_activation()
 
     def _note_callback(self):
         """
