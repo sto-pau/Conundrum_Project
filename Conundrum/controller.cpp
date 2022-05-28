@@ -90,63 +90,65 @@ int main() {
 	VectorXd command_torques = VectorXd::Zero(dof);
 	MatrixXd N_prec = MatrixXd::Identity(dof, dof);
 
-	// pose task for right foot 
-	string control_link = "RL_foot";
-	Vector3d control_point = Vector3d(0, 0, 0);
-	auto posori_task_right_foot = new Sai2Primitives::PositionTask(robot, control_link, control_point); //PosOriTask(robot, control_link, control_point);
+	// // pose task for right foot 
+	// string control_link = "RL_foot";
+	// Vector3d control_point = Vector3d(0, 0, 0);
+	// auto posori_task_right_foot = new Sai2Primitives::PositionTask(robot, control_link, control_point); //PosOriTask(robot, control_link, control_point);
 
-	posori_task_right_foot->_use_interpolation_flag = false;
-	posori_task_right_foot->_use_velocity_saturation_flag = true;
+	// posori_task_right_foot->_use_interpolation_flag = false;
+	// posori_task_right_foot->_use_velocity_saturation_flag = true;
 	
-	VectorXd posori_task_torques_right_foot = VectorXd::Zero(dof);
-	posori_task_right_foot->_kp = 400.0;
-	posori_task_right_foot->_kv = 20.0;
-	// posori_task_right_foot->_kp_ori = 400.0;
-	// posori_task_right_foot->_kv_ori = 20.0;
+	// VectorXd posori_task_torques_right_foot = VectorXd::Zero(dof);
+	// posori_task_right_foot->_kp = 400.0;
+	// posori_task_right_foot->_kv = 20.0;
+	// // posori_task_right_foot->_kp_ori = 400.0;
+	// // posori_task_right_foot->_kv_ori = 20.0;
 
-	// set desired position and orientation to the initial configuration
-	Vector3d x_pos;
-	robot->positionInWorld(x_pos, control_link, control_point);
-	Matrix3d x_ori;
-	robot->rotationInWorld(x_ori, control_link);
-	posori_task_right_foot->_desired_position = x_pos; //Vector3d(0.8, 0.002, -1.15); //x_pos;
-	//posori_task_right_foot->_desired_orientation = x_ori; 
+	// // set desired position and orientation to the initial configuration
+	// Vector3d x_pos;
+	// robot->positionInWorld(x_pos, control_link, control_point);
+	// Matrix3d x_ori;
+	// robot->rotationInWorld(x_ori, control_link);
+	// posori_task_right_foot->_desired_position = x_pos; //Vector3d(0.8, 0.002, -1.15); //x_pos;
+	// //posori_task_right_foot->_desired_orientation = x_ori; 
 
-	// pose task for left foot 
-	control_link = "LL_foot";
-	control_point = Vector3d(0, 0, 0);
-	auto posori_task_left_foot = new Sai2Primitives::PositionTask(robot, control_link, control_point); //PosOriTask(robot, control_link, control_point);
+	// // pose task for left foot 
+	// control_link = "LL_foot";
+	// control_point = Vector3d(0, 0, 0);
+	// auto posori_task_left_foot = new Sai2Primitives::PositionTask(robot, control_link, control_point); //PosOriTask(robot, control_link, control_point);
 
-	posori_task_left_foot->_use_interpolation_flag = false;
-	posori_task_left_foot->_use_velocity_saturation_flag = true;
+	// posori_task_left_foot->_use_interpolation_flag = false;
+	// posori_task_left_foot->_use_velocity_saturation_flag = true;
 
-	VectorXd posori_task_torques_left_foot = VectorXd::Zero(dof);
-	posori_task_left_foot->_kp = 400.0;
-	posori_task_left_foot->_kv = 20.0;
-	// posori_task_left_foot->_kp_ori = 400.0;
-	// posori_task_left_foot->_kv_ori = 20.0;
+	// VectorXd posori_task_torques_left_foot = VectorXd::Zero(dof);
+	// posori_task_left_foot->_kp = 400.0;
+	// posori_task_left_foot->_kv = 20.0;
+	// // posori_task_left_foot->_kp_ori = 400.0;
+	// // posori_task_left_foot->_kv_ori = 20.0;
 
-	// set desired position and orientation to the initial configuration
-	robot->positionInWorld(x_pos, control_link, control_point);
-	robot->rotationInWorld(x_ori, control_link);
-	posori_task_left_foot->_desired_position = x_pos;
-	//posori_task_left_foot->_desired_orientation = x_ori; 
+	// // set desired position and orientation to the initial configuration
+	// robot->positionInWorld(x_pos, control_link, control_point);
+	// robot->rotationInWorld(x_ori, control_link);
+	// posori_task_left_foot->_desired_position = x_pos;
+	// //posori_task_left_foot->_desired_orientation = x_ori; 
 
 	// pose task for right hand 
-	control_link = "ra_end_effector"; //length is 0.214374
-	control_point = Vector3d(0, 0, -0.214374);
+	string control_link = "ra_end_effector"; //length is 0.214374
+	Vector3d control_point = Vector3d(0, 0, -0.214374);
 	auto posori_task_right_hand = new Sai2Primitives::PosOriTask(robot, control_link, control_point); //PosOriTask(robot, control_link, control_point);
 
 	posori_task_right_hand->_use_interpolation_flag = true;
 	posori_task_right_hand->_use_velocity_saturation_flag = false;
 	
 	VectorXd posori_task_torques_right_hand = VectorXd::Zero(dof);
-	posori_task_right_hand->_kp_pos = 200.0;
+	posori_task_right_hand->_kp_pos = 400.0;
 	posori_task_right_hand->_kv_pos = 20.0;
 	posori_task_right_hand->_kp_ori = 200.0;
 	posori_task_right_hand->_kv_ori = 20.0;
 
 	// set two goal positions/orientations 
+	Vector3d x_pos;
+	Matrix3d x_ori;
 	robot->positionInWorld(x_pos, control_link, control_point);
 	robot->rotationInWorld(x_ori, control_link);
 	posori_task_right_hand->_desired_position = x_pos; //Vector3d(0.93609, -0.05134, -0.4536);//Vector3d(0.5, -0.2, 0.8);
@@ -170,7 +172,7 @@ int main() {
 	posori_task_left_hand->_use_velocity_saturation_flag = false;
 	
 	VectorXd posori_task_torques_left_hand = VectorXd::Zero(dof);
-	posori_task_left_hand->_kp_pos = 200.0;
+	posori_task_left_hand->_kp_pos = 400.0;
 	posori_task_left_hand->_kv_pos = 20.0;
 	posori_task_left_hand->_kp_ori = 200.0;
 	posori_task_left_hand->_kv_ori = 20.0;
@@ -211,10 +213,11 @@ int main() {
 	//Eigen::VectorXd w = M_PI/3.0*Eigen::VectorXd::Ones(dof);
 	//joint_task->_saturation_velocity = w;
 	Eigen::VectorXd w = M_PI/3.0*Eigen::VectorXd::Ones(dof);
+	
 	joint_task->_use_interpolation_flag = true;
 
 	VectorXd joint_task_torques = VectorXd::Zero(dof);
-	joint_task->_kp = 100.0;
+	joint_task->_kp = 200.0;
 	joint_task->_kv = 20.0;
 
 	// set desired joint posture to be the initial robot configuration
@@ -254,6 +257,7 @@ int main() {
 	double v_hit = 0.3; 
 	double v_travel = 0.3; 
 	double time_to_hit = dz/v_hit;
+	cout << "time arm total buffer" << t_buffer + time_to_hit <<"\n";
 
 	//_otg->setMaxLinearVelocity(0.3);
 	//_otg->setMaxLinearAcceleration(1.0);
@@ -279,12 +283,12 @@ int main() {
 	Vector3d right_arm_control_point = Vector3d(0, 0, -0.214374); //length is 0.21437
 
 	//for both leg state machines
-	double thetaThreshold = 0.05; //apprx 5.73 deg
-	double t_stomp_buffer = 0.77;
-	double dTh = M_PI/3;
+	double thetaThreshold = 0.01; //apprx 5.73 deg
+	double t_stomp_buffer = 0.502;
+	double dTh = M_PI/18;
 	double time_to_stomp = (dTh - thetaThreshold) / w[0]; //w declared above when JointTask sat_vel is declared
 	
-	cout << "time total buffer" << t_stomp_buffer + time_to_stomp <<"\n";
+	cout << "time leg total buffer" << t_stomp_buffer + time_to_stomp <<"\n";
 
 	//for left leg state machine (HiHat)
 	int LF_joint = 17; //18th joint, indexed with 17
@@ -383,7 +387,7 @@ int main() {
 	double start_time = timer.elapsedTime(); //secs	
 	
 	// for timing
-	double unified_start_time = start_time + 5;
+	double unified_start_time = 5;
 	bool startedPlaying = false;
 	bool play = true;
 	double start;
@@ -439,6 +443,64 @@ int main() {
 			}
 		}		
 		
+	if (no_tsteps_lf != 0){
+			switch(LF_state){ //left leg (hi-hat) state machine
+				case HOME:
+					if (play == true){
+						index_LF = 0;
+						LF_state = FIRST_MOVING;
+						//cout << "LEFT LEG STATE: " << LF_state << "\n";
+					}
+					break;
+				case FIRST_MOVING:
+					if (time >= unified_start_time + time_data_lf(index_LF) - time_to_stomp - t_stomp_buffer){
+						ang_LF_des = LF_stomp;
+						LF_state = STOMP;
+						//cout << "LEFT LEG  STATE: " << LF_state << "\n";
+					}
+					break;
+				case WAIT:
+					if (time - start >= time_data_lf(index_LF) - time_to_stomp - t_stomp_buffer){
+					//	cout << "\nstarting stomp LL " << time - start << "\n";
+						ang_LF_des = LF_stomp;
+						LF_state = STOMP;
+						//cout << "LEFT LEG  STATE: " << LF_state << "\n";
+						
+						data_filelf << "starting" << " ";
+						data_filelf << curr_LF_ang << " ";
+						data_filelf << time - start << "\n";
+					}
+					break;
+				case STOMP:
+					if (abs(curr_LF_ang - ang_LF_des) < thetaThreshold){
+						redis_client.set(DRUM_KEY, "4");
+						index_LF++;
+						ang_LF_des = LF_lift;
+						LF_state = WAIT;
+						//cout << "TIME AT HIHAT HIT: " << time - start << "\n";
+						if (index_LF % no_tsteps_lf == 0){
+							index_LF = 0;
+							// Eigen::VectorXd addLLTime = 60 * Eigen::VectorXd::Ones(no_tsteps_lf);
+							Eigen::VectorXd addLLTime = measureLength * Eigen::VectorXd::Ones(no_tsteps_lf);
+							time_data_lf = time_data_lf + addLLTime;
+						}
+
+						cout  << "TIME AT DRUM HIT LL: " << time - start << "\n";
+						data_filelf << "detected" << " ";
+						data_filelf << curr_LF_ang << " ";
+						data_filelf << time - start << "\n";
+					}
+					break;
+				default:
+					break;
+			}//end left leg (hi-hat) state machine
+			
+			joint_desired[LF_joint] = ang_LF_des; //set desired LL position
+		}
+		
+		
+		
+		
 		if (no_tsteps_lh != 0){
 			switch(LH_state){
 				case HOME:
@@ -449,7 +511,7 @@ int main() {
 						// posori_task_left_hand->_linear_saturation_velocity = v_travel; 
 						//cout << pos_des << "\n";
 						LH_state = FIRST_MOVING;
-						cout << "DRUM STATE: " << LH_state << "\n";
+						//cout << "DRUM STATE: " << LH_state << "\n";
 					} 
 					break;
 				case FIRST_MOVING:
@@ -458,7 +520,7 @@ int main() {
 						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i); //at vhit
 						// posori_task_left_hand->_linear_saturation_velocity = v_hit; 
 						LH_state = HITTING_DRUM;
-						cout << "DRUM STATE: " << LH_state << "\n";
+						//cout << "DRUM STATE: " << LH_state << "\n";
 					}
 					break;
 				case LIFTING_DRUMSTICK:
@@ -483,18 +545,18 @@ int main() {
 							pos_des(2) += dz;      //at vtravel
 							// posori_task_left_hand->_linear_saturation_velocity = v_travel; 
 							LH_state = MOVING_DRUMSTICK;
-							cout << "DRUM STATE: " << LH_state << "\n";
+							//cout << "DRUM STATE: " << LH_state << "\n";
 
 						}
 					}
 					break;
 				case MOVING_DRUMSTICK:				
 					if (time - start >= time_data_lh(i) - time_to_hit - t_buffer){
-						cout << "\nstarting hit ra " << time - start << "\n";
+						//cout << "\nstarting hit ra " << time - start << "\n";
 						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);   //at vhit
 						// posori_task_left_hand->_linear_saturation_velocity = v_hit; 
 						LH_state = HITTING_DRUM;
-						cout << "DRUM STATE: " << LH_state << "\n";			
+						//cout << "DRUM STATE: " << LH_state << "\n";			
 						data_file << "starting" << " ";
 						data_file << curr_pos.transpose() << " ";
 						data_file << time - start << "\n";
@@ -504,22 +566,22 @@ int main() {
 					if (abs(curr_pos.norm()-pos_des.norm()) < threshold){
 						if ((float)pos_des(0) == (float)snare(0)){
 							redis_client.set(DRUM_KEY, "1");
-							cout << "SNARE" << "\n";
+							//cout << "SNARE" << "\n";
 						}
 						if ((float)pos_des(0) == (float)tom1(0)){
 							redis_client.set(DRUM_KEY, "2");
-							cout << "TOM1" << "\n";
+							//cout << "TOM1" << "\n";
 						}
 						if ((float)pos_des(0) == (float)tom2(0)){
 							redis_client.set(DRUM_KEY, "3");
-							cout << "TOM2" << "\n";
+							//cout << "TOM2" << "\n";
 						}
 						cout  << "TIME AT DRUM HIT: " << time - start << "\n";
 						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
 						pos_des(2) += dz;      //at vtravel
 						// posori_task_left_hand->_linear_saturation_velocity = v_travel; 
 						LH_state = LIFTING_DRUMSTICK;
-						cout << "DRUM STATE: " << LH_state << "\n";
+						//cout << "DRUM STATE: " << LH_state << "\n";
 						data_file << "detected" << " ";
 						data_file << curr_pos.transpose() << " ";
 						data_file << time - start << "\n";
@@ -542,7 +604,7 @@ int main() {
 						//posori_task_right_hand->_linear_saturation_velocity = v_travel;
 						//cout << pos_des_ra << "\n";
 						RH_state = FIRST_MOVING;
-						cout << "DRUM STATE RH: " << RH_state << "\n";
+						//cout << "DRUM STATE RH: " << RH_state << "\n";
 					} 
 					break;
 				case FIRST_MOVING:
@@ -551,7 +613,7 @@ int main() {
 						pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra); //at vhit
 						//posori_task_right_hand->_linear_saturation_velocity = v_hit;
 						RH_state = HITTING_DRUM;
-						cout << "DRUM STATE RH: " << RH_state << "\n";
+						//cout << "DRUM STATE RH: " << RH_state << "\n";
 					}
 					break;
 				case LIFTING_DRUMSTICK:
@@ -575,7 +637,7 @@ int main() {
 							pos_des_ra(2) += dz;      //at vtravel
 							//posori_task_right_hand->_linear_saturation_velocity = v_travel;
 							RH_state = MOVING_DRUMSTICK;
-							cout << "DRUM STATE RH: " << RH_state << "\n";
+							//cout << "DRUM STATE RH: " << RH_state << "\n";
 
 						}
 					}
@@ -583,11 +645,11 @@ int main() {
 				case MOVING_DRUMSTICK:
 					
 					if (time - start >= time_data_rh(index_ra)-time_to_hit-t_buffer){
-						cout << "\nstarting hit ra " << time - start << "\n";
+						//cout << "\nstarting hit ra " << time - start << "\n";
 						pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);   //at vhit
 						//posori_task_right_hand->_linear_saturation_velocity = v_hit;
 						RH_state = HITTING_DRUM;
-						cout << "DRUM STATE RH: " << RH_state << "\n";
+						//cout << "DRUM STATE RH: " << RH_state << "\n";
 						data_filera << "starting" << " ";
 						data_filera << curr_pos_ra.transpose() << " ";
 						data_filera<< time - start << "\n";
@@ -597,22 +659,22 @@ int main() {
 					if (abs(curr_pos_ra.norm()-pos_des_ra.norm()) < threshold){
 						if ((float)pos_des_ra(0) == (float)snare(0)){
 							redis_client.set(DRUM_KEY, "1");
-							cout << "SNARE" << "\n";
+							//cout << "SNARE" << "\n";
 						}
 						if ((float)pos_des_ra(0) == (float)tom1(0)){
 							redis_client.set(DRUM_KEY, "2");
-							cout << "TOM1" << "\n";
+							//cout << "TOM1" << "\n";
 						}
 						if ((float)pos_des_ra(0) == (float)tom2(0)){
 							redis_client.set(DRUM_KEY, "3");
-							cout << "TOM2" << "\n";
+							//cout << "TOM2" << "\n";
 						}
-						cout  << "TIME AT DRUM HIT: " << time - start << "\n";
+						cout  << "TIME AT DRUM HIT RA: " << time - start << "\n";
 						pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);
 						pos_des_ra(2) += dz;      //at vtravel
 						//posori_task_right_hand->_linear_saturation_velocity = v_travel;
 						RH_state = LIFTING_DRUMSTICK;
-						cout << "DRUM STATE RH: " << RH_state << "\n";
+						//cout << "DRUM STATE RH: " << RH_state << "\n";
 						data_filera << "detected" << " ";
 						data_filera << curr_pos_ra.transpose() << " ";
 						data_filera << time - start << "\n";
@@ -624,61 +686,6 @@ int main() {
 			
 			posori_task_right_hand->_desired_position = pos_des_ra;  //set position desired for right arm
 		}
-
-		if (no_tsteps_lf != 0){
-			switch(LF_state){ //left leg (hi-hat) state machine
-				case HOME:
-					if (play == true){
-						index_LF = 0;
-						LF_state = FIRST_MOVING;
-						cout << "LEFT LEG STATE: " << LF_state << "\n";
-					}
-					break;
-				case FIRST_MOVING:
-					if (time >= unified_start_time + time_data_lf(index_LF) - time_to_stomp - t_stomp_buffer){
-						ang_LF_des = LF_stomp;
-						LF_state = STOMP;
-						cout << "LEFT LEG  STATE: " << LF_state << "\n";
-					}
-					break;
-				case WAIT:
-					if (time - start >= time_data_lf(index_LF) - time_to_stomp - t_stomp_buffer){
-						cout << "\nstarting stomp LL " << time - start << "\n";
-						ang_LF_des = LF_stomp;
-						LF_state = STOMP;
-						cout << "LEFT LEG  STATE: " << LF_state << "\n";
-						
-						data_filelf << "starting" << " ";
-						data_filelf << curr_LF_ang << " ";
-						data_filelf << time - start << "\n";
-					}
-					break;
-				case STOMP:
-					if (abs(curr_LF_ang - ang_LF_des) < thetaThreshold){
-						redis_client.set(DRUM_KEY, "4");
-						index_LF++;
-						ang_LF_des = LF_lift;
-						LF_state = WAIT;
-						cout << "TIME AT HIHAT HIT: " << time - start << "\n";
-						if (index_LF % no_tsteps_lf == 0){
-							index_LF = 0;
-							// Eigen::VectorXd addLLTime = 60 * Eigen::VectorXd::Ones(no_tsteps_lf);
-							Eigen::VectorXd addLLTime = measureLength * Eigen::VectorXd::Ones(no_tsteps_lf);
-							time_data_lf = time_data_lf + addLLTime;
-						}
-
-						cout << "LEFT LEG  STATE: " << LF_state << "\n";
-						data_filelf << "detected" << " ";
-						data_filelf << curr_LF_ang << " ";
-						data_filelf << time - start << "\n";
-					}
-					break;
-				default:
-					break;
-			}//end left leg (hi-hat) state machine
-			
-			joint_desired[LF_joint] = ang_LF_des; //set desired LL position
-		}
 		
 		if (no_tsteps_rf != 0){
 			switch(RF_state){ //right leg (bass) state machine
@@ -686,22 +693,22 @@ int main() {
 					if (play == true){
 						index_RF = 0;
 						RF_state = FIRST_MOVING;
-						cout << "RIGHT LEG  STATE: " << RF_state << "\n";
+						//cout << "RIGHT LEG  STATE: " << RF_state << "\n";
 					}
 					break;
 				case FIRST_MOVING:
 					if (time >= unified_start_time + time_data_rf(index_RF) - time_to_stomp - t_stomp_buffer){
 						ang_RF_des = RF_stomp;
 						RF_state = STOMP;
-						cout << "RIGHT LEG  STATE: " << RF_state << "\n";
+						//cout << "RIGHT LEG  STATE: " << RF_state << "\n";
 					}
 					break;
 				case WAIT:
 					if (time - start >= time_data_rf(index_RF) - time_to_stomp - t_stomp_buffer){
-						cout << "\nstarting stomp LL " << time - start << "\n";
+						//cout << "\nstarting stomp LL " << time - start << "\n";
 						ang_RF_des = RF_stomp;
 						RF_state = STOMP;
-						cout << "RIGHT LEG  STATE: " << RF_state << "\n";
+						//cout << "RIGHT LEG  STATE: " << RF_state << "\n";
 						
 						data_filerf << "starting" << " ";
 						data_filerf << curr_RF_ang << " ";
@@ -714,14 +721,14 @@ int main() {
 						index_RF++;
 						ang_RF_des = RF_lift;
 						RF_state = WAIT;
-						cout << "TIME AT BASS HIT: " << time - start << "\n";
+						//cout << "TIME AT BASS HIT: " << time - start << "\n";
 						if (index_RF % no_tsteps_rf == 0){
 							index_RF = 0;
 							// Eigen::VectorXd addLLTime = 60 * Eigen::VectorXd::Ones(no_tsteps_rf);
 							Eigen::VectorXd addLLTime = measureLength * Eigen::VectorXd::Ones(no_tsteps_rf);
 							time_data_rf = time_data_rf + addLLTime;
 						}
-						cout << "RIGHT LEG  STATE: " << RF_state << "\n";
+						cout  << "TIME AT DRUM HIT RL: " << time - start << "\n";
 						data_filerf << "detected" << " ";
 						data_filerf << curr_RF_ang << " ";
 						data_filerf << time - start << "\n";
@@ -743,15 +750,15 @@ int main() {
 		
 		// calculate torques to fix the feet 
 		N_prec = posori_task_torso->_N;
-		posori_task_right_foot->updateTaskModel(N_prec);
-		posori_task_right_foot->computeTorques(posori_task_torques_right_foot);
+		// posori_task_right_foot->updateTaskModel(N_prec);
+		// posori_task_right_foot->computeTorques(posori_task_torques_right_foot);
 
-		N_prec = posori_task_right_foot->_N;
-		posori_task_left_foot->updateTaskModel(N_prec);
-		posori_task_left_foot->computeTorques(posori_task_torques_left_foot);
+		// N_prec = posori_task_right_foot->_N;
+		// posori_task_left_foot->updateTaskModel(N_prec);
+		// posori_task_left_foot->computeTorques(posori_task_torques_left_foot);
 
-		// calculate torques to move right hand
-		N_prec = posori_task_left_foot->_N;
+		// // calculate torques to move right hand
+		// N_prec = posori_task_left_foot->_N;
 		posori_task_right_hand->updateTaskModel(N_prec);
 		posori_task_right_hand->computeTorques(posori_task_torques_right_hand);
 
@@ -766,8 +773,7 @@ int main() {
 		joint_task->computeTorques(joint_task_torques);
 
 		// calculate torques 
-		command_torques = posori_task_torques_right_foot + posori_task_torques_left_foot 
-							+ posori_task_torques_right_hand + posori_task_torques_left_hand + posori_task_torques_torso + joint_task_torques;//posori_task_torques_torso + joint_task_torques;  // gravity compensation handled in sim
+		command_torques = posori_task_torques_right_hand + posori_task_torques_left_hand + posori_task_torques_torso + joint_task_torques;// + posori_task_torques_right_foot + posori_task_torques_left_foot;//posori_task_torques_torso + joint_task_torques;  // gravity compensation handled in sim
 
 		// execute redis write callback
 		redis_client.executeWriteCallback(0);	
