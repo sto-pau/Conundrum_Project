@@ -331,7 +331,7 @@ int main() {
 	double unified_start_time = 5.0;
 	bool startedPlaying = false;
 	bool restart = true;
-	double start;
+	double start = 0;
 
 	//Variables for file read
 	int no_tsteps_rh,no_tsteps_lh,no_tsteps_rf,no_tsteps_lf;
@@ -439,9 +439,10 @@ int main() {
 				z_data_lf(ct) = lf[3][ct];
 			}
 
-			start_time = time;
-			time = timer.elapsedTime() - start_time;
+			start_time = timer.elapsedTime();
+			time = 0;
 			startedPlaying = true;
+			start = 0;
 
 			
 		/*******END OF GUI FILE-READ*********************/
@@ -450,7 +451,6 @@ int main() {
 		if( time >= unified_start_time && start == 0 && restart == false) { //synchronized start at unified start time
 			start = time;
 		}
-
 		
 
 		//head state
