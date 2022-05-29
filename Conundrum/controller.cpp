@@ -449,8 +449,9 @@ int main() {
 		if (stoi(redis_client.get("gui::is_playing")) == 1 && restart == true){  //if start button has been pressed again
 			cout << "DRUM START AGAIN" << "\n";
 			restart = false;
-			start_time = time;
-			time = timer.elapsedTime() - start_time;
+			start_time = timer.elapsedTime();
+			time = 0;
+			start = 0;
 			sound_start = start;
 			startedPlaying = true;
 		}
@@ -858,25 +859,25 @@ int main() {
 
 			if (snareFlag == true){
 				redis_client.set(DRUM_KEY, "1");
-				std::this_thread::sleep_for(std::chrono::microseconds(100));
+				// std::this_thread::sleep_for(std::chrono::microseconds(100));
 				snareFlag = false;
 				cout << "\nSNARE" << "\n";
 			}
 			if (tom1Flag == true){
 				redis_client.set(DRUM_KEY, "2");
-				std::this_thread::sleep_for(std::chrono::microseconds(100));
+				// std::this_thread::sleep_for(std::chrono::microseconds(100));
 				cout << "\nTOM1" << "\n";
 				tom1Flag = false;				
 			}
 			if (tom2Flag == true){
 				redis_client.set(DRUM_KEY, "3");
-				std::this_thread::sleep_for(std::chrono::microseconds(100));
+				// std::this_thread::sleep_for(std::chrono::microseconds(100));
 				cout << "\nTOM2" << "\n";
 				tom2Flag = false;
 			}
 			if (hihatFlag == true){
 				redis_client.set(DRUM_KEY, "4");
-				std::this_thread::sleep_for(std::chrono::microseconds(100));
+				// std::this_thread::sleep_for(std::chrono::microseconds(100));
 				cout << "\nHIHAT" << "\n";
 				hihatFlag = false;
 			}
