@@ -86,7 +86,6 @@ int main() {
 
 	// prepare controller
 	int dof = robot->dof();
-	cout << "DOF " << dof << "\n";
 	VectorXd command_torques = VectorXd::Zero(dof);
 	MatrixXd N_prec = MatrixXd::Identity(dof, dof);
 
@@ -181,7 +180,6 @@ int main() {
 
 	// set desired joint posture to be the initial robot configuration
 	VectorXd q_init_desired = robot->_q;
-	//cout << "ANGLES " << robot->_q;
 	VectorXd joint_desired = q_init_desired;
 	joint_task->_desired_position = joint_desired;
 
@@ -209,12 +207,14 @@ int main() {
 	Vector3d tom2 = Vector3d(0.74235, -0.18308, -0.26023);
 
 	//for both arm state machines
-	double t_buffer = 0.1;	
-	double dz = 0.1;
+	double t_buffer = 0.05;	
+	double dz = 0.05;
 	double threshold = 0.0001;
-	double v_hit = 0.3; 
-	double v_travel = 2.0; 
+	double v_hit = 0.5; 
+	double v_travel = 8.0; 
 	double time_to_hit = dz/v_hit;
+	posori_task_left_hand->_otg->setMaxLinearAcceleration(8.0);
+	posori_task_right_hand->_otg->setMaxLinearAcceleration(8.0);
 
 	//_otg->setMaxLinearVelocity(0.3);
 	//_otg->setMaxLinearAcceleration(1.0);
@@ -239,14 +239,8 @@ int main() {
 	string right_arm_control_link = "ra_end_effector";
 	Vector3d right_arm_control_point = Vector3d(0, 0, -0.214374); //length is 0.21437
 
-	//for both leg state machines
-	double thetaThreshold = 0.01; //apprx 5.73 deg
-	double t_stomp_buffer = 0.542;
 	double dTh = M_PI/18;
-	double time_to_stomp = (dTh - thetaThreshold) / w[0]; //w declared above when JointTask sat_vel is declared
 	
-	cout << "time total buffer" << t_stomp_buffer + time_to_stomp <<"\n";
-
 	//for left leg state machine (HiHat)
 	int LF_joint = 17; //18th joint, indexed with 17
 	unsigned LF_state = HOME;
@@ -274,12 +268,31 @@ int main() {
 	double time_to_bob = (3 * M_PI) / w[0]; //want bottom of head motion to correspond to beat
 	double start_nod_time;
 	double nod_time;
+
+	//for both leg state machines
+	double thetaThreshold = 0.01; //apprx 5.73 deg
+	double t_stomp_buffer = 0.669;
+	Eigen::VectorXd alpha = M_PI*Eigen::VectorXd::Ones(dof);
+	Eigen::VectorXd joint_jerk = 3*M_PI*Eigen::VectorXd::Ones(dof);
+	w[LF_joint] = 3*M_PI;
+	w[RF_joint] = 3*M_PI;
+	alpha[LF_joint] = 6*M_PI;
+	alpha[RF_joint] = 6*M_PI;
+	joint_jerk[LF_joint] = 12*M_PI;
+	joint_jerk[RF_joint] = 12*M_PI;
+	joint_task->_otg->setMaxVelocity(w);
+	joint_task->_otg->setMaxAcceleration(alpha);
+	joint_task->_otg->setMaxJerk(joint_jerk);
+
+	double time_to_stomp = (dTh - thetaThreshold) / w[RF_joint]; //w declared above when JointTask sat_vel is declared
+	
+	// cout << "time total buffer" << t_stomp_buffer + time_to_stomp <<"\n";
 	
 	//Wait for play button to be hit
 	redis_client.set("gui::is_playing","0");
 	
 	double start_time = timer.elapsedTime(); //secs	
-	cout << "START_TIME: " << start_time << "\n";
+	// cout << "START_TIME: " << start_time << "\n";
 	// for timing
 	double unified_start_time = 5.0;
 	bool startedPlaying = false;
@@ -312,9 +325,7 @@ int main() {
 		// execute redis read callback
 		redis_client.executeReadCallback(0);
 		
-		//cout << "TIME: " << time << "	" << "UNIFIED START TIME: " << unified_start_time << " " << "START TIME: " << start_time << "\n";
 		if (stoi(redis_client.get("gui::is_playing")) == 0 && restart == false){   //check to see if stop button has been pressed
-			cout << "DRUM STOPPED" << "\n";
 			startedPlaying = false;
 			restart = true;
 			//set all limbs to go to home state
@@ -331,7 +342,6 @@ int main() {
 			joint_desired = q_init_desired;
 		}
 		if (stoi(redis_client.get("gui::is_playing")) == 1 && restart == true){  //if start button has been pressed again
-			cout << "DRUM START AGAIN" << "\n";
 			restart = false;
 
 			/**************START OF GUI FILE-READ******************/
@@ -342,7 +352,6 @@ int main() {
 			//Right hand
 			float rh[4][10];
 			readGUI("right_hand.txt", rh, no_tsteps_rh);	
-			cout << "TIME STEPS RH: " << no_tsteps_rh << "\n"; 
 			//Store time,x,y,z data
 			for(int ct = 0; ct<no_tsteps_rh;ct++){
 
@@ -352,12 +361,10 @@ int main() {
 				z_data_rh(ct) = rh[3][ct];
 			
 			}
-			cout << "no_tsteps_rh " << no_tsteps_rh; 
 			
 			//Left hand
 			float lh[4][10];
 			readGUI("left_hand.txt", lh, no_tsteps_lh);
-			cout << "TIME STEPS LH: " << no_tsteps_lh << "\n"; 	
 			//Store time,x,y,z data
 			for(int ct = 0; ct<no_tsteps_lh;ct++){
 
@@ -371,7 +378,6 @@ int main() {
 			//Right foot
 			float rf[4][10];
 			readGUI("right_foot.txt", rf, no_tsteps_rf);
-			cout << "TIME STEPS RF: " << no_tsteps_rf << "\n"; 	
 			//Store time,x,y,z data
 			for(int ct = 0; ct<no_tsteps_rf;ct++){
 				time_data_rf(ct) = rf[0][ct];
@@ -383,7 +389,6 @@ int main() {
 			//Left Foot
 			float lf[4][10];
 			readGUI("left_foot.txt", lf, no_tsteps_lf);	
-			cout << "TIME STEPS LF: " << no_tsteps_lf << "\n"; 
 			//Store time,x,y,z data
 			for(int ct = 0; ct<no_tsteps_lf;ct++){
 				time_data_lf(ct) = lf[0][ct];
@@ -406,26 +411,22 @@ int main() {
 		}
 		
 		
-		//set desired joint sinusoidal circular motion
-		if (time >= unified_start_time - time_to_bob - t_bob_buffer && (startedPlaying == true)){
-			//cout << "moving to head start";
-			switch(Head_state){
-				case START:
-					start_nod_time = time;
-					nod_time = 0;
-					ang_Head_des = amplitudeBob * sin( start_nod_time * (2 * M_PI * period) * 2 + M_PI);//time * 2 * M_PI * period is 1/2 head nod is one beat
-					//cout << sin( time * (2 * M_PI * period) * 2 + M_PI) << "\n";
-					joint_desired[Head_joint] = ang_Head_des; //set desired head position
-					Head_state = NODDING;
+		// //set desired joint sinusoidal circular motion
+		// if (time >= unified_start_time - time_to_bob - t_bob_buffer && (startedPlaying == true)){
+		// 	switch(Head_state){
+		// 		case START:
+		// 			start_nod_time = time;
+		// 			nod_time = 0;
+		// 			ang_Head_des = amplitudeBob * sin( start_nod_time * (2 * M_PI * period) * 2 + M_PI);//time * 2 * M_PI * period is 1/2 head nod is one beat
+		// 			joint_desired[Head_joint] = ang_Head_des; //set desired head position
+		// 			Head_state = NODDING;
 
-				case NODDING:
-					// cout << "time / (period * 2.0 * M_PI) )" << time / (period * 2.0 * M_PI) << "\n";	
-					nod_time = start_nod_time - time;
-					ang_Head_des = amplitudeBob * sin( nod_time * (2 * M_PI * period) * 2 + M_PI);//time * 2 * M_PI * period is 1/2 head nod is one beat
-					//cout << sin( time * (2 * M_PI * period) * 2 + M_PI) << "\n";
-					joint_desired[Head_joint] = ang_Head_des; //set desired head position
-			}
-		}		
+		// 		case NODDING:
+		// 			nod_time = start_nod_time - time;
+		// 			ang_Head_des = amplitudeBob * sin( nod_time * (2 * M_PI * period) * 2 + M_PI);//time * 2 * M_PI * period is 1/2 head nod is one beat
+		// 			joint_desired[Head_joint] = ang_Head_des; //set desired head position
+		// 	}
+		// }		
 		
 		if (no_tsteps_lh != 0){
 			switch(LH_state){
@@ -433,21 +434,19 @@ int main() {
 					if (startedPlaying == true){
 						i = 0;
 						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
-						cout << "INITIAL_POS_DES: " << pos_des << "\n";
 						pos_des(2) += dz;  //at vtravel
-						// posori_task_left_hand->_linear_saturation_velocity = v_travel; 
-						//cout << pos_des << "\n";
+						posori_task_left_hand->_otg->setMaxLinearVelocity(v_travel);
 						LH_state = FIRST_MOVING;
-						cout << "DRUM STATE: " << LH_state << "\n";
+						// cout << "DRUM STATE: " << LH_state << "\n";
 					} 
 					break;
 				case FIRST_MOVING:
 					if (time >= unified_start_time + time_data_lh(i) - time_to_hit - t_buffer){ //move in anticipation to the synchronized start before 'start' has been set
 						
 						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i); //at vhit
-						// posori_task_left_hand->_linear_saturation_velocity = v_hit; 
+						posori_task_left_hand->_otg->setMaxLinearVelocity(v_hit);
 						LH_state = HITTING_DRUM;
-						cout << "DRUM STATE: " << LH_state << "\n";
+						// cout << "DRUM STATE: " << LH_state << "\n";
 					}
 					break;
 				case LIFTING_DRUMSTICK:
@@ -465,14 +464,14 @@ int main() {
 							pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
 							pos_des(2) += dz;  //at vtravel
 							// posori_task_left_hand->_linear_saturation_velocity = v_travel; 
-
+							posori_task_left_hand->_otg->setMaxLinearVelocity(v_travel);
 						}
 						else{
 							pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
 							pos_des(2) += dz;      //at vtravel
-							// posori_task_left_hand->_linear_saturation_velocity = v_travel; 
+							posori_task_left_hand->_otg->setMaxLinearVelocity(v_travel);
 							LH_state = MOVING_DRUMSTICK;
-							cout << "DRUM STATE: " << LH_state << "\n";
+							// cout << "DRUM STATE: " << LH_state << "\n";
 
 						}
 					}
@@ -482,11 +481,12 @@ int main() {
 						cout << "\nstarting hit ra " << time - start << "\n";
 						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);   //at vhit
 						// posori_task_left_hand->_linear_saturation_velocity = v_hit; 
+						posori_task_left_hand->_otg->setMaxLinearVelocity(v_hit);
 						LH_state = HITTING_DRUM;
-						cout << "DRUM STATE: " << LH_state << "\n";			
-						data_file << "starting" << " ";
-						data_file << curr_pos.transpose() << " ";
-						data_file << time - start << "\n";
+						// cout << "DRUM STATE: " << LH_state << "\n";			
+						// data_file << "starting" << " ";
+						// data_file << curr_pos.transpose() << " ";
+						// data_file << time - start << "\n";
 					}
 					break;
 				case HITTING_DRUM:
@@ -507,11 +507,12 @@ int main() {
 						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
 						pos_des(2) += dz;      //at vtravel
 						// posori_task_left_hand->_linear_saturation_velocity = v_travel; 
+						posori_task_left_hand->_otg->setMaxLinearVelocity(v_travel);
 						LH_state = LIFTING_DRUMSTICK;
-						cout << "DRUM STATE: " << LH_state << "\n";
-						data_file << "detected" << " ";
-						data_file << curr_pos.transpose() << " ";
-						data_file << time - start << "\n";
+						// cout << "DRUM STATE: " << LH_state << "\n";
+						// data_file << "detected" << " ";
+						// data_file << curr_pos.transpose() << " ";
+						// data_file << time - start << "\n";
 					}
 					break;
 				default:
@@ -527,21 +528,20 @@ int main() {
 					if (startedPlaying == true){
 						index_ra = 0;
 						pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);
-						cout << "INITIAL_POS_DES_RA: " << pos_des_ra << "\n";
+						// cout << "INITIAL_POS_DES_RA: " << pos_des_ra << "\n";
 						pos_des_ra(2) += dz;  //at vtravel
-						//posori_task_right_hand->_linear_saturation_velocity = v_travel;
-						//cout << pos_des_ra << "\n";
+						posori_task_right_hand->_otg->setMaxLinearVelocity(v_travel);
 						RH_state = FIRST_MOVING;
-						cout << "DRUM STATE RH: " << RH_state << "\n";
+						// cout << "DRUM STATE RH: " << RH_state << "\n";
 					} 
 					break;
 				case FIRST_MOVING:
 					if (time >= unified_start_time + time_data_rh(index_ra) - time_to_hit - t_buffer){ //move in anticipation to the synchronized start before 'start' has been set
 						
 						pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra); //at vhit
-						//posori_task_right_hand->_linear_saturation_velocity = v_hit;
+						posori_task_right_hand->_otg->setMaxLinearVelocity(v_hit);
 						RH_state = HITTING_DRUM;
-						cout << "DRUM STATE RH: " << RH_state << "\n";
+						// cout << "DRUM STATE RH: " << RH_state << "\n";
 					}
 					break;
 				case LIFTING_DRUMSTICK:
@@ -557,16 +557,14 @@ int main() {
 							//these desired pos assignments HAVE to come after setting i = 0!
 							pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);
 							pos_des_ra(2) += dz;  //at vtravel
-							//posori_task_right_hand->_linear_saturation_velocity = v_travel;
-
+							posori_task_right_hand->_otg->setMaxLinearVelocity(v_travel);
 						}
 						else{
 							pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);
 							pos_des_ra(2) += dz;      //at vtravel
-							//posori_task_right_hand->_linear_saturation_velocity = v_travel;
+							posori_task_right_hand->_otg->setMaxLinearVelocity(v_travel);
 							RH_state = MOVING_DRUMSTICK;
-							cout << "DRUM STATE RH: " << RH_state << "\n";
-
+							// cout << "DRUM STATE RH: " << RH_state << "\n";
 						}
 					}
 					break;
@@ -576,11 +574,12 @@ int main() {
 						cout << "\nstarting hit ra " << time - start << "\n";
 						pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);   //at vhit
 						//posori_task_right_hand->_linear_saturation_velocity = v_hit;
+						posori_task_right_hand->_otg->setMaxLinearVelocity(v_hit);
 						RH_state = HITTING_DRUM;
-						cout << "DRUM STATE RH: " << RH_state << "\n";
-						data_filera << "starting" << " ";
-						data_filera << curr_pos_ra.transpose() << " ";
-						data_filera<< time - start << "\n";
+						// cout << "DRUM STATE RH: " << RH_state << "\n";
+						// data_filera << "starting" << " ";
+						// data_filera << curr_pos_ra.transpose() << " ";
+						// data_filera<< time - start << "\n";
 					}
 					break;
 				case HITTING_DRUM:
@@ -600,9 +599,9 @@ int main() {
 						cout  << "TIME AT DRUM HIT: " << time - start << "\n";
 						pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);
 						pos_des_ra(2) += dz;      //at vtravel
-						//posori_task_right_hand->_linear_saturation_velocity = v_travel;
+						posori_task_right_hand->_otg->setMaxLinearVelocity(v_travel);
 						RH_state = LIFTING_DRUMSTICK;
-						cout << "DRUM STATE RH: " << RH_state << "\n";
+						// cout << "DRUM STATE RH: " << RH_state << "\n";
 						data_filera << "detected" << " ";
 						data_filera << curr_pos_ra.transpose() << " ";
 						data_filera << time - start << "\n";
@@ -621,14 +620,21 @@ int main() {
 					if (startedPlaying == true){
 						index_LF = 0;
 						LF_state = FIRST_MOVING;
-						cout << "LEFT LEG STATE: " << LF_state << "\n";
+						// cout << "LEFT LEG STATE: " << LF_state << "\n";
 					}
 					break;
 				case FIRST_MOVING:
 					if (time >= unified_start_time + time_data_lf(index_LF) - time_to_stomp - t_stomp_buffer){
+						cout << "!![0]!!" << unified_start_time + time_data_lf(index_LF) - time_to_stomp - t_stomp_buffer << endl;
+						cout << time << endl;
+						cout << unified_start_time << endl;
+						cout << start << endl;
+						cout << restart << endl;
+
+						
 						ang_LF_des = LF_stomp;
 						LF_state = STOMP;
-						cout << "LEFT LEG  STATE: " << LF_state << "\n";
+						// cout << "LEFT LEG  STATE: " << LF_state << "\n";
 					}
 					break;
 				case WAIT:
@@ -636,11 +642,11 @@ int main() {
 						cout << "\nstarting stomp LL " << time - start << "\n";
 						ang_LF_des = LF_stomp;
 						LF_state = STOMP;
-						cout << "LEFT LEG  STATE: " << LF_state << "\n";
+						// cout << "LEFT LEG  STATE: " << LF_state << "\n";
 						
-						data_filelf << "starting" << " ";
-						data_filelf << curr_LF_ang << " ";
-						data_filelf << time - start << "\n";
+						// data_filelf << "starting" << " ";
+						// data_filelf << curr_LF_ang << " ";
+						// data_filelf << time - start << "\n";
 					}
 					break;
 				case STOMP:
@@ -657,10 +663,14 @@ int main() {
 							time_data_lf = time_data_lf + addLLTime;
 						}
 
-						cout << "LEFT LEG  STATE: " << LF_state << "\n";
-						data_filelf << "detected" << " ";
-						data_filelf << curr_LF_ang << " ";
-						data_filelf << time - start << "\n";
+						cout << unified_start_time << endl;
+						cout << start << endl;
+						cout << restart << endl;
+
+						// cout << "LEFT LEG  STATE: " << LF_state << "\n";
+						// data_filelf << "detected" << " ";
+						// data_filelf << curr_LF_ang << " ";
+						// data_filelf << time - start << "\n";
 					}
 					break;
 				default:
@@ -676,14 +686,14 @@ int main() {
 					if (startedPlaying == true){
 						index_RF = 0;
 						RF_state = FIRST_MOVING;
-						cout << "RIGHT LEG  STATE: " << RF_state << "\n";
+						// cout << "RIGHT LEG  STATE: " << RF_state << "\n";
 					}
 					break;
 				case FIRST_MOVING:
 					if (time >= unified_start_time + time_data_rf(index_RF) - time_to_stomp - t_stomp_buffer){
 						ang_RF_des = RF_stomp;
 						RF_state = STOMP;
-						cout << "RIGHT LEG  STATE: " << RF_state << "\n";
+						// cout << "RIGHT LEG  STATE: " << RF_state << "\n";
 					}
 					break;
 				case WAIT:
@@ -691,11 +701,11 @@ int main() {
 						cout << "\nstarting stomp LL " << time - start << "\n";
 						ang_RF_des = RF_stomp;
 						RF_state = STOMP;
-						cout << "RIGHT LEG  STATE: " << RF_state << "\n";
+						// cout << "RIGHT LEG  STATE: " << RF_state << "\n";
 						
-						data_filerf << "starting" << " ";
-						data_filerf << curr_RF_ang << " ";
-						data_filerf << time - start << "\n";
+						// data_filerf << "starting" << " ";
+						// data_filerf << curr_RF_ang << " ";
+						// data_filerf << time - start << "\n";
 					}
 					break;
 				case STOMP:
@@ -711,10 +721,10 @@ int main() {
 							Eigen::VectorXd addLLTime = measureLength * Eigen::VectorXd::Ones(10);
 							time_data_rf = time_data_rf + addLLTime;
 						}
-						cout << "RIGHT LEG  STATE: " << RF_state << "\n";
-						data_filerf << "detected" << " ";
-						data_filerf << curr_RF_ang << " ";
-						data_filerf << time - start << "\n";
+						// cout << "RIGHT LEG  STATE: " << RF_state << "\n";
+						// data_filerf << "detected" << " ";
+						// data_filerf << curr_RF_ang << " ";
+						// data_filerf << time - start << "\n";
 					}
 					break;
 				default:
