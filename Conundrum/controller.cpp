@@ -13,6 +13,8 @@
 #include <string>
 #include <fstream>
 #include <signal.h>
+#include <chrono>
+
 using namespace std;
 // state machine
 #define HOME				0
@@ -40,6 +42,8 @@ void readGUI(string filename, float s[4][10], int& no_tsteps);
 const string robot_file = "./resources/toro.urdf";	
 
 const std::string DRUM_KEY = "drum::key";
+const std::string SOUNDWAIT_KEY = "soundwait::key";
+
 
 enum Control
 {
@@ -72,6 +76,8 @@ int main() {
 	// start redis client
 	auto redis_client = RedisClient();
 	redis_client.connect();
+
+	redis_client.set(SOUNDWAIT_KEY, "0.15");
 
 	// set up signal handler
 	signal(SIGABRT, &sighandler);
@@ -220,6 +226,7 @@ int main() {
 	//joint_task->_saturation_velocity = w;
 	Eigen::VectorXd w = M_PI/3.0*Eigen::VectorXd::Ones(dof);
 	joint_task->_use_interpolation_flag = true;
+	joint_task->_otg->setMaxVelocity(w);
 
 	VectorXd joint_task_torques = VectorXd::Zero(dof);
 	joint_task->_kp = 100.0;
@@ -324,6 +331,14 @@ int main() {
 	double time_to_bob = (3 * M_PI) / w[0]; //want bottom of head motion to correspond to beat
 	double start_nod_time;
 	double nod_time;
+
+	//for playing sound
+	int soundIndex = 0;
+	bool snareFlag = false;
+	bool tom1Flag = false;
+	bool tom2Flag = false;
+	bool hihatFlag = false;
+	bool bassFlag = false;
 	
 	//Wait for play button to be hit
 	redis_client.set("gui::is_playing","0");
@@ -395,9 +410,12 @@ int main() {
 	cout << "START_TIME: " << start_time << "\n";
 	// for timing
 	double unified_start_time = 5.0;
-	bool startedPlaying = true;
+	bool startedPlaying = false;
 	bool restart = false;
-	double start;
+	double start = 0.0;
+	double sound_start = 0.0;
+
+
 /*******END OF GUI FILE-READ*********************/
 
 /***START OF STATE MACHINE***************/
@@ -433,11 +451,14 @@ int main() {
 			restart = false;
 			start_time = time;
 			time = timer.elapsedTime() - start_time;
+			sound_start = start;
 			startedPlaying = true;
 		}
 
 		if( time >= unified_start_time && start == 0 && restart == false) { //synchronized start at unified start time
 			start = time;
+			sound_start = start;
+			startedPlaying = true;
 		}
 
 		// update model
@@ -557,15 +578,15 @@ int main() {
 				case HITTING_DRUM:
 					if (abs(curr_pos.norm()-pos_des.norm()) < threshold){
 						if ((float)pos_des(0) == (float)snare(0)){
-							redis_client.set(DRUM_KEY, "1");
+							snareFlag = true;
 							cout << "SNARE" << "\n";
 						}
 						if ((float)pos_des(0) == (float)tom1(0)){
-							redis_client.set(DRUM_KEY, "2");
+							tom1Flag = true;
 							cout << "TOM1" << "\n";
 						}
 						if ((float)pos_des(0) == (float)tom2(0)){
-							redis_client.set(DRUM_KEY, "3");
+							tom2Flag = true;
 							cout << "TOM2" << "\n";
 						}
 						cout  << "TIME AT DRUM HIT: " << time - start << "\n";
@@ -679,15 +700,15 @@ int main() {
 				case HITTING_DRUM:
 					if (abs(curr_pos_ra.norm()-pos_des_ra.norm()) < threshold){
 						if ((float)pos_des_ra(0) == (float)snare(0)){
-							redis_client.set(DRUM_KEY, "1");
+							snareFlag = true;
 							cout << "SNARE" << "\n";
 						}
 						if ((float)pos_des_ra(0) == (float)tom1(0)){
-							redis_client.set(DRUM_KEY, "2");
+							tom1Flag = true;
 							cout << "TOM1" << "\n";
 						}
 						if ((float)pos_des_ra(0) == (float)tom2(0)){
-							redis_client.set(DRUM_KEY, "3");
+							tom2Flag = true;
 							cout << "TOM2" << "\n";
 						}
 						cout  << "TIME AT DRUM HIT: " << time - start << "\n";
@@ -724,6 +745,10 @@ int main() {
 					break;
 				case FIRST_MOVING:
 					if (time >= unified_start_time + time_data_lf(index_LF) - time_to_stomp - t_stomp_buffer){
+						
+						cout << "LF--------------" << time << endl;
+						cout << unified_start_time + time_data_lf(index_LF) - time_to_stomp - t_stomp_buffer << endl;
+						
 						ang_LF_des = LF_stomp;
 						LF_state = STOMP;
 						cout << "LEFT LEG  STATE: " << LF_state << "\n";
@@ -743,7 +768,7 @@ int main() {
 					break;
 				case STOMP:
 					if (abs(curr_LF_ang - ang_LF_des) < thetaThreshold){
-						redis_client.set(DRUM_KEY, "4");
+						hihatFlag = true;
 						index_LF++;
 						ang_LF_des = LF_lift;
 						LF_state = WAIT;
@@ -779,6 +804,10 @@ int main() {
 					break;
 				case FIRST_MOVING:
 					if (time >= unified_start_time + time_data_rf(index_RF) - time_to_stomp - t_stomp_buffer){
+
+						cout << "RF--------------" << time << endl;
+						cout << unified_start_time + time_data_rf(index_RF) - time_to_stomp - t_stomp_buffer << endl;
+
 						ang_RF_des = RF_stomp;
 						RF_state = STOMP;
 						cout << "RIGHT LEG  STATE: " << RF_state << "\n";
@@ -798,7 +827,7 @@ int main() {
 					break;
 				case STOMP:
 					if (abs(curr_RF_ang - ang_RF_des) < thetaThreshold){
-						redis_client.set(DRUM_KEY, "5");
+						bassFlag = true;
 						index_RF++;
 						ang_RF_des = RF_lift;
 						RF_state = WAIT;
@@ -822,6 +851,47 @@ int main() {
 			joint_desired[RF_joint] = ang_RF_des; //set desired LL position
 		}
 
+		if (time - sound_start >= ((measureLength / 8.0) * soundIndex + stod(redis_client.get(SOUNDWAIT_KEY))) && startedPlaying == true) { //added buffer to let all of the instruments get hit if out of synch
+			cout << "\nmeasureLength " << measureLength;
+			cout << "\ntime - start " << time - start;
+			// cout << "\nsnareFlag " << snareFlag; 
+
+			if (snareFlag == true){
+				redis_client.set(DRUM_KEY, "1");
+				std::this_thread::sleep_for(std::chrono::microseconds(100));
+				snareFlag = false;
+				cout << "\nSNARE" << "\n";
+			}
+			if (tom1Flag == true){
+				redis_client.set(DRUM_KEY, "2");
+				std::this_thread::sleep_for(std::chrono::microseconds(100));
+				cout << "\nTOM1" << "\n";
+				tom1Flag = false;				
+			}
+			if (tom2Flag == true){
+				redis_client.set(DRUM_KEY, "3");
+				std::this_thread::sleep_for(std::chrono::microseconds(100));
+				cout << "\nTOM2" << "\n";
+				tom2Flag = false;
+			}
+			if (hihatFlag == true){
+				redis_client.set(DRUM_KEY, "4");
+				std::this_thread::sleep_for(std::chrono::microseconds(100));
+				cout << "\nHIHAT" << "\n";
+				hihatFlag = false;
+			}
+			if (bassFlag == true){
+				redis_client.set(DRUM_KEY, "5");
+				std::this_thread::sleep_for(std::chrono::microseconds(100));
+				cout << "\nBASS" << "\n";
+				bassFlag = false;
+			}
+
+			soundIndex++;
+			// cout << "\n(measureLength / bpm) * soundIndex + 0.5) " << (measureLength / bpm) * soundIndex + 0.15;
+			// cout << "\nsnareFlag " << snareFlag; 
+		
+		}
 		joint_task->_desired_position = joint_desired;
 		
 		// calculate torques to maintain hip_base posture
