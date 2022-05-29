@@ -256,12 +256,14 @@ int main() {
 	Vector3d tom2 = Vector3d(0.74235, -0.18308, -0.26023);
 
 	//for both arm state machines
-	double t_buffer = 0.1;	
-	double dz = 0.2;
-	double threshold = 0.0001;
-	double v_hit = 0.3; 
-	double v_travel = 0.3; 
+	double dz = 0.06;
+	double threshold = 0.04;
+	double t_buffer = 0.001;	
+	double v_hit = 65.0;
+	double v_travel = 130.0; 
 	double time_to_hit = dz/v_hit;
+	double max_jerk = 100.0;
+	double max_accel = 100.0;
 
 	//_otg->setMaxLinearVelocity(0.3);
 	//_otg->setMaxLinearAcceleration(1.0);
@@ -281,15 +283,16 @@ int main() {
 	Vector3d pos_des_ra = rh_init_pos; 
 	Vector3d curr_pos_ra;	
 	unsigned RH_state = HOME;	
+	// double max_accel = std::stod(redis_client.get(ACCEL_KEY));
 	
 	
 	string right_arm_control_link = "ra_end_effector";
 	Vector3d right_arm_control_point = Vector3d(0, 0, -0.214374); //length is 0.21437
 
 	//for both leg state machines
-	double thetaThreshold = 0.05; //apprx 5.73 deg
-	double t_stomp_buffer = 0.77;
-	double dTh = M_PI/3;
+	double thetaThreshold = 0.01; //apprx 5.73 deg
+	double t_stomp_buffer = 0.502;
+	double dTh = M_PI/18;
 	double time_to_stomp = (dTh - thetaThreshold) / w[0]; //w declared above when JointTask sat_vel is declared
 	
 	cout << "time total buffer" << t_stomp_buffer + time_to_stomp <<"\n";
@@ -328,8 +331,8 @@ int main() {
 	
 	/**************START OF GUI FILE-READ******************/
 	// Read BPM and looptime from redis
-	int bpm = std::stoi(redis_client.get(BPM_KEY));
-	int measureLength = std::stoi(redis_client.get(LOOP_TIME_KEY));
+	double bpm = std::stod(redis_client.get(BPM_KEY));
+	double measureLength = std::stod(redis_client.get(LOOP_TIME_KEY));
 	
 	//Right hand
 	int no_tsteps_rh; float rh[4][10];
@@ -446,10 +449,6 @@ int main() {
 		curr_RF_ang = robot->_q[RF_joint]; //get current right foot angle
 
 		//head state
-		// float bpm = 4.0; // has to come from redis - read at beginning of GUI-FILEREAD section
-		// float measureLength = 60; //[seconds] - read at beginning of GUI-FILEREAD section
-		//redis_client.get("gui::bpm").decode('utf-8')// BPMeasure from gui
-    	//redis_client.get("gui::looptime").decode('utf-8') // seconds per loop from gui
 		double period = bpm / measureLength; // 2.0 * M_PI
 		//set desired joint sinusoidal circular motion
 		if (time >= unified_start_time - time_to_bob - t_bob_buffer){
@@ -480,7 +479,11 @@ int main() {
 						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
 						cout << "INITIAL_POS_DES: " << pos_des << "\n";
 						pos_des(2) += dz;  //at vtravel
-						// posori_task_left_hand->_linear_saturation_velocity = v_travel; 
+						
+						// posori_task_left_hand->_linear_saturation_velocity = v_travel;
+						posori_task_left_hand->_otg->setMaxLinearVelocity(v_travel);
+						posori_task_left_hand->_otg->setMaxLinearAcceleration(max_accel);
+						posori_task_left_hand->_otg->setMaxLinearJerk(max_jerk);
 						//cout << pos_des << "\n";
 						LH_state = FIRST_MOVING;
 						cout << "DRUM STATE: " << LH_state << "\n";
@@ -488,9 +491,12 @@ int main() {
 					break;
 				case FIRST_MOVING:
 					if (time >= unified_start_time + time_data_lh(i) - time_to_hit - t_buffer){ //move in anticipation to the synchronized start before 'start' has been set
-						
 						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i); //at vhit
+						
 						// posori_task_left_hand->_linear_saturation_velocity = v_hit; 
+						posori_task_left_hand->_otg->setMaxLinearVelocity(v_hit);
+						posori_task_left_hand->_otg->setMaxLinearAcceleration(max_accel);
+						posori_task_left_hand->_otg->setMaxLinearJerk(max_jerk);
 						LH_state = HITTING_DRUM;
 						cout << "DRUM STATE: " << LH_state << "\n";
 					}
@@ -505,17 +511,26 @@ int main() {
 							// Eigen::VectorXd addTime = 60 * Eigen::VectorXd::Ones(no_tsteps_lh); // CHANGED TO BELOW
 							Eigen::VectorXd addTime = measureLength * Eigen::VectorXd::Ones(no_tsteps_lh);
 							time_data_lh = time_data_lh + addTime; //wrap time around by adding the length of one time measure (one song meter)
-
+							
 							//these desired pos assignments HAVE to come after setting i = 0!
 							pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
 							pos_des(2) += dz;  //at vtravel
+							
 							// posori_task_left_hand->_linear_saturation_velocity = v_travel; 
-
+							posori_task_left_hand->_otg->setMaxLinearVelocity(v_travel);
+							posori_task_left_hand->_otg->setMaxLinearAcceleration(max_accel);
+							posori_task_left_hand->_otg->setMaxLinearJerk(max_jerk);
 						}
+
 						else{
 							pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
 							pos_des(2) += dz;      //at vtravel
+
 							// posori_task_left_hand->_linear_saturation_velocity = v_travel; 
+							posori_task_left_hand->_otg->setMaxLinearVelocity(v_travel);
+							posori_task_left_hand->_otg->setMaxLinearAcceleration(max_accel);
+							posori_task_left_hand->_otg->setMaxLinearJerk(max_jerk);							
+							
 							LH_state = MOVING_DRUMSTICK;
 							cout << "DRUM STATE: " << LH_state << "\n";
 
@@ -526,7 +541,12 @@ int main() {
 					if (time - start >= time_data_lh(i) - time_to_hit - t_buffer){
 						cout << "\nstarting hit ra " << time - start << "\n";
 						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);   //at vhit
+
 						// posori_task_left_hand->_linear_saturation_velocity = v_hit; 
+						posori_task_left_hand->_otg->setMaxLinearVelocity(v_hit);
+						posori_task_left_hand->_otg->setMaxLinearAcceleration(max_accel);
+						posori_task_left_hand->_otg->setMaxLinearJerk(max_jerk);
+
 						LH_state = HITTING_DRUM;
 						cout << "DRUM STATE: " << LH_state << "\n";			
 						data_file << "starting" << " ";
@@ -551,7 +571,12 @@ int main() {
 						cout  << "TIME AT DRUM HIT: " << time - start << "\n";
 						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);
 						pos_des(2) += dz;      //at vtravel
+
 						// posori_task_left_hand->_linear_saturation_velocity = v_travel; 
+						posori_task_left_hand->_otg->setMaxLinearVelocity(v_travel);
+						posori_task_left_hand->_otg->setMaxLinearAcceleration(max_accel);
+						posori_task_left_hand->_otg->setMaxLinearJerk(max_jerk);
+
 						LH_state = LIFTING_DRUMSTICK;
 						cout << "DRUM STATE: " << LH_state << "\n";
 						data_file << "detected" << " ";
@@ -574,7 +599,12 @@ int main() {
 						pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);
 						cout << "INITIAL_POS_DES_RA: " << pos_des_ra << "\n";
 						pos_des_ra(2) += dz;  //at vtravel
+
 						//posori_task_right_hand->_linear_saturation_velocity = v_travel;
+						posori_task_right_hand->_otg->setMaxLinearVelocity(v_travel);
+						posori_task_right_hand->_otg->setMaxLinearAcceleration(max_accel);
+						posori_task_right_hand->_otg->setMaxLinearJerk(max_jerk);
+
 						//cout << pos_des_ra << "\n";
 						RH_state = FIRST_MOVING;
 						cout << "DRUM STATE RH: " << RH_state << "\n";
@@ -582,9 +612,13 @@ int main() {
 					break;
 				case FIRST_MOVING:
 					if (time >= unified_start_time + time_data_rh(index_ra) - time_to_hit - t_buffer){ //move in anticipation to the synchronized start before 'start' has been set
-						
 						pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra); //at vhit
+
 						//posori_task_right_hand->_linear_saturation_velocity = v_hit;
+						posori_task_right_hand->_otg->setMaxLinearVelocity(v_hit);
+						posori_task_right_hand->_otg->setMaxLinearAcceleration(max_accel);
+						posori_task_right_hand->_otg->setMaxLinearJerk(max_jerk);
+
 						RH_state = HITTING_DRUM;
 						cout << "DRUM STATE RH: " << RH_state << "\n";
 					}
@@ -602,13 +636,22 @@ int main() {
 							//these desired pos assignments HAVE to come after setting i = 0!
 							pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);
 							pos_des_ra(2) += dz;  //at vtravel
+
 							//posori_task_right_hand->_linear_saturation_velocity = v_travel;
+							posori_task_right_hand->_otg->setMaxLinearVelocity(v_travel);
+							posori_task_right_hand->_otg->setMaxLinearAcceleration(max_accel);
+							posori_task_right_hand->_otg->setMaxLinearJerk(max_jerk);							
 
 						}
 						else{
 							pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);
 							pos_des_ra(2) += dz;      //at vtravel
+
 							//posori_task_right_hand->_linear_saturation_velocity = v_travel;
+							posori_task_right_hand->_otg->setMaxLinearVelocity(v_travel);
+							posori_task_right_hand->_otg->setMaxLinearAcceleration(max_accel);
+							posori_task_right_hand->_otg->setMaxLinearJerk(max_jerk);
+
 							RH_state = MOVING_DRUMSTICK;
 							cout << "DRUM STATE RH: " << RH_state << "\n";
 
@@ -620,7 +663,12 @@ int main() {
 					if (time - start >= time_data_rh(index_ra)-time_to_hit-t_buffer){
 						cout << "\nstarting hit ra " << time - start << "\n";
 						pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);   //at vhit
+
 						//posori_task_right_hand->_linear_saturation_velocity = v_hit;
+						posori_task_right_hand->_otg->setMaxLinearVelocity(v_hit);
+						posori_task_right_hand->_otg->setMaxLinearAcceleration(max_accel);
+						posori_task_right_hand->_otg->setMaxLinearJerk(max_jerk);
+						
 						RH_state = HITTING_DRUM;
 						cout << "DRUM STATE RH: " << RH_state << "\n";
 						data_filera << "starting" << " ";
@@ -645,7 +693,12 @@ int main() {
 						cout  << "TIME AT DRUM HIT: " << time - start << "\n";
 						pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);
 						pos_des_ra(2) += dz;      //at vtravel
+
 						//posori_task_right_hand->_linear_saturation_velocity = v_travel;
+						posori_task_right_hand->_otg->setMaxLinearVelocity(v_travel);
+						posori_task_right_hand->_otg->setMaxLinearAcceleration(max_accel);
+						posori_task_right_hand->_otg->setMaxLinearJerk(max_jerk);
+
 						RH_state = LIFTING_DRUMSTICK;
 						cout << "DRUM STATE RH: " << RH_state << "\n";
 						data_filera << "detected" << " ";
