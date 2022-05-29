@@ -324,78 +324,8 @@ int main() {
 	
 	//Wait for play button to be hit
 	redis_client.set("gui::is_playing","0");
-	while(!stoi(redis_client.get("gui::is_playing"))){}
 	
-	/**************START OF GUI FILE-READ******************/
-	// Read BPM and looptime from redis
-	int bpm = std::stoi(redis_client.get(BPM_KEY));
-	int measureLength = std::stoi(redis_client.get(LOOP_TIME_KEY));
 	
-	//Right hand
-	int no_tsteps_rh; float rh[4][10];
-	readGUI("right_hand.txt", rh, no_tsteps_rh);	
-	cout << "TIME STEPS RH: " << no_tsteps_rh << "\n"; 
-	VectorXd time_data_rh(no_tsteps_rh), x_data_rh(no_tsteps_rh), y_data_rh(no_tsteps_rh), z_data_rh(no_tsteps_rh);
-	//Store time,x,y,z data
-	for(int ct = 0; ct<no_tsteps_rh;ct++){
-
-		time_data_rh(ct) = rh[0][ct];
-		x_data_rh(ct) = rh[1][ct];
-		y_data_rh(ct) = rh[2][ct];
-		z_data_rh(ct) = rh[3][ct];
-	
-	}
-	cout << "no_tsteps_rh " << no_tsteps_rh; 
-	
-	//Left hand
-	int no_tsteps_lh; float lh[4][10];
-	readGUI("left_hand.txt", lh, no_tsteps_lh);
-	cout << "TIME STEPS LH: " << no_tsteps_lh << "\n"; 	
-	VectorXd time_data_lh(no_tsteps_lh), x_data_lh(no_tsteps_lh), y_data_lh(no_tsteps_lh), z_data_lh(no_tsteps_lh);
-	//Store time,x,y,z data
-	for(int ct = 0; ct<no_tsteps_lh;ct++){
-
-		time_data_lh(ct) = lh[0][ct];
-		x_data_lh(ct) = lh[1][ct];
-		y_data_lh(ct) = lh[2][ct];
-		z_data_lh(ct) = lh[3][ct];
-
-	}	
-
-	//Right foot
-	int no_tsteps_rf; float rf[4][10];
-	readGUI("right_foot.txt", rf, no_tsteps_rf);
-	cout << "TIME STEPS RF: " << no_tsteps_rf << "\n"; 	
-	VectorXd time_data_rf(no_tsteps_rf), x_data_rf(no_tsteps_rf), y_data_rf(no_tsteps_rf), z_data_rf(no_tsteps_rf);
-	//Store time,x,y,z data
-	for(int ct = 0; ct<no_tsteps_rf;ct++){
-		time_data_rf(ct) = rf[0][ct];
-		x_data_rf(ct) = rf[1][ct];
-		y_data_rf(ct) = rf[2][ct];
-		z_data_rf(ct) = rf[3][ct];
-	} 	
-
-	//Left Foot
-	int no_tsteps_lf; float lf[4][10];
-	readGUI("left_foot.txt", lf, no_tsteps_lf);	
-	cout << "TIME STEPS LF: " << no_tsteps_lf << "\n"; 
-	VectorXd time_data_lf(no_tsteps_lf), x_data_lf(no_tsteps_lf), y_data_lf(no_tsteps_lf), z_data_lf(no_tsteps_lf);
-	//Store time,x,y,z data
-	for(int ct = 0; ct<no_tsteps_lf;ct++){
-		time_data_lf(ct) = lf[0][ct];
-		x_data_lf(ct) = lf[1][ct];
-		y_data_lf(ct) = lf[2][ct];
-		z_data_lf(ct) = lf[3][ct];
-	}
-
-	double start_time = timer.elapsedTime(); //secs	
-	cout << "START_TIME: " << start_time << "\n";
-	// for timing
-	double unified_start_time = 5.0;
-	bool startedPlaying = true;
-	bool restart = false;
-	double start;
-/*******END OF GUI FILE-READ*********************/
 
 /***START OF STATE MACHINE***************/
 
@@ -428,9 +358,82 @@ int main() {
 		if (stoi(redis_client.get("gui::is_playing")) == 1 && restart == true){  //if start button has been pressed again
 			cout << "DRUM START AGAIN" << "\n";
 			restart = false;
+
+
 			start_time = time;
 			time = timer.elapsedTime() - start_time;
 			startedPlaying = true;
+
+			/**************START OF GUI FILE-READ******************/
+			// Read BPM and looptime from redis
+			int bpm = std::stoi(redis_client.get(BPM_KEY));
+			int measureLength = std::stoi(redis_client.get(LOOP_TIME_KEY));
+			
+			//Right hand
+			int no_tsteps_rh; float rh[4][10];
+			readGUI("right_hand.txt", rh, no_tsteps_rh);	
+			cout << "TIME STEPS RH: " << no_tsteps_rh << "\n"; 
+			VectorXd time_data_rh(no_tsteps_rh), x_data_rh(no_tsteps_rh), y_data_rh(no_tsteps_rh), z_data_rh(no_tsteps_rh);
+			//Store time,x,y,z data
+			for(int ct = 0; ct<no_tsteps_rh;ct++){
+
+				time_data_rh(ct) = rh[0][ct];
+				x_data_rh(ct) = rh[1][ct];
+				y_data_rh(ct) = rh[2][ct];
+				z_data_rh(ct) = rh[3][ct];
+			
+			}
+			cout << "no_tsteps_rh " << no_tsteps_rh; 
+			
+			//Left hand
+			int no_tsteps_lh; float lh[4][10];
+			readGUI("left_hand.txt", lh, no_tsteps_lh);
+			cout << "TIME STEPS LH: " << no_tsteps_lh << "\n"; 	
+			VectorXd time_data_lh(no_tsteps_lh), x_data_lh(no_tsteps_lh), y_data_lh(no_tsteps_lh), z_data_lh(no_tsteps_lh);
+			//Store time,x,y,z data
+			for(int ct = 0; ct<no_tsteps_lh;ct++){
+
+				time_data_lh(ct) = lh[0][ct];
+				x_data_lh(ct) = lh[1][ct];
+				y_data_lh(ct) = lh[2][ct];
+				z_data_lh(ct) = lh[3][ct];
+
+			}	
+
+			//Right foot
+			int no_tsteps_rf; float rf[4][10];
+			readGUI("right_foot.txt", rf, no_tsteps_rf);
+			cout << "TIME STEPS RF: " << no_tsteps_rf << "\n"; 	
+			VectorXd time_data_rf(no_tsteps_rf), x_data_rf(no_tsteps_rf), y_data_rf(no_tsteps_rf), z_data_rf(no_tsteps_rf);
+			//Store time,x,y,z data
+			for(int ct = 0; ct<no_tsteps_rf;ct++){
+				time_data_rf(ct) = rf[0][ct];
+				x_data_rf(ct) = rf[1][ct];
+				y_data_rf(ct) = rf[2][ct];
+				z_data_rf(ct) = rf[3][ct];
+			} 	
+
+			//Left Foot
+			int no_tsteps_lf; float lf[4][10];
+			readGUI("left_foot.txt", lf, no_tsteps_lf);	
+			cout << "TIME STEPS LF: " << no_tsteps_lf << "\n"; 
+			VectorXd time_data_lf(no_tsteps_lf), x_data_lf(no_tsteps_lf), y_data_lf(no_tsteps_lf), z_data_lf(no_tsteps_lf);
+			//Store time,x,y,z data
+			for(int ct = 0; ct<no_tsteps_lf;ct++){
+				time_data_lf(ct) = lf[0][ct];
+				x_data_lf(ct) = lf[1][ct];
+				y_data_lf(ct) = lf[2][ct];
+				z_data_lf(ct) = lf[3][ct];
+			}
+
+			double start_time = timer.elapsedTime(); //secs	
+			cout << "START_TIME: " << start_time << "\n";
+			// for timing
+			double unified_start_time = 5.0;
+			bool startedPlaying = true;
+			bool restart = false;
+			double start;
+		/*******END OF GUI FILE-READ*********************/
 		}
 
 		if( time >= unified_start_time && start == 0 && restart == false) { //synchronized start at unified start time
