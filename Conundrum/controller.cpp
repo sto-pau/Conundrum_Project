@@ -271,7 +271,7 @@ int main() {
 
 	//for both leg state machines
 	double thetaThreshold = 0.01; //apprx 5.73 deg
-	double t_stomp_buffer = 0.669;
+	double t_stomp_buffer = 0.6;
 	Eigen::VectorXd alpha = M_PI*Eigen::VectorXd::Ones(dof);
 	Eigen::VectorXd joint_jerk = 3*M_PI*Eigen::VectorXd::Ones(dof);
 	w[LF_joint] = 3*M_PI;
@@ -321,95 +321,98 @@ int main() {
 		// wait for next scheduled loop
 		timer.waitForNextLoop();
 		double time = timer.elapsedTime() - start_time;
-		
-		// execute redis read callback
-		redis_client.executeReadCallback(0);
-		
-		if (stoi(redis_client.get("gui::is_playing")) == 0 && restart == false){   //check to see if stop button has been pressed
-			startedPlaying = false;
-			restart = true;
-			//set all limbs to go to home state
-			LH_state = HOME;		
-			RH_state = HOME;
-			LF_state = HOME;
-			RF_state = HOME;
-			
-			//set task des pos to initial positions
-			pos_des = lh_init_pos;
-			pos_des_ra = rh_init_pos;
-			
-			//set joint space to initial joint configuration
-			joint_desired = q_init_desired;
-		}
-		if (stoi(redis_client.get("gui::is_playing")) == 1 && restart == true){  //if start button has been pressed again
-			restart = false;
-
-			/**************START OF GUI FILE-READ******************/
-			// Read BPM and looptime from redis f
-			bpm = std::stod(redis_client.get(BPM_KEY));
-			measureLength = std::stod(redis_client.get(LOOP_TIME_KEY));
-			period = bpm / measureLength; // 2.0 * M_PI
-			//Right hand
-			float rh[4][10];
-			readGUI("right_hand.txt", rh, no_tsteps_rh);	
-			//Store time,x,y,z data
-			for(int ct = 0; ct<no_tsteps_rh;ct++){
-
-				time_data_rh(ct) = rh[0][ct];
-				x_data_rh(ct) = rh[1][ct];
-				y_data_rh(ct) = rh[2][ct];
-				z_data_rh(ct) = rh[3][ct];
-			
-			}
-			
-			//Left hand
-			float lh[4][10];
-			readGUI("left_hand.txt", lh, no_tsteps_lh);
-			//Store time,x,y,z data
-			for(int ct = 0; ct<no_tsteps_lh;ct++){
-
-				time_data_lh(ct) = lh[0][ct];
-				x_data_lh(ct) = lh[1][ct];
-				y_data_lh(ct) = lh[2][ct];
-				z_data_lh(ct) = lh[3][ct];
-
-			}	
-
-			//Right foot
-			float rf[4][10];
-			readGUI("right_foot.txt", rf, no_tsteps_rf);
-			//Store time,x,y,z data
-			for(int ct = 0; ct<no_tsteps_rf;ct++){
-				time_data_rf(ct) = rf[0][ct];
-				x_data_rf(ct) = rf[1][ct];
-				y_data_rf(ct) = rf[2][ct];
-				z_data_rf(ct) = rf[3][ct];
-			} 	
-
-			//Left Foot
-			float lf[4][10];
-			readGUI("left_foot.txt", lf, no_tsteps_lf);	
-			//Store time,x,y,z data
-			for(int ct = 0; ct<no_tsteps_lf;ct++){
-				time_data_lf(ct) = lf[0][ct];
-				x_data_lf(ct) = lf[1][ct];
-				y_data_lf(ct) = lf[2][ct];
-				z_data_lf(ct) = lf[3][ct];
-			}
-
-			start_time = timer.elapsedTime();
-			time = 0;
-			startedPlaying = true;
-			start = 0;
-
-			
-		/*******END OF GUI FILE-READ*********************/
-		}
-
 		if( time >= unified_start_time && start == 0 && restart == false) { //synchronized start at unified start time
 			start = time;
 		}
 		
+		// execute redis read callback
+		redis_client.executeReadCallback(0);
+		
+		if(restart == false){
+			if (stoi(redis_client.get("gui::is_playing")) == 0){   //check to see if stop button has been pressed
+				startedPlaying = false;
+				restart = true;
+				//set all limbs to go to home state
+				LH_state = HOME;		
+				RH_state = HOME;
+				LF_state = HOME;
+				RF_state = HOME;
+				
+				//set task des pos to initial positions
+				pos_des = lh_init_pos;
+				pos_des_ra = rh_init_pos;
+				
+				//set joint space to initial joint configuration
+				joint_desired = q_init_desired;
+			}
+		}
+
+		if (restart == true){
+			if (stoi(redis_client.get("gui::is_playing")) == 1){  //if start button has been pressed again
+				restart = false;
+
+				/**************START OF GUI FILE-READ******************/
+				// Read BPM and looptime from redis f
+				bpm = std::stod(redis_client.get(BPM_KEY));
+				measureLength = std::stod(redis_client.get(LOOP_TIME_KEY));
+				period = bpm / measureLength; // 2.0 * M_PI
+				//Right hand
+				float rh[4][10];
+				readGUI("right_hand.txt", rh, no_tsteps_rh);	
+				//Store time,x,y,z data
+				for(int ct = 0; ct<no_tsteps_rh;ct++){
+
+					time_data_rh(ct) = rh[0][ct];
+					x_data_rh(ct) = rh[1][ct];
+					y_data_rh(ct) = rh[2][ct];
+					z_data_rh(ct) = rh[3][ct];
+				
+				}
+				
+				//Left hand
+				float lh[4][10];
+				readGUI("left_hand.txt", lh, no_tsteps_lh);
+				//Store time,x,y,z data
+				for(int ct = 0; ct<no_tsteps_lh;ct++){
+
+					time_data_lh(ct) = lh[0][ct];
+					x_data_lh(ct) = lh[1][ct];
+					y_data_lh(ct) = lh[2][ct];
+					z_data_lh(ct) = lh[3][ct];
+
+				}	
+
+				//Right foot
+				float rf[4][10];
+				readGUI("right_foot.txt", rf, no_tsteps_rf);
+				//Store time,x,y,z data
+				for(int ct = 0; ct<no_tsteps_rf;ct++){
+					time_data_rf(ct) = rf[0][ct];
+					x_data_rf(ct) = rf[1][ct];
+					y_data_rf(ct) = rf[2][ct];
+					z_data_rf(ct) = rf[3][ct];
+				} 	
+
+				//Left Foot
+				float lf[4][10];
+				readGUI("left_foot.txt", lf, no_tsteps_lf);	
+				//Store time,x,y,z data
+				for(int ct = 0; ct<no_tsteps_lf;ct++){
+					time_data_lf(ct) = lf[0][ct];
+					x_data_lf(ct) = lf[1][ct];
+					y_data_lf(ct) = lf[2][ct];
+					z_data_lf(ct) = lf[3][ct];
+				}
+
+				start_time = timer.elapsedTime();
+				time = 0;
+				startedPlaying = true;
+				start = 0;
+
+				
+			/*******END OF GUI FILE-READ*********************/
+			}
+		}	
 		
 		// //set desired joint sinusoidal circular motion
 		// if (time >= unified_start_time - time_to_bob - t_bob_buffer && (startedPlaying == true)){
@@ -625,11 +628,11 @@ int main() {
 					break;
 				case FIRST_MOVING:
 					if (time >= unified_start_time + time_data_lf(index_LF) - time_to_stomp - t_stomp_buffer){
-						cout << "!![0]!!" << unified_start_time + time_data_lf(index_LF) - time_to_stomp - t_stomp_buffer << endl;
-						cout << time << endl;
-						cout << unified_start_time << endl;
-						cout << start << endl;
-						cout << restart << endl;
+						// cout << "!![0]!!" << unified_start_time + time_data_lf(index_LF) - time_to_stomp - t_stomp_buffer << endl;
+						// cout << time << endl;
+						// cout << unified_start_time << endl;
+						// cout << start << endl;
+						// cout << restart << endl;
 
 						
 						ang_LF_des = LF_stomp;
@@ -656,6 +659,8 @@ int main() {
 						ang_LF_des = LF_lift;
 						LF_state = WAIT;
 						cout << "TIME AT HIHAT HIT: " << time - start << "\n";
+						cout << time << endl;
+						cout << start << endl;
 						if (index_LF % no_tsteps_lf == 0){
 							index_LF = 0;
 							// Eigen::VectorXd addLLTime = 60 * Eigen::VectorXd::Ones(no_tsteps_lf);
@@ -663,9 +668,9 @@ int main() {
 							time_data_lf = time_data_lf + addLLTime;
 						}
 
-						cout << unified_start_time << endl;
-						cout << start << endl;
-						cout << restart << endl;
+						// cout << unified_start_time << endl;
+						// cout << start << endl;
+						// cout << restart << endl;
 
 						// cout << "LEFT LEG  STATE: " << LF_state << "\n";
 						// data_filelf << "detected" << " ";
