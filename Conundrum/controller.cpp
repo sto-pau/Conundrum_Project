@@ -13,6 +13,7 @@
 #include <string>
 #include <fstream>
 #include <signal.h>
+#include <chrono>
 using namespace std;
 // state machine
 #define HOME				0
@@ -40,6 +41,7 @@ void readGUI(string filename, float s[4][10], int& no_tsteps);
 const string robot_file = "./resources/toro.urdf";	
 
 const std::string DRUM_KEY = "drum::key";
+const std::string SOUNDWAIT_KEY = "soundwait::key";
 
 enum Control
 {
@@ -319,6 +321,8 @@ int main() {
 	bool snareFlag = false;
 	bool tom1Flag = false;
 	bool tom2Flag = false;
+	bool hihatFlag = false;
+	bool bassFlag = false;
 		
 	//Wait for play button to be hit
 	redis_client.set("gui::is_playing","0");
@@ -326,8 +330,8 @@ int main() {
 	
 	/**************START OF GUI FILE-READ******************/
 	// Read BPM and looptime from redis
-	int bpm = std::stoi(redis_client.get(BPM_KEY));
-	int measureLength = std::stod(redis_client.get(LOOP_TIME_KEY));
+	double bpm = std::stoi(redis_client.get(BPM_KEY));
+	double measureLength = std::stod(redis_client.get(LOOP_TIME_KEY));
 
 	//Right hand
 	int no_tsteps_rh; float rh[4][10];
@@ -661,7 +665,7 @@ int main() {
 					break;
 				case STOMP:
 					if (abs(curr_LF_ang - ang_LF_des) < thetaThreshold){
-						redis_client.set(DRUM_KEY, "4");
+						hihatFlag = true;
 						index_LF++;
 						ang_LF_des = LF_lift;
 						LF_state = WAIT;
@@ -716,7 +720,7 @@ int main() {
 					break;
 				case STOMP:
 					if (abs(curr_RF_ang - ang_RF_des) < thetaThreshold){
-						redis_client.set(DRUM_KEY, "5");
+						bassFlag = true;
 						index_RF++;
 						ang_RF_des = RF_lift;
 						RF_state = WAIT;
@@ -740,28 +744,37 @@ int main() {
 			joint_desired[RF_joint] = ang_RF_des; //set desired LL position
 		}
 
-
-		if (time - sound_start >= (sound_unified_start_time + (measureLength / 8.0) * soundIndex + 0.15)) { //added buffer to let all of the instruments get hit if out of synch
+		if (time - sound_start >= ((measureLength / 8.0) * soundIndex + stod(redis_client.get(SOUNDWAIT_KEY))) && startedPlaying == true) { //added buffer to let all of the instruments get hit if out of synch
 			cout << "\nmeasureLength " << measureLength;
-			cout << "\n sound_unified_start_time + (measureLength / 8.0) * soundIndex + 0.15" << sound_unified_start_time + (measureLength / 8) * soundIndex + 0.15;
-			cout << "\time - start " << time - start;
+			cout << "\n sound_unified_start_time + (measureLength / 8.0) * soundIndex + 0.15 " << sound_unified_start_time + (measureLength / 8) * soundIndex + 0.15;
+			cout << "\ntime - start " << time - start;
 			// cout << "\nsnareFlag " << snareFlag; 
 
 			if (snareFlag == true){
 				redis_client.set(DRUM_KEY, "1");
 				snareFlag = false;
-				cout << "SNARE" << "\n";
+				cout << "\nSNARE" << "\n";
+				sleep()
 			}
 			if (tom1Flag == true){
 				redis_client.set(DRUM_KEY, "2");
-				cout << "TOM1" << "\n";
-				tom1Flag = false;
-				
+				cout << "\nTOM1" << "\n";
+				tom1Flag = false;				
 			}
 			if (tom2Flag == true){
 				redis_client.set(DRUM_KEY, "3");
-				cout << "TOM2" << "\n";
+				cout << "\nTOM2" << "\n";
 				tom2Flag = false;
+			}
+			if (hihatFlag == true){
+				redis_client.set(DRUM_KEY, "4");
+				cout << "\nHIHAT" << "\n";
+				hihatFlag = false;
+			}
+			if (bassFlag == true){
+				redis_client.set(DRUM_KEY, "5");
+				cout << "\nBASS" << "\n";
+				bassFlag = false;
 			}
 
 			soundIndex++;
