@@ -24,6 +24,11 @@ tom2 = pygame.mixer.Sound(TOM2_SOUND)
 DRUM_KEY = 'drum::key'
 
 
+BASS_KEY = "drum::bass";
+HIHAT_KEY = "drum::hihat";
+TOM1_KEY = "drum::tom1";
+TOM2_KEY = "drum::tom2";
+SNARE_KEY = "drum::snare";
 
 r = redis.Redis()
 r.set(DRUM_KEY, "0")
@@ -43,6 +48,6 @@ while True:
 		pygame.mixer.Channel(3).play(hihat)
 		r.set(DRUM_KEY, '0')
 	if (val == '5'):
-		pygame.mixer.Channel(3).play(bass)
+		pygame.mixer.Channel(4).play(bass)
 		r.set(DRUM_KEY, '0')
 		

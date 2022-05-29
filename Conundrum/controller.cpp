@@ -41,6 +41,13 @@ const string robot_file = "./resources/toro.urdf";
 
 const std::string DRUM_KEY = "drum::key";
 
+const std::string BASS_KEY = "drum::bass";
+const std::string HIHAT_KEY = "drum::hihat";
+const std::string TOM1_KEY = "drum::tom1";
+const std::string TOM2_KEY = "drum::tom2";
+const std::string SNARE_KEY = "drum::snare";
+
+
 enum Control
 {
 	JOINT_CONTROLLER = 0, 
@@ -175,7 +182,7 @@ int main() {
 	joint_task->_use_interpolation_flag = true;
 
 	VectorXd joint_task_torques = VectorXd::Zero(dof);
-	joint_task->_kp = 200.0;
+	joint_task->_kp = 400.0;
 	joint_task->_kv = 20.0;
 
 	// set desired joint posture to be the initial robot configuration
@@ -207,14 +214,14 @@ int main() {
 	Vector3d tom2 = Vector3d(0.74235, -0.18308, -0.26023);
 
 	//for both arm state machines
-	double t_buffer = 0.05;	
+	double t_buffer = 0.21;	
 	double dz = 0.05;
 	double threshold = 0.0001;
-	double v_hit = 0.5; 
-	double v_travel = 8.0; 
+	double v_hit = 0.5;
+	double v_travel = 0.75; 
 	double time_to_hit = dz/v_hit;
-	posori_task_left_hand->_otg->setMaxLinearAcceleration(8.0);
-	posori_task_right_hand->_otg->setMaxLinearAcceleration(8.0);
+	posori_task_left_hand->_otg->setMaxLinearAcceleration(2 * v_travel);
+	posori_task_right_hand->_otg->setMaxLinearAcceleration(2 * v_travel);
 
 	//_otg->setMaxLinearVelocity(0.3);
 	//_otg->setMaxLinearAcceleration(1.0);
@@ -271,7 +278,7 @@ int main() {
 
 	//for both leg state machines
 	double thetaThreshold = 0.01; //apprx 5.73 deg
-	double t_stomp_buffer = 0.6;
+	double t_stomp_buffer = 0.31;
 	Eigen::VectorXd alpha = M_PI*Eigen::VectorXd::Ones(dof);
 	Eigen::VectorXd joint_jerk = 3*M_PI*Eigen::VectorXd::Ones(dof);
 	w[LF_joint] = 3*M_PI;
@@ -481,7 +488,7 @@ int main() {
 					break;
 				case MOVING_DRUMSTICK:				
 					if (time - start >= time_data_lh(i) - time_to_hit - t_buffer){
-						cout << "\nstarting hit ra " << time - start << "\n";
+						//cout << "\nstarting hit ra " << time - start << "\n";
 						pos_des << x_data_lh(i), y_data_lh(i), z_data_lh(i);   //at vhit
 						// posori_task_left_hand->_linear_saturation_velocity = v_hit; 
 						posori_task_left_hand->_otg->setMaxLinearVelocity(v_hit);
@@ -574,7 +581,7 @@ int main() {
 				case MOVING_DRUMSTICK:
 					
 					if (time - start >= time_data_rh(index_ra)-time_to_hit-t_buffer){
-						cout << "\nstarting hit ra " << time - start << "\n";
+						// cout << "\nstarting hit ra " << time - start << "\n";
 						pos_des_ra << x_data_rh(index_ra), y_data_rh(index_ra), z_data_rh(index_ra);   //at vhit
 						//posori_task_right_hand->_linear_saturation_velocity = v_hit;
 						posori_task_right_hand->_otg->setMaxLinearVelocity(v_hit);
@@ -642,7 +649,7 @@ int main() {
 					break;
 				case WAIT:
 					if (time - start >= time_data_lf(index_LF) - time_to_stomp - t_stomp_buffer){
-						cout << "\nstarting stomp LL " << time - start << "\n";
+						//cout << "\nstarting stomp LL " << time - start << "\n";
 						ang_LF_des = LF_stomp;
 						LF_state = STOMP;
 						// cout << "LEFT LEG  STATE: " << LF_state << "\n";
@@ -659,8 +666,6 @@ int main() {
 						ang_LF_des = LF_lift;
 						LF_state = WAIT;
 						cout << "TIME AT HIHAT HIT: " << time - start << "\n";
-						cout << time << endl;
-						cout << start << endl;
 						if (index_LF % no_tsteps_lf == 0){
 							index_LF = 0;
 							// Eigen::VectorXd addLLTime = 60 * Eigen::VectorXd::Ones(no_tsteps_lf);
@@ -703,7 +708,7 @@ int main() {
 					break;
 				case WAIT:
 					if (time - start >= time_data_rf(index_RF) - time_to_stomp - t_stomp_buffer){
-						cout << "\nstarting stomp LL " << time - start << "\n";
+						// cout << "\nstarting stomp LL " << time - start << "\n";
 						ang_RF_des = RF_stomp;
 						RF_state = STOMP;
 						// cout << "RIGHT LEG  STATE: " << RF_state << "\n";
