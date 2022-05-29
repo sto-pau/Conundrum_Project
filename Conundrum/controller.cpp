@@ -325,11 +325,33 @@ int main() {
 	//Wait for play button to be hit
 	redis_client.set("gui::is_playing","0");
 	
-	
+	double start_time = timer.elapsedTime(); //secs	
+	cout << "START_TIME: " << start_time << "\n";
+	// for timing
+	double unified_start_time = 5.0;
+	bool startedPlaying = false;
+	bool restart = true;
+	double start;
+
+	//Variables for file read
+	int no_tsteps_rh,no_tsteps_lh,no_tsteps_rf,no_tsteps_lf;
+	double period, bpm, measureLength;
+	VectorXd time_data_rh(10), x_data_rh(10), y_data_rh(10), z_data_rh(10);
+	VectorXd time_data_lh(10), x_data_lh(10), y_data_lh(10), z_data_lh(10);
+	VectorXd time_data_rf(10), x_data_rf(10), y_data_rf(10), z_data_rf(10);
+	VectorXd time_data_lf(10), x_data_lf(10), y_data_lf(10), z_data_lf(10);
 
 /***START OF STATE MACHINE***************/
 
 	while (runloop) {	
+
+		// update model
+		robot->updateModel();
+		
+		robot->positionInWorld(curr_pos, left_arm_control_link, left_arm_control_point); //get curr pos left arm
+		robot->positionInWorld(curr_pos_ra, right_arm_control_link, right_arm_control_point); //get curr pos right arm
+		curr_LF_ang = robot->_q[LF_joint]; //get current left foot angle
+		curr_RF_ang = robot->_q[RF_joint]; //get current right foot angle
 		// wait for next scheduled loop
 		timer.waitForNextLoop();
 		double time = timer.elapsedTime() - start_time;
@@ -359,21 +381,15 @@ int main() {
 			cout << "DRUM START AGAIN" << "\n";
 			restart = false;
 
-
-			start_time = time;
-			time = timer.elapsedTime() - start_time;
-			startedPlaying = true;
-
 			/**************START OF GUI FILE-READ******************/
-			// Read BPM and looptime from redis
-			int bpm = std::stoi(redis_client.get(BPM_KEY));
-			int measureLength = std::stoi(redis_client.get(LOOP_TIME_KEY));
-			
+			// Read BPM and looptime from redis f
+			bpm = std::stod(redis_client.get(BPM_KEY));
+			measureLength = std::stod(redis_client.get(LOOP_TIME_KEY));
+			period = bpm / measureLength; // 2.0 * M_PI
 			//Right hand
-			int no_tsteps_rh; float rh[4][10];
+			float rh[4][10];
 			readGUI("right_hand.txt", rh, no_tsteps_rh);	
 			cout << "TIME STEPS RH: " << no_tsteps_rh << "\n"; 
-			VectorXd time_data_rh(no_tsteps_rh), x_data_rh(no_tsteps_rh), y_data_rh(no_tsteps_rh), z_data_rh(no_tsteps_rh);
 			//Store time,x,y,z data
 			for(int ct = 0; ct<no_tsteps_rh;ct++){
 
@@ -386,10 +402,9 @@ int main() {
 			cout << "no_tsteps_rh " << no_tsteps_rh; 
 			
 			//Left hand
-			int no_tsteps_lh; float lh[4][10];
+			float lh[4][10];
 			readGUI("left_hand.txt", lh, no_tsteps_lh);
 			cout << "TIME STEPS LH: " << no_tsteps_lh << "\n"; 	
-			VectorXd time_data_lh(no_tsteps_lh), x_data_lh(no_tsteps_lh), y_data_lh(no_tsteps_lh), z_data_lh(no_tsteps_lh);
 			//Store time,x,y,z data
 			for(int ct = 0; ct<no_tsteps_lh;ct++){
 
@@ -401,10 +416,9 @@ int main() {
 			}	
 
 			//Right foot
-			int no_tsteps_rf; float rf[4][10];
+			float rf[4][10];
 			readGUI("right_foot.txt", rf, no_tsteps_rf);
 			cout << "TIME STEPS RF: " << no_tsteps_rf << "\n"; 	
-			VectorXd time_data_rf(no_tsteps_rf), x_data_rf(no_tsteps_rf), y_data_rf(no_tsteps_rf), z_data_rf(no_tsteps_rf);
 			//Store time,x,y,z data
 			for(int ct = 0; ct<no_tsteps_rf;ct++){
 				time_data_rf(ct) = rf[0][ct];
@@ -414,10 +428,9 @@ int main() {
 			} 	
 
 			//Left Foot
-			int no_tsteps_lf; float lf[4][10];
+			float lf[4][10];
 			readGUI("left_foot.txt", lf, no_tsteps_lf);	
 			cout << "TIME STEPS LF: " << no_tsteps_lf << "\n"; 
-			VectorXd time_data_lf(no_tsteps_lf), x_data_lf(no_tsteps_lf), y_data_lf(no_tsteps_lf), z_data_lf(no_tsteps_lf);
 			//Store time,x,y,z data
 			for(int ct = 0; ct<no_tsteps_lf;ct++){
 				time_data_lf(ct) = lf[0][ct];
@@ -426,13 +439,11 @@ int main() {
 				z_data_lf(ct) = lf[3][ct];
 			}
 
-			double start_time = timer.elapsedTime(); //secs	
-			cout << "START_TIME: " << start_time << "\n";
-			// for timing
-			double unified_start_time = 5.0;
-			bool startedPlaying = true;
-			bool restart = false;
-			double start;
+			start_time = time;
+			time = timer.elapsedTime() - start_time;
+			startedPlaying = true;
+
+			
 		/*******END OF GUI FILE-READ*********************/
 		}
 
@@ -440,23 +451,17 @@ int main() {
 			start = time;
 		}
 
-		// update model
-		robot->updateModel();
 		
-		robot->positionInWorld(curr_pos, left_arm_control_link, left_arm_control_point); //get curr pos left arm
-		robot->positionInWorld(curr_pos_ra, right_arm_control_link, right_arm_control_point); //get curr pos right arm
-		curr_LF_ang = robot->_q[LF_joint]; //get current left foot angle
-		curr_RF_ang = robot->_q[RF_joint]; //get current right foot angle
 
 		//head state
 		// float bpm = 4.0; // has to come from redis - read at beginning of GUI-FILEREAD section
 		// float measureLength = 60; //[seconds] - read at beginning of GUI-FILEREAD section
 		//redis_client.get("gui::bpm").decode('utf-8')// BPMeasure from gui
     	//redis_client.get("gui::looptime").decode('utf-8') // seconds per loop from gui
-		double period = bpm / measureLength; // 2.0 * M_PI
+		
 		//set desired joint sinusoidal circular motion
-		if (time >= unified_start_time - time_to_bob - t_bob_buffer){
-		//cout << "moving to head start";
+		if (time >= unified_start_time - time_to_bob - t_bob_buffer && (startedPlaying == true)){
+			//cout << "moving to head start";
 			switch(Head_state){
 				case START:
 					start_nod_time = time;
@@ -506,7 +511,7 @@ int main() {
 							i = 0;
 							LH_state = MOVING_DRUMSTICK;
 							// Eigen::VectorXd addTime = 60 * Eigen::VectorXd::Ones(no_tsteps_lh); // CHANGED TO BELOW
-							Eigen::VectorXd addTime = measureLength * Eigen::VectorXd::Ones(no_tsteps_lh);
+							Eigen::VectorXd addTime = measureLength * Eigen::VectorXd::Ones(10);
 							time_data_lh = time_data_lh + addTime; //wrap time around by adding the length of one time measure (one song meter)
 
 							//these desired pos assignments HAVE to come after setting i = 0!
@@ -599,7 +604,7 @@ int main() {
 							index_ra = 0;
 							RH_state = MOVING_DRUMSTICK;
 							// Eigen::VectorXd addTime = 60 * Eigen::VectorXd::Ones(no_tsteps_rh);
-							Eigen::VectorXd addTime = measureLength * Eigen::VectorXd::Ones(no_tsteps_rh);
+							Eigen::VectorXd addTime = measureLength * Eigen::VectorXd::Ones(10);
 							time_data_rh = time_data_rh + addTime; //wrap time around by adding the length of one time measure (one song meter)
 
 							//these desired pos assignments HAVE to come after setting i = 0!
@@ -701,7 +706,7 @@ int main() {
 						if (index_LF % no_tsteps_lf == 0){
 							index_LF = 0;
 							// Eigen::VectorXd addLLTime = 60 * Eigen::VectorXd::Ones(no_tsteps_lf);
-							Eigen::VectorXd addLLTime = measureLength * Eigen::VectorXd::Ones(no_tsteps_lf);
+							Eigen::VectorXd addLLTime = measureLength * Eigen::VectorXd::Ones(10);
 							time_data_lf = time_data_lf + addLLTime;
 						}
 
@@ -756,7 +761,7 @@ int main() {
 						if (index_RF % no_tsteps_rf == 0){
 							index_RF = 0;
 							// Eigen::VectorXd addLLTime = 60 * Eigen::VectorXd::Ones(no_tsteps_rf);
-							Eigen::VectorXd addLLTime = measureLength * Eigen::VectorXd::Ones(no_tsteps_rf);
+							Eigen::VectorXd addLLTime = measureLength * Eigen::VectorXd::Ones(10);
 							time_data_rf = time_data_rf + addLLTime;
 						}
 						cout << "RIGHT LEG  STATE: " << RF_state << "\n";
