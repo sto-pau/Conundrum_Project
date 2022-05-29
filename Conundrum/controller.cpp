@@ -210,10 +210,10 @@ int main() {
 
 	//for both arm state machines
 	double t_buffer = 0.1;	
-	double dz = 0.2;
+	double dz = 0.1;
 	double threshold = 0.0001;
 	double v_hit = 0.3; 
-	double v_travel = 0.3; 
+	double v_travel = 2.0; 
 	double time_to_hit = dz/v_hit;
 
 	//_otg->setMaxLinearVelocity(0.3);
