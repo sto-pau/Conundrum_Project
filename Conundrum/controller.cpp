@@ -502,15 +502,15 @@ int main() {
 				case HITTING_DRUM:
 					if (abs(curr_pos.norm()-pos_des.norm()) < threshold){
 						if ((float)pos_des(0) == (float)snare(0)){
-							redis_client.set(DRUM_KEY, "1");
+							redis_client.set(SNARE_KEY, "1");
 							cout << "SNARE" << "\n";
 						}
 						if ((float)pos_des(0) == (float)tom1(0)){
-							redis_client.set(DRUM_KEY, "2");
+							redis_client.set(TOM1_KEY, "1");
 							cout << "TOM1" << "\n";
 						}
 						if ((float)pos_des(0) == (float)tom2(0)){
-							redis_client.set(DRUM_KEY, "3");
+							redis_client.set(TOM2_KEY, "1");
 							cout << "TOM2" << "\n";
 						}
 						cout  << "TIME AT DRUM HIT: " << time - start << "\n";
@@ -595,15 +595,15 @@ int main() {
 				case HITTING_DRUM:
 					if (abs(curr_pos_ra.norm()-pos_des_ra.norm()) < threshold){
 						if ((float)pos_des_ra(0) == (float)snare(0)){
-							redis_client.set(DRUM_KEY, "1");
+							redis_client.set(SNARE_KEY, "1");
 							cout << "SNARE" << "\n";
 						}
 						if ((float)pos_des_ra(0) == (float)tom1(0)){
-							redis_client.set(DRUM_KEY, "2");
+							redis_client.set(TOM1_KEY, "1");
 							cout << "TOM1" << "\n";
 						}
 						if ((float)pos_des_ra(0) == (float)tom2(0)){
-							redis_client.set(DRUM_KEY, "3");
+							redis_client.set(TOM2_KEY, "1");
 							cout << "TOM2" << "\n";
 						}
 						cout  << "TIME AT DRUM HIT: " << time - start << "\n";
@@ -661,7 +661,7 @@ int main() {
 					break;
 				case STOMP:
 					if (abs(curr_LF_ang - ang_LF_des) < thetaThreshold){
-						redis_client.set(DRUM_KEY, "4");
+						redis_client.set(HIHAT_KEY, "1");
 						index_LF++;
 						ang_LF_des = LF_lift;
 						LF_state = WAIT;
@@ -720,7 +720,7 @@ int main() {
 					break;
 				case STOMP:
 					if (abs(curr_RF_ang - ang_RF_des) < thetaThreshold){
-						redis_client.set(DRUM_KEY, "5");
+						redis_client.set(BASS_KEY, "1");
 						index_RF++;
 						ang_RF_des = RF_lift;
 						RF_state = WAIT;

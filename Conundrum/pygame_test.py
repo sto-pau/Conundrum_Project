@@ -34,20 +34,24 @@ r = redis.Redis()
 r.set(DRUM_KEY, "0")
 
 while True:
-	val = r.get(DRUM_KEY).decode('utf-8')	
-	if (val == '1'):
+
+	if (r.get(SNARE_KEY).decode('utf-8') == '1'):
 		pygame.mixer.Channel(0).play(snare)
-		r.set(DRUM_KEY, '0')
-	if (val == '2'):
+		r.set(SNARE_KEY, '0')
+
+	if (r.get(TOM1_KEY).decode('utf-8') == '1'):
 		pygame.mixer.Channel(1).play(tom1)
-		r.set(DRUM_KEY, '0')
-	if (val == '3'):
+		r.set(TOM1_KEY, '0')
+
+	if (r.get(TOM2_KEY).decode('utf-8') == '1'):
 		pygame.mixer.Channel(2).play(tom2)
-		r.set(DRUM_KEY, '0')
-	if (val == '4'):
+		r.set(TOM2_KEY, '0')
+
+	if (r.get(HIHAT_KEY).decode('utf-8') == '1'):
 		pygame.mixer.Channel(3).play(hihat)
-		r.set(DRUM_KEY, '0')
-	if (val == '5'):
+		r.set(HIHAT_KEY, '0')
+
+	if (r.get(BASS_KEY).decode('utf-8') == '1'):
 		pygame.mixer.Channel(4).play(bass)
-		r.set(DRUM_KEY, '0')
+		r.set(BASS_KEY, '0')
 		
