@@ -72,12 +72,6 @@
         </visual>
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0" />
-            <geometry>
-                <sphere radius = "0.15" />
-                <material name="material_ee">
-                    <color rgba="1.0 1.0 1.0 1.0" />
-                </material>
-            </geometry>
         </visual>
     </link>
 

@@ -90,7 +90,7 @@ int main() {
 	sim->setCoeffFrictionStatic(0.0);
 	sim->setCoeffFrictionDynamic(0.0);
 
-	graphics->showLinkFrame(true, robot_name,"",0.2); //visualize frame of end effector
+	//graphics->showLinkFrame(true, robot_name,"",0.2); //visualize frame of end effector
 
 	// read joint positions, velocities, update model
 	sim->getJointPositions(robot_name, robot->_q);
