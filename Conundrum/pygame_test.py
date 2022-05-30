@@ -31,7 +31,11 @@ TOM2_KEY = "drum::tom2";
 SNARE_KEY = "drum::snare";
 
 r = redis.Redis()
-r.set(DRUM_KEY, "0")
+r.set(BASS_KEY, "0")
+r.set(HIHAT_KEY, "0")
+r.set(TOM1_KEY, "0")
+r.set(TOM2_KEY, "0")
+r.set(SNARE_KEY, "0")
 
 while True:
 
