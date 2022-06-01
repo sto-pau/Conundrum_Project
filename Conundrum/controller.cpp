@@ -122,6 +122,8 @@ int main() {
 	// posori_task_right_hand->_desired_orientation = AngleAxisd(M_PI/2, Vector3d::UnitX()).toRotationMatrix() * \
 	// 											AngleAxisd(-M_PI/2, Vector3d::UnitY()).toRotationMatrix() * x_ori; 
 
+	posori_task_right_hand->setDynamicDecouplingFull();
+
 	// pose task for left hand
 	control_link = "la_end_effector";
 	control_point = Vector3d(0, 0, -0.214374); //length is 0.214374
@@ -153,6 +155,8 @@ int main() {
 	// posori_task_right_hand->_desired_orientation = AngleAxisd(M_PI/2, Vector3d::UnitX()).toRotationMatrix() * \
 	// 											AngleAxisd(-M_PI/2, Vector3d::UnitY()).toRotationMatrix() * x_ori; 
 
+	posori_task_left_hand->setDynamicDecouplingFull();
+
 	// pose task for hip_base 
 	control_link = "hip_base";
 	control_point = Vector3d(0, 0, 0);
@@ -170,6 +174,8 @@ int main() {
 	robot->rotationInWorld(x_ori, control_link);
 	posori_task_torso->_desired_position = x_pos;
 	//posori_task_torso->_desired_orientation = x_ori; 
+
+	//posori_task_torso->setDynamicDecouplingFull();
 
 	// joint task
 	auto joint_task = new Sai2Primitives::JointTask(robot);
@@ -214,7 +220,7 @@ int main() {
 	Vector3d tom2 = Vector3d(0.74235, -0.18308, -0.26023);
 
 	//for both arm state machines
-	double t_buffer = 0.21;	
+	double t_buffer = 0.30;	
 	double dz = 0.05;
 	double threshold = 0.0001;
 	double v_hit = 0.5;
@@ -278,7 +284,7 @@ int main() {
 
 	//for both leg state machines
 	double thetaThreshold = 0.01; //apprx 5.73 deg
-	double t_stomp_buffer = 0.31;
+	double t_stomp_buffer = 0.372;
 	Eigen::VectorXd alpha = M_PI*Eigen::VectorXd::Ones(dof);
 	Eigen::VectorXd joint_jerk = 3*M_PI*Eigen::VectorXd::Ones(dof);
 	w[LF_joint] = 3*M_PI;
