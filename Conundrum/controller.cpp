@@ -196,6 +196,11 @@ int main() {
 	VectorXd joint_desired = q_init_desired;
 	joint_task->_desired_position = joint_desired;
 
+	//head joint task
+
+	// set desired joint posture to be the initial robot configuration
+	VectorXd head_joint_desired = q_init_desired;
+
 	// setup redis callback
 	redis_client.createReadCallback(0);
 	redis_client.createWriteCallback(0);
@@ -350,6 +355,7 @@ int main() {
 				RH_state = HOME;
 				LF_state = HOME;
 				RF_state = HOME;
+				Head_state = START;
 				
 				//set task des pos to initial positions
 				pos_des = lh_init_pos;
@@ -357,6 +363,7 @@ int main() {
 				
 				//set joint space to initial joint configuration
 				joint_desired = q_init_desired;
+				head_joint_desired = q_init_desired;
 			}
 		}
 
@@ -427,22 +434,23 @@ int main() {
 			}
 		}	
 		
-		// //set desired joint sinusoidal circular motion
-		// if (time >= unified_start_time - time_to_bob - t_bob_buffer && (startedPlaying == true)){
-		// 	switch(Head_state){
-		// 		case START:
-		// 			start_nod_time = time;
-		// 			nod_time = 0;
-		// 			ang_Head_des = amplitudeBob * sin( start_nod_time * (2 * M_PI * period) * 2 + M_PI);//time * 2 * M_PI * period is 1/2 head nod is one beat
-		// 			joint_desired[Head_joint] = ang_Head_des; //set desired head position
-		// 			Head_state = NODDING;
+		//set desired joint sinusoidal circular motion
+		if (time >= unified_start_time - time_to_bob - t_bob_buffer && (startedPlaying == true)){
+			switch(Head_state){
+				case START:
+					start_nod_time = timer.elapsedTime();
+					nod_time = 0;
+					//ang_Head_des = 0 * M_PI / 180;
+					ang_Head_des = q_init_desired[Head_joint] + amplitudeBob * sin( start_nod_time * (2 * M_PI * period) * 2 + M_PI);//time * 2 * M_PI * period is 1/2 head nod is one beat
+					head_joint_desired[Head_joint] = ang_Head_des; //set desired head position
+					Head_state = NODDING;
 
-		// 		case NODDING:
-		// 			nod_time = start_nod_time - time;
-		// 			ang_Head_des = amplitudeBob * sin( nod_time * (2 * M_PI * period) * 2 + M_PI);//time * 2 * M_PI * period is 1/2 head nod is one beat
-		// 			joint_desired[Head_joint] = ang_Head_des; //set desired head position
-		// 	}
-		// }		
+				case NODDING:
+					nod_time = start_nod_time - timer.elapsedTime();
+					ang_Head_des = amplitudeBob * sin( nod_time * (2 * M_PI * period) * 2 + M_PI);//time * 2 * M_PI * period is 1/2 head nod is one beat
+					head_joint_desired[Head_joint] = ang_Head_des; //set desired head position
+			}
+		}		
 		
 		if (no_tsteps_lh != 0){
 			switch(LH_state){
@@ -605,7 +613,7 @@ int main() {
 							cout << "SNARE" << "\n";
 						}
 						if ((float)pos_des_ra(0) == (float)tom1(0)){
-							redis_client.set(TOM1_KEY, "1");
+							redis_client.set(TOM1_KEY, "1" );
 							cout << "TOM1" << "\n";
 						}
 						if ((float)pos_des_ra(0) == (float)tom2(0)){
@@ -750,8 +758,6 @@ int main() {
 			joint_desired[RF_joint] = ang_RF_des; //set desired LL position
 		}
 
-		joint_task->_desired_position = joint_desired;
-		
 		// calculate torques to maintain hip_base posture
 		N_prec.setIdentity();		
 		posori_task_torso->updateTaskModel(N_prec);
@@ -769,11 +775,50 @@ int main() {
 
 		// calculate torques to maintain joint posture
 		N_prec = posori_task_left_hand->_N;
-		joint_task->updateTaskModel(N_prec);
+
+		double kpj = 400;
+		double kvj = 20;
+
+		VectorXd feet_task_torques = VectorXd::Zero(2);
+		VectorXd full_feet_task_torques = VectorXd::Zero(dof);
+
+		MatrixXd J_feet = MatrixXd::Zero(2, dof);
+		J_feet(0,LF_joint) = 1;
+		J_feet(1,RF_joint) = 1;
+		
+		full_feet_task_torques = robot->_M * (-kpj * (robot->_q - joint_desired) - kvj * (robot->_dq));
+		feet_task_torques(0) = full_feet_task_torques(LF_joint);
+		feet_task_torques(1) = full_feet_task_torques(RF_joint);
+
+		feet_task_torques = N_prec.transpose() * J_feet.transpose() * feet_task_torques;
+
+		MatrixXd N_feet = MatrixXd::Identity(dof, dof);
+		robot->nullspaceMatrix(N_feet, J_feet, N_prec);
+
+		//////////////////////////////////////////////////
+
+		VectorXd head_task_torques = VectorXd::Zero(1);
+		VectorXd full_head_task_torques = VectorXd::Zero(dof);
+
+		MatrixXd J_head = MatrixXd::Zero(1 , dof);
+		J_head(0 , Head_joint) = 1;
+		
+		full_head_task_torques = robot->_M * (-kpj * (robot->_q - head_joint_desired) - kvj * (robot->_dq));
+		head_task_torques(0) = full_head_task_torques(Head_joint);
+
+		head_task_torques = N_feet.transpose() * J_head.transpose() * head_task_torques;
+
+		MatrixXd N_head = MatrixXd::Identity(dof, dof);
+		robot->nullspaceMatrix(N_head, J_head, N_feet);	
+
+		joint_task->_desired_position = q_init_desired;
+		joint_task->updateTaskModel(N_head);
 		joint_task->computeTorques(joint_task_torques);
 
+		/////////////////////////////////////////////////////////
+
 		// calculate torques 
-		command_torques = posori_task_torques_right_hand + posori_task_torques_left_hand + posori_task_torques_torso + joint_task_torques;//posori_task_torques_torso + joint_task_torques;  // gravity compensation handled in sim
+		command_torques = posori_task_torques_right_hand + posori_task_torques_left_hand + posori_task_torques_torso + feet_task_torques + head_task_torques + joint_task_torques;// + head_joint_task_torques;//posori_task_torques_torso + joint_task_torques;  // gravity compensation handled in sim
 
 		// execute redis write callback
 		redis_client.executeWriteCallback(0);	
