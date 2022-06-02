@@ -289,7 +289,8 @@ int main() {
 
 	//for both leg state machines
 	double thetaThreshold = 0.01; //apprx 5.73 deg
-	double t_stomp_buffer = 0.372;
+	double t_stomp_buffer = 0.128; //bass
+	double t_stomp_buffer_bass = 0.163; //hihat
 	Eigen::VectorXd alpha = M_PI*Eigen::VectorXd::Ones(dof);
 	Eigen::VectorXd joint_jerk = 3*M_PI*Eigen::VectorXd::Ones(dof);
 	w[LF_joint] = 3*M_PI;
@@ -375,7 +376,7 @@ int main() {
 				// Read BPM and looptime from redis f
 				bpm = std::stod(redis_client.get(BPM_KEY));
 				measureLength = std::stod(redis_client.get(LOOP_TIME_KEY));
-				period = bpm / measureLength; // 2.0 * M_PI
+				period = measureLength / 8; // 2.0 * M_PI
 				//Right hand
 				float rh[4][10];
 				readGUI("right_hand.txt", rh, no_tsteps_rh);	
@@ -441,13 +442,13 @@ int main() {
 					start_nod_time = timer.elapsedTime();
 					nod_time = 0;
 					//ang_Head_des = 0 * M_PI / 180;
-					ang_Head_des = q_init_desired[Head_joint] + amplitudeBob * sin( start_nod_time * (2 * M_PI * period) * 2 + M_PI);//time * 2 * M_PI * period is 1/2 head nod is one beat
+					ang_Head_des = 0;//time * 2 * M_PI * period is 1/2 head nod is one beat
 					head_joint_desired[Head_joint] = ang_Head_des; //set desired head position
 					Head_state = NODDING;
 
 				case NODDING:
-					nod_time = start_nod_time - timer.elapsedTime();
-					ang_Head_des = amplitudeBob * sin( nod_time * (2 * M_PI * period) * 2 + M_PI);//time * 2 * M_PI * period is 1/2 head nod is one beat
+					nod_time = timer.elapsedTime() - start_nod_time;
+					ang_Head_des = amplitudeBob * cos( nod_time * (2 * M_PI / period) + M_PI);//time * 2 * M_PI * period is 1/2 head nod is one beat
 					head_joint_desired[Head_joint] = ang_Head_des; //set desired head position
 			}
 		}		
@@ -648,7 +649,7 @@ int main() {
 					}
 					break;
 				case FIRST_MOVING:
-					if (time >= unified_start_time + time_data_lf(index_LF) - time_to_stomp - t_stomp_buffer){
+					if (time >= unified_start_time + time_data_lf(index_LF) - time_to_stomp - t_stomp_buffer_bass){
 						// cout << "!![0]!!" << unified_start_time + time_data_lf(index_LF) - time_to_stomp - t_stomp_buffer << endl;
 						// cout << time << endl;
 						// cout << unified_start_time << endl;
@@ -662,7 +663,7 @@ int main() {
 					}
 					break;
 				case WAIT:
-					if (time - start >= time_data_lf(index_LF) - time_to_stomp - t_stomp_buffer){
+					if (time - start >= time_data_lf(index_LF) - time_to_stomp - t_stomp_buffer_bass){
 						//cout << "\nstarting stomp LL " << time - start << "\n";
 						ang_LF_des = LF_stomp;
 						LF_state = STOMP;
